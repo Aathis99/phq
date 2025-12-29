@@ -1,4 +1,5 @@
 <?php
+session_start();
 require_once dirname(__DIR__) . '/app/core/Database.php';
 // require_once 'navbar.php';
 
@@ -27,6 +28,39 @@ try {
         ['sex_id' => 2, 'sex_name' => 'หญิง'],
         ['sex_id' => 3, 'sex_name' => 'เพศทางเลือก']
     ];
+}
+
+/* 4. ดึงข้อมูลผู้บันทึก */
+$recorder_name = '';
+if (isset($_SESSION['username'])) {
+    $username = $_SESSION['username'];
+    $sql_recorder = "SELECT m.fname, m.lname, p.prefix_name 
+                     FROM member m 
+                     LEFT JOIN prefix p ON m.prefix_id = p.prefix_id 
+                     WHERE m.username = :username";
+    $stmt_recorder = $db->prepare($sql_recorder);
+    $stmt_recorder->execute([':username' => $username]);
+    $recorder = $stmt_recorder->fetch(PDO::FETCH_ASSOC);
+
+    /* --- ส่วนสำหรับ Debug (ถ้าแก้เสร็จแล้วให้ลบออก) --- */
+    echo "Username from Session: " . $username . "<br>";
+    echo "Data found: ";
+    print_r($recorder);
+    /* ------------------------------------------- */
+
+    if ($recorder) {
+        $recorder_name = $recorder['prefix_name'] . $recorder['fname'] . ' ' . $recorder['lname'];
+    }
+}
+
+/* 5. ดึงข้อมูลนักเรียน (ถ้ามี PID) */
+$student = [];
+if (isset($_GET['pid'])) {
+    $pid = $_GET['pid'];
+    $sql_student = "SELECT * FROM student_data WHERE pid = :pid";
+    $stmt_student = $db->prepare($sql_student);
+    $stmt_student->execute([':pid' => $pid]);
+    $student = $stmt_student->fetch(PDO::FETCH_ASSOC);
 }
 ?>
 <!DOCTYPE html>
@@ -86,7 +120,7 @@ try {
                     <select name="prefix_id" class="form-select" required>
                         <option value="" disabled selected>เลือก</option>
                         <?php foreach ($prefixes as $prefix): ?>
-                            <option value="<?= $prefix['prefix_id'] ?>">
+                            <option value="<?= $prefix['prefix_id'] ?>" <?= (isset($student['prefix_id']) && $student['prefix_id'] == $prefix['prefix_id']) ? 'selected' : '' ?>>
                                 <?= htmlspecialchars($prefix['prefix_name']) ?>
                             </option>
                         <?php endforeach; ?>
@@ -94,11 +128,11 @@ try {
                 </div>
                 <div class="col-md-5">
                     <label class="form-label">ชื่อ</label>
-                    <input type="text" name="firstname" class="form-control" required>
+                    <input type="text" name="firstname" class="form-control" value="<?= isset($student['fname']) ? htmlspecialchars($student['fname']) : '' ?>" required>
                 </div>
                 <div class="col-md-5">
                     <label class="form-label">นามสกุล</label>
-                    <input type="text" name="lastname" class="form-control" required>
+                    <input type="text" name="lastname" class="form-control" value="<?= isset($student['lname']) ? htmlspecialchars($student['lname']) : '' ?>" required>
                 </div>
             </div>
 
@@ -108,7 +142,7 @@ try {
                     <select name="sex_id" class="form-select" required>
                         <option value="" disabled selected>-- เลือกเพศ --</option>
                         <?php foreach ($sexes as $sex): ?>
-                            <option value="<?= $sex['sex_id'] ?>">
+                            <option value="<?= $sex['sex_id'] ?>" <?= (isset($student['sex']) && $student['sex'] == $sex['sex_id']) ? 'selected' : '' ?>>
                                 <?= htmlspecialchars($sex['sex_name']) ?>
                             </option>
                         <?php endforeach; ?>
@@ -119,7 +153,7 @@ try {
                     <select name="age" class="form-select" required>
                         <option value="" disabled selected>-- เลือกอายุ --</option>
                         <?php for ($i = 12; $i <= 20; $i++): ?>
-                            <option value="<?= $i ?>"><?= $i ?></option>
+                            <option value="<?= $i ?>" <?= (isset($student['age']) && $student['age'] == $i) ? 'selected' : '' ?>><?= $i ?></option>
                         <?php endfor; ?>
                     </select>
                 </div>
@@ -128,7 +162,7 @@ try {
                     <select name="education_level" class="form-select" required>
                         <option value="" disabled selected>-- เลือกระดับชั้น --</option>
                         <?php for ($i = 1; $i <= 6; $i++): ?>
-                            <option value="ม.<?= $i ?>">ม.<?= $i ?></option>
+                            <option value="ม.<?= $i ?>" <?= (isset($student['class']) && $student['class'] == $i) ? 'selected' : '' ?>>ม.<?= $i ?></option>
                         <?php endfor; ?>
                     </select>
                 </div>
@@ -140,7 +174,7 @@ try {
                     <select name="school_id" class="form-select" required>
                         <option value="" disabled selected>-- เลือกโรงเรียน --</option>
                         <?php foreach ($schools as $school): ?>
-                            <option value="<?= $school['school_id'] ?>">
+                            <option value="<?= $school['school_id'] ?>" <?= (isset($student['school_id']) && $student['school_id'] == $school['school_id']) ? 'selected' : '' ?>>
                                 <?= htmlspecialchars($school['school_name']) ?>
                             </option>
                         <?php endforeach; ?>
@@ -178,7 +212,7 @@ try {
             <div class="row mb-4">
                 <div class="col-md-6">
                     <label class="form-label">ผู้บันทึก</label>
-                    <input type="text" name="recorder_name" class="form-control" required>
+                    <input type="text" name="recorder_name" class="form-control" value="<?= htmlspecialchars($recorder_name) ?>" readonly required>
                 </div>
                 <div class="col-md-6">
                     <label class="form-label">วันที่บันทึก (อัตโนมัติ)</label>

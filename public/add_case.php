@@ -1,29 +1,70 @@
 <?php
+// 1. เริ่ม Session เป็นอันดับแรกเสมอ
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
+}
+
+// 2. เชื่อมต่อฐานข้อมูล
 require_once dirname(__DIR__) . '/app/core/Database.php';
-$pid = $_GET['pid'] ?? '';
 $db = Database::connect();
+
+// 3. รับค่า PID จาก URL (ใช้สำหรับดึงข้อมูลนักเรียน)
+$pid = $_GET['pid'] ?? '';
+
+// --- ส่วนดึงข้อมูล Master Data (สำหรับ Dropdown) ---
+// (ต้องเปิดใช้งานส่วนนี้ เพื่อให้ Dropdown มีข้อมูล)
 $sql = "SELECT school_id, school_name FROM school ORDER BY school_id";
 $stmt = $db->query($sql);
-$schools = $stmt->fetchAll();
+$schools = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-/* ดึงคำนำหน้า */
 $sql_prefix = "SELECT prefix_id, prefix_name FROM prefix ORDER BY prefix_id";
 $stmt_prefix = $db->query($sql_prefix);
-$prefixes = $stmt_prefix->fetchAll();
+$prefixes = $stmt_prefix->fetchAll(PDO::FETCH_ASSOC);
 
-/* ดึงข้อมูลเพศ */
 $sql_sex = "SELECT sex_id, sex_name FROM sex ORDER BY sex_id";
 $stmt_sex = $db->query($sql_sex);
-$sexes = $stmt_sex->fetchAll();
+$sexes = $stmt_sex->fetchAll(PDO::FETCH_ASSOC);
 
-/* ดึงข้อมูลนักเรียนจาก pid */
+// --- ส่วนดึงข้อมูลนักเรียน (Student Data) ---
+// (ต้องเปิดใช้งาน เพื่อให้ช่องข้อมูลนักเรียนเติมให้อัตโนมัติ)
 $student = [];
 if (!empty($pid)) {
     $stmt_std = $db->prepare("SELECT * FROM student_data WHERE pid = :pid");
     $stmt_std->execute([':pid' => $pid]);
-    $student = $stmt_std->fetch(PDO::FETCH_ASSOC);
+    $result = $stmt_std->fetch(PDO::FETCH_ASSOC);
+    if ($result) {
+        $student = $result;
+    }
+}
+
+// --- ส่วนดึงชื่อผู้บันทึก (Recorder Data) ---
+$recorder_name = ""; // ค่าเริ่มต้น
+
+if (isset($_SESSION['username'])) {
+    $current_user = $_SESSION['username'];
+
+    // Query ดึงชื่อจาก member + prefix
+    $sql_recorder = "SELECT p.prefix_name, m.fname, m.lname 
+                     FROM member m 
+                     INNER JOIN prefix p ON m.prefix_id = p.prefix_id 
+                     WHERE m.username = :username";
+
+    $stmt_recorder = $db->prepare($sql_recorder);
+    $stmt_recorder->execute([':username' => $current_user]);
+    $result_recorder = $stmt_recorder->fetch(PDO::FETCH_ASSOC);
+
+    if ($result_recorder) {
+        $recorder_name = $result_recorder['prefix_name'] . $result_recorder['fname'] . ' ' . $result_recorder['lname'];
+    }
+} else {
+    // (Optional) กรณีไม่ได้ Login อาจจะระบุค่า Default หรือปล่อยว่างไว้
+    // $recorder_name = "Guest"; 
 }
 ?>
+
+
+
+
 <!DOCTYPE html>
 <html lang="th">
 
@@ -39,7 +80,8 @@ if (!empty($pid)) {
             position: fixed;
             top: 20px;
             left: 20px;
-            z-index: 1030; /* เพื่อให้ปุ่มแสดงอยู่เหนือองค์ประกอบอื่น */
+            z-index: 1030;
+            /* เพื่อให้ปุ่มแสดงอยู่เหนือองค์ประกอบอื่น */
         }
     </style>
 </head>
@@ -242,8 +284,8 @@ if (!empty($pid)) {
             <section class="footer-info">
                 <div class="form-row">
                     <div class="form-col">
-                        <label for="recorder">ผู้บันทึก</label>
-                        <input type="text" id="recorder" name="recorder" />
+                        <label for="recorder">ผู้บันทึกข้อมูล</label>
+                        <input type="text" id="recorder" name="recorder" value="<?php echo htmlspecialchars($recorder_name); ?>" readonly />
                     </div>
                     <div class="form-col">
                         <label for="record_date">วันที่บันทึก (แก้ไขไม่ได้)</label>
