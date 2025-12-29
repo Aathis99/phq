@@ -1,66 +1,49 @@
 <?php
-session_start();
-require_once dirname(__DIR__) . '/app/core/Database.php';
-// require_once 'navbar.php';
-
-$db = Database::connect();
-
-/* 1. ดึงรายชื่อโรงเรียน */
-$sql_school = "SELECT school_id, school_name FROM school ORDER BY school_id";
-$stmt_school = $db->query($sql_school);
-$schools = $stmt_school->fetchAll();
-
-/* 2. ดึงคำนำหน้า */
-$sql_prefix = "SELECT prefix_id, prefix_name FROM prefix ORDER BY prefix_id";
-$stmt_prefix = $db->query($sql_prefix);
-$prefixes = $stmt_prefix->fetchAll();
-
-/* 3. ดึงเพศ (Loop จากตาราง sex ตามโจทย์) */
-$sexes = [];
-try {
-    $sql_sex = "SELECT sex_id, sex_name FROM sex ORDER BY sex_id";
-    $stmt_sex = $db->query($sql_sex);
-    $sexes = $stmt_sex->fetchAll();
-} catch (Exception $e) {
-    // Fallback กรณีไม่มีตาราง sex หรือเกิดข้อผิดพลาด
-    $sexes = [
-        ['sex_id' => 1, 'sex_name' => 'ชาย'],
-        ['sex_id' => 2, 'sex_name' => 'หญิง'],
-        ['sex_id' => 3, 'sex_name' => 'เพศทางเลือก']
-    ];
+// 1. เริ่ม Session
+if (session_status() == PHP_SESSION_NONE) {
+    session_start();
 }
 
-/* 4. ดึงข้อมูลผู้บันทึก */
-$recorder_name = '';
-if (isset($_SESSION['username'])) {
-    $username = $_SESSION['username'];
-    $sql_recorder = "SELECT m.fname, m.lname, p.prefix_name 
-                     FROM member m 
-                     LEFT JOIN prefix p ON m.prefix_id = p.prefix_id 
-                     WHERE m.username = :username";
-    $stmt_recorder = $db->prepare($sql_recorder);
-    $stmt_recorder->execute([':username' => $username]);
-    $recorder = $stmt_recorder->fetch(PDO::FETCH_ASSOC);
+require_once dirname(__DIR__) . '/app/core/Database.php';
+$db = Database::connect();
 
-    /* --- ส่วนสำหรับ Debug (ถ้าแก้เสร็จแล้วให้ลบออก) --- */
-    echo "Username from Session: " . $username . "<br>";
-    echo "Data found: ";
-    print_r($recorder);
-    /* ------------------------------------------- */
+// --- 2. รับค่า PID จาก URL (ส่วนที่เพิ่มเข้ามา) ---
+$pid = $_GET['pid'] ?? '';
 
-    if ($recorder) {
-        $recorder_name = $recorder['prefix_name'] . $recorder['fname'] . ' ' . $recorder['lname'];
+// --- Master Data ---
+$schools = $db->query("SELECT school_id, school_name FROM school ORDER BY school_id")->fetchAll();
+$prefixes = $db->query("SELECT prefix_id, prefix_name FROM prefix ORDER BY prefix_id")->fetchAll();
+$sexes = $db->query("SELECT sex_id, sex_name FROM sex ORDER BY sex_id")->fetchAll();
+
+// --- 3. ดึงข้อมูลนักเรียน (ส่วนที่เพิ่มเข้ามา) ---
+$student = [];
+if (!empty($pid)) {
+    // ดึงข้อมูลนักเรียนตาม PID ที่ส่งมา
+    $stmt_std = $db->prepare("SELECT * FROM student_data WHERE pid = :pid");
+    $stmt_std->execute([':pid' => $pid]);
+    $result_std = $stmt_std->fetch(PDO::FETCH_ASSOC);
+    if ($result_std) {
+        $student = $result_std;
     }
 }
 
-/* 5. ดึงข้อมูลนักเรียน (ถ้ามี PID) */
-$student = [];
-if (isset($_GET['pid'])) {
-    $pid = $_GET['pid'];
-    $sql_student = "SELECT * FROM student_data WHERE pid = :pid";
-    $stmt_student = $db->prepare($sql_student);
-    $stmt_student->execute([':pid' => $pid]);
-    $student = $stmt_student->fetch(PDO::FETCH_ASSOC);
+// --- 4. ดึงชื่อผู้บันทึก ---
+$recorder_name = "";
+if (isset($_SESSION['user']['username'])) {
+    $current_user = $_SESSION['user']['username'];
+
+    $sql_recorder = "SELECT p.prefix_name, m.fname, m.lname 
+                     FROM member m 
+                     INNER JOIN prefix p ON m.prefix_id = p.prefix_id 
+                     WHERE m.username = :username";
+
+    $stmt = $db->prepare($sql_recorder);
+    $stmt->execute([':username' => $current_user]);
+    $res = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if ($res) {
+        $recorder_name = $res['prefix_name'] . $res['fname'] . ' ' . $res['lname'];
+    }
 }
 ?>
 <!DOCTYPE html>
@@ -71,24 +54,20 @@ if (isset($_GET['pid'])) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>แบบรายงานการยุติให้การดูแลช่วยเหลือรายกรณี</title>
 
-    <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 
-    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700&display=swap" rel="stylesheet">
-    <!-- Custom CSS -->
     <link href="css/closure_report.css" rel="stylesheet">
 </head>
 
 <body>
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <a href="main.php" class="btn btn-danger">← กลับหน้าหลัก</a>
+        <a href="phq_history.php?pid=<?= htmlspecialchars($pid) ?>" class="btn btn-danger">← ย้อนกลับ</a>
     </div>
     <div class="container container-form">
         <h2>แบบรายงานการยุติให้การดูแลช่วยเหลือรายกรณี</h2>
 
         <form action="" method="post">
-            <!-- ส่วนที่ 1: ข้อมูลทั่วไป -->
             <div class="form-section-header">ข้อมูลทั่วไป</div>
 
             <div class="row mb-3">
@@ -186,7 +165,6 @@ if (isset($_GET['pid'])) {
                 </div>
             </div>
 
-            <!-- ส่วนที่ 2: รายละเอียดการติดตาม -->
             <div class="form-section-header">รายละเอียดการติดตาม พฤติกรรม/อาการ</div>
 
             <div class="mb-3">
@@ -207,12 +185,16 @@ if (isset($_GET['pid'])) {
                 <textarea name="suggestion" class="form-control" rows="4" placeholder="ระบุข้อเสนอแนะ..."></textarea>
             </div>
 
-            <!-- ส่วนที่ 3: ผู้บันทึก -->
             <div class="form-section-header">การบันทึกข้อมูล</div>
             <div class="row mb-4">
                 <div class="col-md-6">
                     <label class="form-label">ผู้บันทึก</label>
-                    <input type="text" name="recorder_name" class="form-control" value="<?= htmlspecialchars($recorder_name) ?>" readonly required>
+                    <input type="text"
+                        name="recorder_name"
+                        class="form-control"
+                        value="<?= htmlspecialchars($recorder_name) ?>"
+                        readonly
+                        required>
                 </div>
                 <div class="col-md-6">
                     <label class="form-label">วันที่บันทึก (อัตโนมัติ)</label>

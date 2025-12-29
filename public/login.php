@@ -30,7 +30,7 @@ if (isset($_SESSION['user'])) {
                         <form method="post" action="login_process.php">
                             <div class="mb-3">
                                 <label class="form-label">Username</label>
-                                <input type="text" name="username" class="form-control" value="admin" required>
+                                <input type="text" name="username" class="form-control" value="admin1" required>
                             </div>
 
                             <div class="mb-3">
