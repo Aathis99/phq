@@ -112,11 +112,8 @@ function getScoreMeaning($score)
             <div class="card-header bg-white d-flex justify-content-between align-items-center">
                 <h5 class="mb-0">รายการประเมินย้อนหลัง (<?= count($history) ?> ครั้ง)</h5>
                 <div class="d-flex gap-2">
-                    <a href="add_case.php?pid=<?= htmlspecialchars($pid) ?>" class="btn btn-success btn-sm">
-                        ➕ รายงานการช่วยเหลือรายกรณี
-                    </a>
-                    <a href="closure_report.php?pid=<?= htmlspecialchars($pid) ?>" class="btn btn-danger btn-sm">
-                        ➕ รายงานการยุติให้การดูแล
+                    <a href="add_case_history.php?pid=<?= htmlspecialchars($pid) ?>" class="btn btn-warning btn-sm mb-2">
+                        ➕ ดูรายงานการช่วยเหลือรายกรณี
                     </a>
                 </div>
             </div>

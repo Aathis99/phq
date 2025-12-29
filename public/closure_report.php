@@ -62,7 +62,7 @@ if (isset($_SESSION['user']['username'])) {
 
 <body>
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <a href="phq_history.php?pid=<?= htmlspecialchars($pid) ?>" class="btn btn-danger">← ย้อนกลับ</a>
+        <a href="add_case_history.php?pid=<?= htmlspecialchars($pid) ?>" class="btn btn-danger">← ย้อนกลับ</a>
     </div>
     <div class="container container-form">
         <h2>แบบรายงานการยุติให้การดูแลช่วยเหลือรายกรณี</h2>

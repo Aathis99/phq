@@ -9,6 +9,19 @@ $db = Database::connect();
 
 $pid = $_GET['pid'] ?? '';
 
+// --- ส่วนดึงข้อมูลเคสเดิม (ถ้ามี) ---
+$follow_case_id = $_GET['follow_case_id'] ?? '';
+$case_to_follow = [];
+if (!empty($follow_case_id) && !empty($pid)) {
+    // ดึงข้อมูลเคสที่ต้องการติดตามผล
+    $stmt_follow = $db->prepare("SELECT * FROM add_caselog WHERE id = :id AND pid = :pid");
+    $stmt_follow->execute([':id' => $follow_case_id, ':pid' => $pid]);
+    $case_to_follow = $stmt_follow->fetch(PDO::FETCH_ASSOC);
+    if (!$case_to_follow) {
+        $case_to_follow = []; // Reset ถ้าไม่พบข้อมูลหรือ pid ไม่ตรงกัน
+    }
+}
+
 // --- ส่วนดึงข้อมูล Master Data ---
 $schools = $db->query("SELECT school_id, school_name FROM school ORDER BY school_id")->fetchAll();
 $prefixes = $db->query("SELECT prefix_id, prefix_name FROM prefix ORDER BY prefix_id")->fetchAll();
@@ -20,6 +33,20 @@ if (!empty($pid)) {
     $stmt_std = $db->prepare("SELECT * FROM student_data WHERE pid = :pid");
     $stmt_std->execute([':pid' => $pid]);
     $student = $stmt_std->fetch(PDO::FETCH_ASSOC);
+}
+
+// --- ส่วนคำนวณครั้งที่ (Case Number) ---
+$case_number = 1; // ค่าเริ่มต้นคือ 1
+if (!empty($pid)) {
+    // ใช้ try-catch เผื่อกรณีที่ตาราง add_caselog ยังไม่มี
+    try {
+        $stmt_count = $db->prepare("SELECT COUNT(id) FROM add_caselog WHERE pid = :pid");
+        $stmt_count->execute([':pid' => $pid]);
+        $case_number = $stmt_count->fetchColumn() + 1;
+    } catch (PDOException $e) {
+        // ถ้าตารางไม่มี หรือมีข้อผิดพลาดอื่น ให้ใช้ค่าเริ่มต้น 1
+        $case_number = 1;
+    }
 }
 
 // --- ส่วนดึงชื่อผู้บันทึก (จาก Member) ---
@@ -69,31 +96,31 @@ if (isset($_SESSION['user']['username'])) {
 <!-- form2.css -->
 
 <body>
-    <a href="phq_history.php?pid=<?= htmlspecialchars($pid) ?>" class="btn btn-danger sticky-back-btn">← ย้อนกลับ</a>
+    <a href="add_case_history.php?pid=<?= htmlspecialchars($pid) ?>" class="btn btn-danger sticky-back-btn">← ย้อนกลับ</a>
     <div class="container">
         <div class="d-flex justify-content-between align-items-center mt-3 mb-3">
             <h1>แบบฟอร์มรายงานการช่วยเหลือรายกรณี</h1>
         </div>
 
 
-        <form>
+        <form action="save_case.php" method="POST">
             <!-- Case Info -->
             <section class="case-info">
                 <div class="form-row">
                     <div class="form-col">
                         <label for="case_type">กรณี</label>
-                        <select id="case_type" name="case_type">
+                        <select id="case_type" name="case_type" required>
                             <option value="">-- เลือกกรณี --</option>
-                            <option value="ซึมเศร้า">ซึมเศร้า</option>
-                            <option value="เครียด">เครียด</option>
-                            <option value="วิตกกังวล">วิตกกังวล</option>
-                            <option value="ปัญหาครอบครัว">ปัญหาครอบครัว</option>
-                            <option value="อื่นๆ">อื่นๆ</option>
+                            <option value="ซึมเศร้า" <?= (isset($case_to_follow['case_type']) && $case_to_follow['case_type'] == 'ซึมเศร้า') ? 'selected' : '' ?>>ซึมเศร้า</option>
+                            <option value="เครียด" <?= (isset($case_to_follow['case_type']) && $case_to_follow['case_type'] == 'เครียด') ? 'selected' : '' ?>>เครียด</option>
+                            <option value="วิตกกังวล" <?= (isset($case_to_follow['case_type']) && $case_to_follow['case_type'] == 'วิตกกังวล') ? 'selected' : '' ?>>วิตกกังวล</option>
+                            <option value="ปัญหาครอบครัว" <?= (isset($case_to_follow['case_type']) && $case_to_follow['case_type'] == 'ปัญหาครอบครัว') ? 'selected' : '' ?>>ปัญหาครอบครัว</option>
+                            <option value="อื่นๆ" <?= (isset($case_to_follow['case_type']) && $case_to_follow['case_type'] == 'อื่นๆ') ? 'selected' : '' ?>>อื่นๆ</option>
                         </select>
                     </div>
                     <div class="form-col">
                         <label for="case_id">ครั้งที่ (รันอัตโนมัติ)</label>
-                        <input type="text" id="case_id" name="case_id" readonly />
+                        <input type="text" id="case_id" name="case_id" value="<?= $case_number ?>" readonly />
                     </div>
                     <div class="form-col">
                         <label for="report_date">วัน/เดือน/ปี</label>
@@ -198,39 +225,39 @@ if (isset($_SESSION['user']['username'])) {
                     <textarea
                         id="presenting_symptoms"
                         name="presenting_symptoms"
-                        placeholder="ระบุอาการเบื้องต้น..."></textarea>
+                        placeholder="ระบุอาการเบื้องต้น..."><?= htmlspecialchars($case_to_follow['presenting_symptoms'] ?? '') ?></textarea>
                 </div>
 
                 <h3>ลักษณะทั่วไป</h3>
                 <div class="form-group">
                     <label for="history_personal">ประวัติส่วนตัว</label>
-                    <textarea id="history_personal" name="history_personal"></textarea>
+                    <textarea id="history_personal" name="history_personal"><?= htmlspecialchars($case_to_follow['history_personal'] ?? '') ?></textarea>
                 </div>
                 <div class="form-group">
                     <label for="history_family">ข้อมูลจากครอบครัว</label>
-                    <textarea id="history_family" name="history_family"></textarea>
+                    <textarea id="history_family" name="history_family"><?= htmlspecialchars($case_to_follow['history_family'] ?? '') ?></textarea>
                 </div>
                 <div class="form-group">
                     <label for="history_school">ข้อมูลจากโรงเรียน</label>
-                    <textarea id="history_school" name="history_school"></textarea>
+                    <textarea id="history_school" name="history_school"><?= htmlspecialchars($case_to_follow['history_school'] ?? '') ?></textarea>
                 </div>
                 <div class="form-group">
                     <label for="personal_habits">นิสัยส่วนตัว</label>
-                    <textarea id="personal_habits" name="personal_habits"></textarea>
+                    <textarea id="personal_habits" name="personal_habits"><?= htmlspecialchars($case_to_follow['personal_habits'] ?? '') ?></textarea>
                 </div>
                 <div class="form-group">
                     <label for="history_hospital">ข้อมูลจากโรงพยาบาล</label>
-                    <textarea id="history_hospital" name="history_hospital"></textarea>
+                    <textarea id="history_hospital" name="history_hospital"><?= htmlspecialchars($case_to_follow['history_hospital'] ?? '') ?></textarea>
                 </div>
                 <div class="form-group">
                     <label for="consultation_details">รายละเอียดการให้การปรึกษา</label>
                     <textarea
                         id="consultation_details"
-                        name="consultation_details"></textarea>
+                        name="consultation_details"><?= htmlspecialchars($case_to_follow['consultation_details'] ?? '') ?></textarea>
                 </div>
                 <div class="form-group">
                     <label for="event_details">รายละเอียดเหตุการณ์</label>
-                    <textarea id="event_details" name="event_details"></textarea>
+                    <textarea id="event_details" name="event_details"><?= htmlspecialchars($case_to_follow['event_details'] ?? '') ?></textarea>
                 </div>
             </section>
 
@@ -240,24 +267,24 @@ if (isset($_SESSION['user']['username'])) {
                 <div class="guidelines-grid">
                     <div class="form-group">
                         <label for="assist_school">1. โรงเรียน</label>
-                        <textarea id="assist_school" name="assist_school"></textarea>
+                        <textarea id="assist_school" name="assist_school"><?= htmlspecialchars($case_to_follow['assist_school'] ?? '') ?></textarea>
                     </div>
                     <div class="form-group">
                         <label for="assist_hospital">2. โรงพยาบาล</label>
-                        <textarea id="assist_hospital" name="assist_hospital"></textarea>
+                        <textarea id="assist_hospital" name="assist_hospital"><?= htmlspecialchars($case_to_follow['assist_hospital'] ?? '') ?></textarea>
                     </div>
                     <div class="form-group">
                         <label for="assist_parent">3. ผู้ปกครอง</label>
-                        <textarea id="assist_parent" name="assist_parent"></textarea>
+                        <textarea id="assist_parent" name="assist_parent"><?= htmlspecialchars($case_to_follow['assist_parent'] ?? '') ?></textarea>
                     </div>
                     <div class="form-group">
                         <label for="assist_other">4. หน่วยงานอื่น ๆ ที่เกี่ยวข้อง</label>
-                        <textarea id="assist_other" name="assist_other"></textarea>
+                        <textarea id="assist_other" name="assist_other"><?= htmlspecialchars($case_to_follow['assist_other'] ?? '') ?></textarea>
                     </div>
                 </div>
                 <div class="form-group">
                     <label for="suggestions">ข้อเสนอแนะ</label>
-                    <textarea id="suggestions" name="suggestions"></textarea>
+                    <textarea id="suggestions" name="suggestions"><?= htmlspecialchars($case_to_follow['suggestions'] ?? '') ?></textarea>
                 </div>
             </section>
 
@@ -274,12 +301,12 @@ if (isset($_SESSION['user']['username'])) {
                     </div>
                     <div class="form-col">
                         <label for="record_date">วันที่บันทึก (แก้ไขไม่ได้)</label>
-                        <input type="text" id="record_date" name="record_date" readonly />
+                        <input type="text" id="record_date" name="record_date" value="<?= date('d/m/Y') ?>" readonly />
                     </div>
                 </div>
             </section>
 
-            <button type="button" class="submit-btn">บันทึกข้อมูล</button>
+            <button type="submit" class="submit-btn">บันทึกข้อมูล</button>
         </form>
     </div>
     <script src="../public/script/javascript/form2.js"></script>

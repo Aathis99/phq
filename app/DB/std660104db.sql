@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Generation Time: Dec 29, 2025 at 09:51 AM
+-- Generation Time: Dec 29, 2025 at 02:10 PM
 -- Server version: 8.0.44-0ubuntu0.22.04.1
 -- PHP Version: 7.4.33
 
@@ -21,6 +21,36 @@ SET time_zone = "+00:00";
 --
 -- Database: `std660104db`
 --
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `add_caselog`
+--
+
+DROP TABLE IF EXISTS `add_caselog`;
+CREATE TABLE `add_caselog` (
+  `id` int NOT NULL COMMENT 'รหัสลำดับเคส (Primary Key)',
+  `pid` varchar(13) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT 'รหัสบัตรประชาชนนักเรียน (FK)',
+  `case_type` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT 'ประเภทกรณี (ซึมเศร้า, เครียด, ฯลฯ)',
+  `report_date` date DEFAULT NULL COMMENT 'วันที่รายงาน',
+  `presenting_symptoms` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci COMMENT 'อาการนำ (Presenting Symptoms)',
+  `history_personal` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci COMMENT 'ประวัติส่วนตัว',
+  `history_family` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci COMMENT 'ข้อมูลจากครอบครัว',
+  `history_school` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci COMMENT 'ข้อมูลจากโรงเรียน',
+  `personal_habits` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci COMMENT 'นิสัยส่วนตัว',
+  `history_hospital` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci COMMENT 'ข้อมูลจากโรงพยาบาล',
+  `consultation_details` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci COMMENT 'รายละเอียดการให้การปรึกษา',
+  `event_details` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci COMMENT 'รายละเอียดเหตุการณ์',
+  `assist_school` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci COMMENT 'แนวทางช่วยเหลือ-โรงเรียน',
+  `assist_hospital` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci COMMENT 'แนวทางช่วยเหลือ-โรงพยาบาล',
+  `assist_parent` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci COMMENT 'แนวทางช่วยเหลือ-ผู้ปกครอง',
+  `assist_other` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci COMMENT 'แนวทางช่วยเหลือ-หน่วยงานอื่น',
+  `suggestions` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci COMMENT 'ข้อเสนอแนะ',
+  `recorder` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT 'ผู้บันทึกข้อมูล (FK)',
+  `created_at` datetime DEFAULT CURRENT_TIMESTAMP COMMENT 'วันเวลาที่บันทึก',
+  `updated_at` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'วันเวลาที่แก้ไขล่าสุด'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='ตารางเก็บข้อมูลรายงานการช่วยเหลือรายกรณี';
 
 -- --------------------------------------------------------
 
@@ -6788,7 +6818,8 @@ CREATE TABLE `member` (
 --
 
 INSERT INTO `member` (`pid`, `username`, `prefix_id`, `fname`, `lname`, `position`) VALUES
-('1510400147088', 'sutinee', 4, 'สุธินี', 'หล้าทา', 'นักจิตวิทยาโรงเรียนประจำสำนักงานเขตพื้นที่การศึกษา');
+('1510400147088', 'sutinee', 4, 'สุธินี', 'หล้าทา', 'นักจิตวิทยาโรงเรียนประจำสำนักงานเขตพื้นที่การศึกษา'),
+('1529902089155', 'admin1', 3, 'อธิศ', 'วงค์เจริญ', 'dev(นักพัฒนาใช้เพื่อทดสอบ)');
 
 -- --------------------------------------------------------
 
@@ -13703,11 +13734,20 @@ CREATE TABLE `users` (
 
 INSERT INTO `users` (`username`, `password`, `typeuser`, `comment`) VALUES
 ('admin', '@1234', 'admin', 'administrator'),
+('admin1', '@1234', 'admin', 'dev'),
 ('sutinee', '@1234', 'admin', 'psychologist');
 
 --
 -- Indexes for dumped tables
 --
+
+--
+-- Indexes for table `add_caselog`
+--
+ALTER TABLE `add_caselog`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `idx_pid` (`pid`),
+  ADD KEY `idx_recorder` (`recorder`);
 
 --
 -- Indexes for table `assessment`
@@ -13773,6 +13813,12 @@ ALTER TABLE `users`
 --
 
 --
+-- AUTO_INCREMENT for table `add_caselog`
+--
+ALTER TABLE `add_caselog`
+  MODIFY `id` int NOT NULL AUTO_INCREMENT COMMENT 'รหัสลำดับเคส (Primary Key)';
+
+--
 -- AUTO_INCREMENT for table `assessment`
 --
 ALTER TABLE `assessment`
@@ -13781,6 +13827,12 @@ ALTER TABLE `assessment`
 --
 -- Constraints for dumped tables
 --
+
+--
+-- Constraints for table `add_caselog`
+--
+ALTER TABLE `add_caselog`
+  ADD CONSTRAINT `fk_caselog_student` FOREIGN KEY (`pid`) REFERENCES `student_data` (`pid`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `member`
