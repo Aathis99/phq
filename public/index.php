@@ -142,7 +142,12 @@ $db = null;
     <?php include 'navbar.php'; ?>
 
     <div class="main-card">
-        <h1>แบบประเมินภาวะซึมเศร้าในวัยรุ่น</h1>
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1>แบบประเมินภาวะซึมเศร้าในวัยรุ่น</h1>
+            <?php if (isset($_SESSION['user'])): ?>
+                <a href="graphs/dashboard.php" class="btn btn-primary">📊 คลิกเพื่อดูสถิติ</a>
+            <?php endif; ?>
+        </div>
 
         <?php if (!empty($message)) {
             echo $message;
