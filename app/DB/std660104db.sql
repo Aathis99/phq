@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Generation Time: Dec 29, 2025 at 02:10 PM
+-- Generation Time: Dec 30, 2025 at 08:46 AM
 -- Server version: 8.0.44-0ubuntu0.22.04.1
 -- PHP Version: 7.4.33
 
@@ -51,6 +51,13 @@ CREATE TABLE `add_caselog` (
   `created_at` datetime DEFAULT CURRENT_TIMESTAMP COMMENT 'วันเวลาที่บันทึก',
   `updated_at` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'วันเวลาที่แก้ไขล่าสุด'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='ตารางเก็บข้อมูลรายงานการช่วยเหลือรายกรณี';
+
+--
+-- Dumping data for table `add_caselog`
+--
+
+INSERT INTO `add_caselog` (`id`, `pid`, `case_type`, `report_date`, `presenting_symptoms`, `history_personal`, `history_family`, `history_school`, `personal_habits`, `history_hospital`, `consultation_details`, `event_details`, `assist_school`, `assist_hospital`, `assist_parent`, `assist_other`, `suggestions`, `recorder`, `created_at`, `updated_at`) VALUES
+(1, '1529902089155', 'เครียด', '2025-12-29', 'อาการและข้อมูลทั่วไป อาการนำ', 'ลักษณะทั่วไป ประวัติส่วนตัว', 'ลักษณะทั่วไป ข้อมูลจากครอบครัว', 'ลักษณะทั่วไป ข้อมูลจากโรงเรียน', 'ลักษณะทั่วไป นิสัยส่วนตัว', 'ลักษณะทั่วไป ข้อมูลจากโรงพยาบาล', 'รายละเอียดการให้การปรึกษา  1', 'รายละเอียดเหตุการณ์ 1', 'แนวทางการดูแลช่วยเหลือ โรงเรียน', 'แนวทางการดูแลช่วยเหลือ  โรงพยาบาล', 'แนวทางการดูแลช่วยเหลือ ผู้ปกครอง', 'แนวทางการดูแลช่วยเหลือ หน่วยงานอื่น ๆ ที่เกี่ยวข้อง', 'แนวทางการดูแลช่วยเหลือ ข้อเสนอแนะ', 'admin1', '2025-12-29 14:19:50', '2025-12-29 14:19:50');
 
 -- --------------------------------------------------------
 
@@ -9077,7 +9084,7 @@ INSERT INTO `student_data` (`school_id`, `pid`, `sex`, `prefix_id`, `fname`, `ln
 (52012010, '1529901339445', 2, 4, 'ฉัตรกมล', 'ใจศิล', 18, '6', '3', '0612795134', '2025-09-02 09:07:39'),
 (52012007, '1529901491590', 2, 2, 'รัตนาพร', 'มหามิตร', 14, '2', '4', '0909370133', '2025-09-02 15:36:51'),
 (52012008, '1529901526709', 2, 2, 'ณัฐฐนันท์', 'วงศ์ราช', 13, '1', '3', '0613248924', '2025-08-22 15:09:33'),
-(52012010, '1529902089155', 1, 3, 'อธิศ', 'วงค์เจริญ', 16, '6', '2', '0622274431', '2025-12-23 15:55:04'),
+(52012010, '1529902089155', 1, 3, 'อธิศ', 'วงค์เจริญ', 16, 'ม.6', '2', '0622274431', '2025-12-23 15:55:04'),
 (52022010, '1529902140662', 1, 3, 'ณัฐพันธุ์', 'จันต๊ะอุคม์', 16, '4', '6', '0928702088', '2025-09-24 10:32:57'),
 (52012008, '1529902142479', 2, 4, 'อริสรา', 'รินทร์แก้ว', 16, '4', '1', '0631755832', '2025-08-26 08:47:44'),
 (52012010, '1529902151332', 2, 2, 'ทิพานัน', 'ขจรคำ', 13, '2', '5', '0815188718', '2025-09-02 12:11:39'),
@@ -13816,7 +13823,7 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `add_caselog`
 --
 ALTER TABLE `add_caselog`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT COMMENT 'รหัสลำดับเคส (Primary Key)';
+  MODIFY `id` int NOT NULL AUTO_INCREMENT COMMENT 'รหัสลำดับเคส (Primary Key)', AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `assessment`

@@ -7,19 +7,48 @@ if (session_status() == PHP_SESSION_NONE) {
 require_once dirname(__DIR__) . '/app/core/Database.php';
 $db = Database::connect();
 
+
+// public/add_case.php
+
+// ... (ส่วน require_once Database และ connect db) ...
+$pid = $_GET['pid'] ?? '';
+$db = Database::connect(); //
+
+// --- เพิ่มส่วนนี้: คำนวณลำดับครั้งที่บันทึก (Running Number) ---
+$next_case_no = 1; // ค่าเริ่มต้นเป็นครั้งที่ 1
+if (!empty($pid)) {
+    // นับจำนวนเคสที่มีอยู่แล้วของนักเรียนคนนี้
+    $sql_count = "SELECT COUNT(*) FROM add_caselog WHERE pid = :pid";
+    $stmt_count = $db->prepare($sql_count);
+    $stmt_count->execute([':pid' => $pid]);
+    $current_count = $stmt_count->fetchColumn();
+
+    // ครั้งที่ปัจจุบัน = จำนวนที่มี + 1
+    $next_case_no = $current_count + 1;
+}
+// --------------------------------------------------------
+
+
+// ... (ส่วนดึงโรงเรียน prefix sex ฯลฯ) ...
 $pid = $_GET['pid'] ?? '';
 
 // --- ส่วนดึงข้อมูลเคสเดิม (ถ้ามี) ---
 $follow_case_id = $_GET['follow_case_id'] ?? '';
 $case_to_follow = [];
 if (!empty($follow_case_id) && !empty($pid)) {
-    // ดึงข้อมูลเคสที่ต้องการติดตามผล
+    // กรณีระบุเคสที่ต้องการติดตาม (เช่น กดปุ่มติดตามผลจากหน้าประวัติ)
     $stmt_follow = $db->prepare("SELECT * FROM add_caselog WHERE id = :id AND pid = :pid");
     $stmt_follow->execute([':id' => $follow_case_id, ':pid' => $pid]);
     $case_to_follow = $stmt_follow->fetch(PDO::FETCH_ASSOC);
-    if (!$case_to_follow) {
-        $case_to_follow = []; // Reset ถ้าไม่พบข้อมูลหรือ pid ไม่ตรงกัน
-    }
+} elseif (!empty($pid)) {
+    // กรณีเพิ่มเคสใหม่ (ไม่ได้ระบุ follow_case_id) ให้ดึงข้อมูลล่าสุดมาแสดง (ถ้ามี) เพื่ออำนวยความสะดวก
+    $stmt_latest = $db->prepare("SELECT * FROM add_caselog WHERE pid = :pid ORDER BY created_at DESC, id DESC LIMIT 1");
+    $stmt_latest->execute([':pid' => $pid]);
+    $case_to_follow = $stmt_latest->fetch(PDO::FETCH_ASSOC);
+}
+
+if (!$case_to_follow) {
+    $case_to_follow = []; // Reset ถ้าไม่พบข้อมูล
 }
 
 // --- ส่วนดึงข้อมูล Master Data ---
@@ -118,9 +147,14 @@ if (isset($_SESSION['user']['username'])) {
                             <option value="อื่นๆ" <?= (isset($case_to_follow['case_type']) && $case_to_follow['case_type'] == 'อื่นๆ') ? 'selected' : '' ?>>อื่นๆ</option>
                         </select>
                     </div>
-                    <div class="form-col">
-                        <label for="case_id">ครั้งที่ (รันอัตโนมัติ)</label>
-                        <input type="text" id="case_id" name="case_id" value="<?= $case_number ?>" readonly />
+                    <div class="mb-3">
+                        <label for="case_id" class="form-label">บันทึกครั้งที่ (Case No.)</label>
+                        <input type="text"
+                            class="form-control"
+                            id="case_id"
+                            name="case_id"
+                            value="<?= $next_case_no ?>"
+                            readonly>
                     </div>
                     <div class="form-col">
                         <label for="report_date">วัน/เดือน/ปี</label>
@@ -194,6 +228,11 @@ if (isset($_SESSION['user']['username'])) {
                         <label for="edu_level">ระดับชั้น</label>
                         <select id="edu_level" name="edu_level">
                             <option value="">-- เลือกระดับชั้น --</option>
+                            <?php for ($i = 1; $i <= 6; $i++): ?>
+                                <option value="<?= $i ?>" <?= (isset($student['class']) && $student['class'] == $i) ? 'selected' : '' ?>>
+                                    <?= $i ?>
+                                </option>
+                            <?php endfor; ?>
                         </select>
                     </div>
                     <div class="form-col">
@@ -312,14 +351,12 @@ if (isset($_SESSION['user']['username'])) {
     <script src="../public/script/javascript/form2.js"></script>
     <script>
         document.addEventListener("DOMContentLoaded", () => {
-            // เติมข้อมูลลงใน Dropdown ที่สร้างโดย JS (Age, Class, Room)
+            // เติมข้อมูลลงใน Dropdown ที่สร้างโดย JS (Age, Room)
             const student = <?= json_encode($student) ?>;
             if (student) {
                 // Age
                 if (student.age) document.getElementById('age').value = student.age;
-                // Class (DB เก็บ 1, 2.. แต่ JS สร้าง value เป็น ม.1, ม.2..)
-                if (student.class) document.getElementById('edu_level').value = 'ม.' + student.class;
-                // Room
+                // Class is now handled by PHP
                 if (student.room) document.getElementById('edu_room').value = student.room;
             }
         });

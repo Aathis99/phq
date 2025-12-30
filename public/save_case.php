@@ -144,7 +144,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // แจ้งเตือนและกลับไปหน้าประวัติ
         echo "<script>
                 alert('บันทึกข้อมูลเรียบร้อยแล้ว');
-                window.location.href = 'phq_history.php?pid=" . htmlspecialchars($pid) . "';
+                window.location.href = 'add_case_history.php.php?pid=" . htmlspecialchars($pid) . "';
               </script>";
     } catch (Exception $e) {
         // หากเกิดข้อผิดพลาด ให้ยกเลิกการทำงาน (Rollback)

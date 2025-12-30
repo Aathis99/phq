@@ -50,12 +50,12 @@ document.addEventListener("DOMContentLoaded", () => {
     hour: "2-digit",
     minute: "2-digit",
   };
-  recordDateInput.value = today.toLocaleDateString("th-TH", options);
+  // recordDateInput.value = today.toLocaleDateString("th-TH", options);
 
-  // 4. Case ID / Count (Simulated Auto-run)
-  const caseIdInput = document.getElementById("case_id");
-  // In a real app, this would come from a database.
-  // Generating a random ID or timestamp for demo purposes.
-  const randomId = "CASE-" + Date.now().toString().slice(-6);
-  caseIdInput.value = randomId;
+  // // 4. Case ID / Count (Simulated Auto-run)
+  // const caseIdInput = document.getElementById("case_id");
+  // // In a real app, this would come from a database.
+  // // Generating a random ID or timestamp for demo purposes.
+  // const randomId = "CASE-" + Date.now().toString().slice(-6);
+  // caseIdInput.value = randomId;
 });
