@@ -48,7 +48,7 @@ function getScoreColor($score)
 
 function getScoreMeaning($score)
 {
-    if ($score < 7) return 'ปกติ/เล็กน้อย';
+    if ($score < 7) return 'ปกติ';
     if ($score < 13) return 'ปานกลาง';
     return 'รุนแรง';
 }

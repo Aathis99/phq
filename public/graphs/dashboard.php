@@ -35,6 +35,19 @@ foreach ($data_points as $point) {
         $colors[] = 'RAINBOW'; // สีรุ้ง (จะถูกแทนที่ด้วย Gradient ใน JavaScript)
     }
 }
+
+// ดึงข้อมูลจำนวนนักเรียนตามช่วงคะแนน (จาก report_chart.php)
+$sql_dep = "SELECT 
+            SUM(CASE WHEN score <= 7 THEN 1 ELSE 0 END) as normal,
+            SUM(CASE WHEN score > 7 AND score <= 13 THEN 1 ELSE 0 END) as moderate,
+            SUM(CASE WHEN score > 13 THEN 1 ELSE 0 END) as severe
+        FROM assessment";
+$stmt_dep = $conn->query($sql_dep);
+$result_dep = $stmt_dep->fetch(PDO::FETCH_ASSOC);
+
+$dep_normal = $result_dep['normal'] ?? 0;
+$dep_moderate = $result_dep['moderate'] ?? 0;
+$dep_severe = $result_dep['severe'] ?? 0;
 ?>
 
 <!DOCTYPE html>
@@ -55,12 +68,20 @@ foreach ($data_points as $point) {
             <a href="../index.php" class="btn btn-primary">📊 กลับไปหน้าหลัก</a>
         </div>
 
-        <div class="row justify-content-center">
-            <div class="col-lg-8 col-md-10">
-                <div class="card shadow-sm">
+        <div class="row">
+            <div class="col-lg-6 mb-4">
+                <div class="card shadow-sm h-100">
                     <div class="card-body">
                         <h3 class="card-title text-center mb-4">สถิตินักเรียนที่ทำแบบประเมินแยกตามเพศ</h3>
                         <canvas id="genderChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6 mb-4">
+                <div class="card shadow-sm h-100">
+                    <div class="card-body">
+                        <h3 class="card-title text-center mb-4">กราฟแสดงจำนวนนักเรียนที่มีภาวะซึมเศร้า</h3>
+                        <canvas id="depressionChart"></canvas>
                     </div>
                 </div>
             </div>
@@ -105,6 +126,46 @@ foreach ($data_points as $point) {
                 }
             }
         });
+
+        // กราฟภาวะซึมเศร้า (Bar Chart)
+        const ctxDep = document.getElementById('depressionChart').getContext('2d');
+        new Chart(ctxDep, {
+            type: 'bar',
+            data: {
+                labels: ['ปกติ (Score ≤ 7)', 'ปานกลาง (Score 8-13)', 'รุนแรง (Score > 13)'],
+                datasets: [{
+                    label: 'จำนวนนักเรียน (คน)',
+                    data: [<?php echo $dep_normal; ?>, <?php echo $dep_moderate; ?>, <?php echo $dep_severe; ?>],
+                    backgroundColor: [
+                        'rgba(75, 192, 192, 0.6)', // สีเขียว
+                        'rgba(255, 206, 86, 0.6)', // สีเหลือง
+                        'rgba(255, 99, 132, 0.6)'  // สีแดง
+                    ],
+                    borderColor: [
+                        'rgba(75, 192, 192, 1)',
+                        'rgba(255, 206, 86, 1)',
+                        'rgba(255, 99, 132, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: { stepSize: 1 }
+                    }
+                },
+                plugins: {
+                    legend: { display: false },
+                    title: {
+                        display: true,
+                        text: 'ผลการประเมินจากตาราง Assessment'
+                    }
+                }
+            }
+        });
+
         // ส่งข้อมูลจาก PHP ไปยัง JavaScript ผ่านตัวแปร global
         const dashboardData = {
             labels: <?php echo json_encode($labels); ?>,
