@@ -51,7 +51,7 @@ foreach ($data_points as $point) {
 <body class="bg-light p-4">
     <div class="container">
         <div class="d-flex justify-content-between align-items-center mb-4">
-            <h1>หน้าแดชบอร์ด</h1>
+            <h1>PHQ Dashboard</h1>
             <a href="../index.php" class="btn btn-primary">📊 กลับไปหน้าหลัก</a>
         </div>
 

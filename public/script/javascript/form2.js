@@ -10,14 +10,14 @@ document.addEventListener("DOMContentLoaded", () => {
     ageSelect.appendChild(option);
   }
 
-  // Education Level (M.1 - M.6)
-  const eduLevelSelect = document.getElementById("edu_level");
-  for (let i = 1; i <= 6; i++) {
-    const option = document.createElement("option");
-    option.value = `ม.${i}`;
-    option.textContent = `มัธยมศึกษาปีที่ ${i}`;
-    eduLevelSelect.appendChild(option);
-  }
+  // // Education Level (M.1 - M.6)
+  // const eduLevelSelect = document.getElementById("edu_level");
+  // for (let i = 1; i <= 6; i++) {
+  //   const option = document.createElement("option");
+  //   option.value = `ม.${i}`;
+  //   option.textContent = `${i}`;
+  //   eduLevelSelect.appendChild(option);
+  // }
 
   // Classroom (1 - 20)
   const eduRoomSelect = document.getElementById("edu_room");
