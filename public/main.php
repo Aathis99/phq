@@ -97,8 +97,9 @@ if (isset($_GET['action']) && $_GET['action'] === 'fetch_data') {
         </div>
 
         <div class="card shadow-sm">
-            <div class="card-header bg-white">
+            <div class="card-header bg-white d-flex justify-content-between align-items-center">
                 <h5 class="mb-0">📋 รายชื่อนักเรียน (Student Data)</h5>
+                <a href="edit_students.php" class="btn btn-warning btn-sm">✏️ แก้ไขข้อมูลนักเรียน</a>
             </div>
             <div class="card-body p-0">
                 <div class="table-responsive" id="dataContainer" style="max-height: 65vh; overflow-y: auto;">
