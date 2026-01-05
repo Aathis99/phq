@@ -81,6 +81,7 @@ $dep_severe = $result_dep['severe'] ?? 0;
                 <div class="card shadow-sm h-100">
                     <div class="card-body">
                         <h3 class="card-title text-center mb-4">กราฟแสดงจำนวนนักเรียนที่มีภาวะซึมเศร้า</h3>
+                        <p class="text-center small text-muted">จำนวนรวมทั้งหมด: <?php echo $dep_normal + $dep_moderate + $dep_severe; ?> คน</p>
                         <canvas id="depressionChart"></canvas>
                     </div>
                 </div>

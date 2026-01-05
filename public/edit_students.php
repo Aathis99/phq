@@ -41,7 +41,7 @@ $sexes = $db->query("SELECT sex_id, sex_name FROM sex ORDER BY sex_id")->fetchAl
     <div class="container">
         <div class="d-flex justify-content-between align-items-center mb-3">
             <h3>✏️ แก้ไขข้อมูลนักเรียน</h3>
-            <a href="main.php" class="btn btn-secondary">← กลับหน้ารายชื่อ</a>
+            <a href="main.php" class="btn btn-danger">← กลับหน้ารายชื่อ</a>
         </div>
 
 
