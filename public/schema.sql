@@ -53,6 +53,21 @@ CREATE TABLE `add_caselog` (
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `images`
+--
+
+CREATE TABLE `images` (
+  `id` int NOT NULL AUTO_INCREMENT COMMENT 'รหัสรูปภาพ (Primary Key)',
+  `case_id` int NOT NULL COMMENT 'เชื่อมโยงกับตาราง add_caselog (FK)',
+  `file_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT 'ชื่อไฟล์รูปภาพที่บันทึกใน Server',
+  `uploaded_at` datetime DEFAULT CURRENT_TIMESTAMP COMMENT 'เวลาที่อัปโหลด',
+  PRIMARY KEY (`id`),
+  KEY `fk_images_caselog` (`case_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='ตารางเก็บรูปภาพประกอบเคส';
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `assessment`
 --
 
@@ -275,6 +290,12 @@ ALTER TABLE `assessment`
 --
 ALTER TABLE `add_caselog`
   ADD CONSTRAINT `fk_caselog_student` FOREIGN KEY (`pid`) REFERENCES `student_data` (`pid`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `images`
+--
+ALTER TABLE `images`
+  ADD CONSTRAINT `fk_images_caselog` FOREIGN KEY (`case_id`) REFERENCES `add_caselog` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `member`

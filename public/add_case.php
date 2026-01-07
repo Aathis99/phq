@@ -132,7 +132,7 @@ if (isset($_SESSION['user']['username'])) {
         </div>
 
 
-        <form action="save_case.php" method="POST">
+        <form action="save_case.php" method="POST" enctype="multipart/form-data">
             <!-- Case Info -->
             <section class="case-info">
                 <div class="form-row">
@@ -325,6 +325,14 @@ if (isset($_SESSION['user']['username'])) {
                     <label for="suggestions">ข้อเสนอแนะ</label>
                     <textarea id="suggestions" name="suggestions"><?= htmlspecialchars($case_to_follow['suggestions'] ?? '') ?></textarea>
                 </div>
+
+                <!-- ส่วนอัปโหลดรูปภาพ -->
+                <div class="form-group mt-3">
+                    <label for="case_images" class="form-label">รูปภาพประกอบ (สูงสุด 4 รูป)</label>
+                    <input type="file" class="form-control" id="case_images" name="case_images[]" multiple accept="image/*">
+                    <div id="image_preview_container" class="d-flex flex-wrap gap-3 mt-3"></div>
+                    <small class="text-muted">รองรับไฟล์รูปภาพ (jpg, png, jpeg) ไม่เกิน 4 รูป (ไม่บังคับ)</small>
+                </div>
             </section>
 
             <!-- Footer -->
@@ -351,6 +359,61 @@ if (isset($_SESSION['user']['username'])) {
     <script src="../public/script/javascript/form2.js"></script>
     <script>
         document.addEventListener("DOMContentLoaded", () => {
+            // --- Image Upload Logic ---
+            const imageInput = document.getElementById('case_images');
+            const previewContainer = document.getElementById('image_preview_container');
+            const dataTransfer = new DataTransfer(); // ใช้จัดการรายการไฟล์
+
+            if (imageInput) {
+                imageInput.addEventListener('change', function(e) {
+                    const files = Array.from(this.files);
+                    
+                    // ตรวจสอบจำนวนรูปรวม (ของเดิม + ที่เลือกใหม่)
+                    if (dataTransfer.files.length + files.length > 4) {
+                        alert('สามารถอัปโหลดได้สูงสุด 4 รูปครับ');
+                        this.files = dataTransfer.files; // คืนค่าเดิม
+                        return;
+                    }
+
+                    // เพิ่มไฟล์ใหม่ลงใน DataTransfer (ป้องกันไฟล์ซ้ำ)
+                    files.forEach(file => {
+                        let exists = Array.from(dataTransfer.files).some(f => f.name === file.name && f.size === file.size);
+                        if (!exists) {
+                            dataTransfer.items.add(file);
+                        }
+                    });
+
+                    updateImageInput();
+                });
+            }
+
+            function updateImageInput() {
+                imageInput.files = dataTransfer.files; // อัปเดต input จริง
+                previewContainer.innerHTML = ''; // ล้าง preview เดิม
+
+                Array.from(dataTransfer.files).forEach((file, index) => {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const div = document.createElement('div');
+                        div.className = 'position-relative';
+                        div.innerHTML = `
+                            <img src="${e.target.result}" class="rounded border shadow-sm" style="width: 120px; height: 120px; object-fit: cover;">
+                            <button type="button" class="btn btn-danger btn-sm position-absolute top-0 end-0 rounded-circle p-0 d-flex align-items-center justify-content-center" 
+                                    style="width: 24px; height: 24px; transform: translate(30%, -30%); box-shadow: 0 2px 4px rgba(0,0,0,0.2);" 
+                                    onclick="removeImage(${index})">&times;</button>
+                        `;
+                        previewContainer.appendChild(div);
+                    }
+                    reader.readAsDataURL(file);
+                });
+            }
+
+            window.removeImage = function(index) {
+                dataTransfer.items.remove(index);
+                updateImageInput();
+            }
+            // --------------------------
+
             // เติมข้อมูลลงใน Dropdown ที่สร้างโดย JS (Age, Room)
             const student = <?= json_encode($student) ?>;
             if (student) {

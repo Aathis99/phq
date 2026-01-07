@@ -138,6 +138,34 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ':recorder' => $recorder
         ]);
 
+        // ---------------------------------------------------------
+        // 5. จัดการอัปโหลดรูปภาพ (Images)
+        // ---------------------------------------------------------
+        // ใช้ $next_id เป็น case_id สำหรับเชื่อมโยง
+        if (!empty($_FILES['case_images']['name'][0])) {
+            $upload_dir = dirname(__DIR__) . '/public/uploads/cases/';
+            // สร้างโฟลเดอร์ถ้ายังไม่มี
+            if (!is_dir($upload_dir)) {
+                mkdir($upload_dir, 0777, true);
+            }
+
+            $total_files = count($_FILES['case_images']['name']);
+            $limit = min($total_files, 4); // ป้องกันเกิน 4 รูป
+
+            for ($i = 0; $i < $limit; $i++) {
+                if ($_FILES['case_images']['error'][$i] === UPLOAD_ERR_OK) {
+                    $tmp_name = $_FILES['case_images']['tmp_name'][$i];
+                    $ext = pathinfo($_FILES['case_images']['name'][$i], PATHINFO_EXTENSION);
+                    $new_name = uniqid('case_' . $next_id . '_') . '.' . $ext; // ตั้งชื่อไฟล์ใหม่กันซ้ำ
+                    
+                    if (move_uploaded_file($tmp_name, $upload_dir . $new_name)) {
+                        $stmt_img = $db->prepare("INSERT INTO images (case_id, file_name) VALUES (:case_id, :file_name)");
+                        $stmt_img->execute([':case_id' => $next_id, ':file_name' => $new_name]);
+                    }
+                }
+            }
+        }
+
         // ยืนยันการทำงาน (Commit)
         $db->commit();
 
