@@ -12,6 +12,8 @@ $current_page = basename($_SERVER['PHP_SELF']);
                 <?php if ($current_page != 'main.php'): ?>
                     <a href="main.php" class="btn btn-warning btn-sm">จัดการข้อมูล</a>
                 <?php endif; ?>
+                <!-- ใช้ style เพื่อกำหนด Hex Code สีม่วง -->
+                <a href="manage_members.php" class="btn btn-sm text-black" style="background-color: #8ddcdc; border-color: #8ddcdc;">แก้ไขข้อมูลสมาชิก</a>
                 <?php
                 // --- ส่วนเช็คเงื่อนไขปุ่มย้อนกลับ ---
                 // ถ้าอยู่หน้า phq_history.php ให้แสดงปุ่ม "ย้อนกลับ" (กลับไป main.php)
