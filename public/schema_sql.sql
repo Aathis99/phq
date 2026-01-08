@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Generation Time: Jan 04, 2026 at 02:49 PM
+-- Generation Time: Jan 08, 2026 at 09:07 AM
 -- Server version: 8.0.44-0ubuntu0.22.04.1
 -- PHP Version: 7.4.33
 
@@ -53,21 +53,6 @@ CREATE TABLE `add_caselog` (
 -- --------------------------------------------------------
 
 --
--- Table structure for table `images`
---
-
-CREATE TABLE `images` (
-  `id` int NOT NULL AUTO_INCREMENT COMMENT 'รหัสรูปภาพ (Primary Key)',
-  `case_id` int NOT NULL COMMENT 'เชื่อมโยงกับตาราง add_caselog (FK)',
-  `file_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT 'ชื่อไฟล์รูปภาพที่บันทึกใน Server',
-  `uploaded_at` datetime DEFAULT CURRENT_TIMESTAMP COMMENT 'เวลาที่อัปโหลด',
-  PRIMARY KEY (`id`),
-  KEY `fk_images_caselog` (`case_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='ตารางเก็บรูปภาพประกอบเคส';
-
--- --------------------------------------------------------
-
---
 -- Table structure for table `assessment`
 --
 
@@ -90,6 +75,19 @@ CREATE TABLE `assessment` (
   `manage_stress` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT 'คำถามที่ 13',
   `score` int DEFAULT NULL COMMENT 'คะแนนรวม'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=COMPACT;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `images`
+--
+
+CREATE TABLE `images` (
+  `id` int NOT NULL COMMENT 'รหัสรูปภาพ (Primary Key)',
+  `case_id` int NOT NULL COMMENT 'เชื่อมโยงกับตาราง add_caselog (FK)',
+  `file_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT 'ชื่อไฟล์รูปภาพที่บันทึกใน Server',
+  `uploaded_at` datetime DEFAULT CURRENT_TIMESTAMP COMMENT 'เวลาที่อัปโหลด'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='ตารางเก็บรูปภาพประกอบเคส';
 
 -- --------------------------------------------------------
 
@@ -213,6 +211,13 @@ ALTER TABLE `assessment`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Indexes for table `images`
+--
+ALTER TABLE `images`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `fk_images_caselog` (`case_id`);
+
+--
 -- Indexes for table `member`
 --
 ALTER TABLE `member`
@@ -282,6 +287,12 @@ ALTER TABLE `assessment`
   MODIFY `id` int NOT NULL AUTO_INCREMENT COMMENT 'idรันaa';
 
 --
+-- AUTO_INCREMENT for table `images`
+--
+ALTER TABLE `images`
+  MODIFY `id` int NOT NULL AUTO_INCREMENT COMMENT 'รหัสรูปภาพ (Primary Key)';
+
+--
 -- Constraints for dumped tables
 --
 
@@ -290,12 +301,6 @@ ALTER TABLE `assessment`
 --
 ALTER TABLE `add_caselog`
   ADD CONSTRAINT `fk_caselog_student` FOREIGN KEY (`pid`) REFERENCES `student_data` (`pid`) ON DELETE CASCADE ON UPDATE CASCADE;
-
---
--- Constraints for table `images`
---
-ALTER TABLE `images`
-  ADD CONSTRAINT `fk_images_caselog` FOREIGN KEY (`case_id`) REFERENCES `add_caselog` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `member`

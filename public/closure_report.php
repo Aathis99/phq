@@ -45,6 +45,14 @@ if (isset($_SESSION['user']['username'])) {
         $recorder_name = $res['prefix_name'] . $res['fname'] . ' ' . $res['lname'];
     }
 }
+
+// --- 5. ดึงประวัติการช่วยเหลือ (add_caselog) เพื่อแสดงในหน้า report ---
+$caseLogs = [];
+if (!empty($pid)) {
+    $stmtHistory = $db->prepare("SELECT * FROM add_caselog WHERE pid = :pid ORDER BY report_date DESC, created_at DESC");
+    $stmtHistory->execute([':pid' => $pid]);
+    $caseLogs = $stmtHistory->fetchAll(PDO::FETCH_ASSOC);
+}
 ?>
 <!DOCTYPE html>
 <html lang="th">
@@ -161,9 +169,89 @@ if (isset($_SESSION['user']['username'])) {
                 </div>
                 <div class="col-md-6">
                     <label class="form-label">วัน/เดือน/ปี</label>
-                    <input type="date" name="report_date" class="form-control" required>
+                    <input type="date" name="report_date" class="form-control" value="<?= date('Y-m-d') ?>" required>
                 </div>
             </div>
+
+            <!-- ส่วนแสดงประวัติการช่วยเหลือ -->
+            <div class="card mb-4 border-secondary">
+                <div class="card-header text-white d-flex justify-content-between align-items-center" style="background: linear-gradient(90deg, #ff9a9e, #a18cd1);">
+                    <h5 class="mb-0">ประวัติการช่วยเหลือ (Case History)</h5>
+                    <div class="d-flex align-items-center">
+                        <label class="me-2 text-white text-nowrap">เลือกดูครั้งที่:</label>
+                        <select id="historyFilter" class="form-select form-select-sm">
+                            <option value="all">-- แสดงทั้งหมด --</option>
+                            <?php foreach ($caseLogs as $index => $log): ?>
+                                <option value="<?= $log['id'] ?>">ครั้งที่ <?= count($caseLogs) - $index ?> (<?= date('d/m/Y', strtotime($log['report_date'])) ?>)</option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>ครั้งที่</th>
+                                    <th>วันที่</th>
+                                    <th>ประเภท</th>
+                                    <th>อาการนำ</th>
+                                    <th>จัดการ</th>
+                                </tr>
+                            </thead>
+                            <tbody id="historyTableBody">
+                                <?php if (count($caseLogs) > 0): ?>
+                                    <?php foreach ($caseLogs as $index => $log): ?>
+                                        <tr class="case-row" data-id="<?= $log['id'] ?>">
+                                            <td><?= count($caseLogs) - $index ?></td>
+                                            <td><?= date('d/m/Y', strtotime($log['report_date'])) ?></td>
+                                            <td><span class="badge bg-info text-dark"><?= htmlspecialchars($log['case_type']) ?></span></td>
+                                            <td><small><?= htmlspecialchars(mb_strimwidth($log['presenting_symptoms'], 0, 50, '...')) ?></small></td>
+                                            <td>
+                                                <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#viewCaseModal<?= $log['id'] ?>">
+                                                    ดูข้อมูล
+                                                </button>
+                                            </td>
+                                        </tr>
+                                        
+                                        <!-- Modal แสดงรายละเอียด -->
+                                        <div class="modal fade" id="viewCaseModal<?= $log['id'] ?>" tabindex="-1" aria-hidden="true">
+                                            <div class="modal-dialog modal-lg">
+                                                <div class="modal-content">
+                                                    <div class="modal-header bg-primary text-white">
+                                                        <h5 class="modal-title">รายละเอียดเคส วันที่ <?= date('d/m/Y', strtotime($log['report_date'])) ?></h5>
+                                                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <p><strong>ประเภทกรณี:</strong> <?= htmlspecialchars($log['case_type']) ?></p>
+                                                        <p><strong>อาการนำ:</strong><br> <?= nl2br(htmlspecialchars($log['presenting_symptoms'])) ?></p>
+                                                        <hr>
+                                                        <p><strong>ประวัติส่วนตัว:</strong> <?= htmlspecialchars($log['history_personal'] ?? '-') ?></p>
+                                                        <p><strong>ข้อมูลจากครอบครัว:</strong> <?= htmlspecialchars($log['history_family'] ?? '-') ?></p>
+                                                        <p><strong>ข้อมูลจากโรงเรียน:</strong> <?= htmlspecialchars($log['history_school'] ?? '-') ?></p>
+                                                        <hr>
+                                                        <p><strong>แนวทางช่วยเหลือ:</strong></p>
+                                                        <ul>
+                                                            <li>โรงเรียน: <?= htmlspecialchars($log['assist_school'] ?? '-') ?></li>
+                                                            <li>ผู้ปกครอง: <?= htmlspecialchars($log['assist_parent'] ?? '-') ?></li>
+                                                            <li>โรงพยาบาล: <?= htmlspecialchars($log['assist_hospital'] ?? '-') ?></li>
+                                                        </ul>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ปิด</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    <?php endforeach; ?>
+                                <?php else: ?>
+                                    <tr><td colspan="5" class="text-center text-muted py-3">ไม่พบประวัติการช่วยเหลือ</td></tr>
+                                <?php endif; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>          
 
             <div class="form-section-header">รายละเอียดการติดตาม พฤติกรรม/อาการ</div>
 
@@ -191,7 +279,7 @@ if (isset($_SESSION['user']['username'])) {
                     <label class="form-label">ผู้บันทึก</label>
                     <input type="text"
                         name="recorder_name"
-                        class="form-control"
+                        class="form-control bg-light"
                         value="<?= htmlspecialchars($recorder_name) ?>"
                         readonly
                         required>
@@ -211,6 +299,7 @@ if (isset($_SESSION['user']['username'])) {
         </form>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         // Script สำหรับแสดงวันที่ปัจจุบันแบบอัตโนมัติ
         document.addEventListener("DOMContentLoaded", function() {
@@ -224,6 +313,22 @@ if (isset($_SESSION['user']['username'])) {
                 day: 'numeric'
             };
             dateEl.value = now.toLocaleDateString('th-TH', options);
+
+            // Script สำหรับ Filter ประวัติการช่วยเหลือ
+            const historyFilter = document.getElementById('historyFilter');
+            if(historyFilter){
+                historyFilter.addEventListener('change', function() {
+                    const selectedId = this.value;
+                    const rows = document.querySelectorAll('.case-row');
+                    rows.forEach(row => {
+                        if (selectedId === 'all' || row.dataset.id === selectedId) {
+                            row.style.display = '';
+                        } else {
+                            row.style.display = 'none';
+                        }
+                    });
+                });
+            }
         });
     </script>
 
