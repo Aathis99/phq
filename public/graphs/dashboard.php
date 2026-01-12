@@ -133,7 +133,7 @@ $dep_severe = $result_dep['severe'] ?? 0;
         new Chart(ctxDep, {
             type: 'bar',
             data: {
-                labels: ['ปกติ (Score ≤ 7)', 'ปานกลาง (Score 8-13)', 'รุนแรง (Score > 13)'],
+                labels: ['ปกติ (คะแนน ≤ 7)', 'ปานกลาง (คะแนน 8-13)', 'รุนแรง (คะแนน > 13)'],
                 datasets: [{
                     label: 'จำนวนนักเรียน (คน)',
                     data: [<?php echo $dep_normal; ?>, <?php echo $dep_moderate; ?>, <?php echo $dep_severe; ?>],
@@ -154,14 +154,14 @@ $dep_severe = $result_dep['severe'] ?? 0;
                 scales: {
                     y: {
                         beginAtZero: true,
-                        ticks: { stepSize: 1 }
+                        ticks: { precision: 0 }
                     }
                 },
                 plugins: {
                     legend: { display: false },
                     title: {
                         display: true,
-                        text: 'ผลการประเมินจากตาราง Assessment'
+                        text: 'ผลการประเมินจาก แบบประเมินภาวะซึมเศร้าในวัยรุ่น'
                     }
                 }
             }
