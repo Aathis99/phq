@@ -75,7 +75,8 @@ if (!empty($pid)) {
     <div class="container container-form">
         <h2>แบบรายงานการยุติให้การดูแลช่วยเหลือรายกรณี</h2>
 
-        <form action="" method="post">
+        <form action="save_closure.php" method="post">
+            <input type="hidden" name="pid" value="<?= htmlspecialchars($pid) ?>">
             <div class="form-section-header">ข้อมูลทั่วไป</div>
 
             <div class="row mb-3">
@@ -148,8 +149,13 @@ if (!empty($pid)) {
                     <label class="form-label">ระดับการศึกษา</label>
                     <select name="education_level" class="form-select" required>
                         <option value="" disabled selected>-- เลือกระดับชั้น --</option>
-                        <?php for ($i = 1; $i <= 6; $i++): ?>
-                            <option value="ม.<?= $i ?>" <?= (isset($student['class']) && $student['class'] == $i) ? 'selected' : '' ?>>ม.<?= $i ?></option>
+                        <?php 
+                        // ดึงเฉพาะตัวเลขจากข้อมูลใน DB (เช่น "ม.1" -> 1, "1" -> 1) เพื่อให้เทียบกับ $i ได้ถูกต้อง
+                        $db_class = isset($student['class']) ? (int)preg_replace('/[^0-9]/', '', $student['class']) : 0;
+                        
+                        for ($i = 1; $i <= 6; $i++): 
+                        ?>
+                            <option value="<?= $i ?>" <?= ($db_class == $i) ? 'selected' : '' ?>>ม.<?= $i ?></option>
                         <?php endfor; ?>
                     </select>
                 </div>

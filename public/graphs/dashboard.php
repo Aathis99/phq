@@ -123,6 +123,17 @@ $dep_severe = $result_dep['severe'] ?? 0;
                     legend: {
                         display: true,
                         position: 'bottom'
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                let value = context.parsed;
+                                let total = <?php echo array_sum($data); ?>;
+                                let percentage = total > 0 ? (value / total * 100).toFixed(2) : 0;
+                                let prefix = (context.label === 'เพศทางเลือก') ? '' : 'เพศ';
+                                return [prefix + context.label + ' : ' + value + ' คน', 'คิดเป็น ' + percentage + '% ของทั้งหมด'];
+                            }
+                        }
                     }
                 }
             }
@@ -162,6 +173,16 @@ $dep_severe = $result_dep['severe'] ?? 0;
                     title: {
                         display: true,
                         text: 'ผลการประเมินจาก แบบประเมินภาวะซึมเศร้าในวัยรุ่น'
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                let value = context.parsed.y;
+                                let total = <?php echo ($dep_normal + $dep_moderate + $dep_severe); ?>;
+                                let percentage = total > 0 ? (value / total * 100).toFixed(2) : 0;
+                                return [context.label, 'คิดเป็น ' + percentage + '% ของทั้งหมด'];
+                            }
+                        }
                     }
                 }
             }
