@@ -19,10 +19,10 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 
 try {
     $db = Database::connect();
-    
+
     // --- 1. รับค่าจากฟอร์ม ---
     $pid = $_POST['pid'] ?? '';
-    
+
     if (empty($pid)) {
         throw new Exception("ไม่พบรหัสบัตรประชาชน (PID)");
     }
@@ -35,7 +35,7 @@ try {
     $age = !empty($_POST['age']) ? $_POST['age'] : null;
     $class = $_POST['education_level'] ?? ''; // ในฟอร์มใช้ชื่อ education_level
     $school_id = !empty($_POST['school_id']) ? $_POST['school_id'] : null;
-    
+
     // ข้อมูลสำหรับ closure_report
     $case_type = $_POST['case_type'] ?? '';
     $case_count = !empty($_POST['case_count']) ? $_POST['case_count'] : null;
@@ -44,7 +44,7 @@ try {
     $detail_school = $_POST['detail_school'] ?? '';
     $detail_hospital = $_POST['detail_hospital'] ?? '';
     $suggestion = $_POST['suggestion'] ?? '';
-    
+
     // ผู้บันทึก (ใช้ Username จาก Session)
     $recorder = $_SESSION['user']['username'] ?? null;
 
@@ -55,7 +55,7 @@ try {
     // อัปเดตเฉพาะข้อมูลที่มีในฟอร์ม (ไม่ยุ่งกับ room หรือ tel ถ้าฟอร์มไม่มี)
     $stmt_check = $db->prepare("SELECT pid FROM student_data WHERE pid = :pid");
     $stmt_check->execute([':pid' => $pid]);
-    
+
     if ($stmt_check->rowCount() > 0) {
         $sql_student = "UPDATE student_data SET 
                         prefix_id = :prefix_id,
@@ -89,7 +89,7 @@ try {
                         :detail_family, :detail_school, :detail_hospital,
                         :suggestion, :recorder, NOW(), NOW()
                     )";
-    
+
     $stmt_closure = $db->prepare($sql_closure);
     $stmt_closure->execute([
         ':pid' => $pid,
@@ -110,7 +110,6 @@ try {
             alert('บันทึกรายงานการยุติเรียบร้อยแล้ว');
             window.location.href = 'add_case_history.php?pid=" . htmlspecialchars($pid) . "';
           </script>";
-
 } catch (Exception $e) {
     if (isset($db) && $db->inTransaction()) {
         $db->rollBack();

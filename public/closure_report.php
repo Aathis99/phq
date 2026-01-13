@@ -52,6 +52,18 @@ if (!empty($pid)) {
     $stmtHistory = $db->prepare("SELECT * FROM add_caselog WHERE pid = :pid ORDER BY report_date DESC, created_at DESC");
     $stmtHistory->execute([':pid' => $pid]);
     $caseLogs = $stmtHistory->fetchAll(PDO::FETCH_ASSOC);
+
+    // 6. ดึงข้อมูลรูปภาพประกอบ (ถ้ามี)
+    $caseImages = [];
+    if (!empty($caseLogs)) {
+        $caseIds = array_column($caseLogs, 'id');
+        $placeholders = implode(',', array_fill(0, count($caseIds), '?'));
+        $stmtImages = $db->prepare("SELECT * FROM images WHERE case_id IN ($placeholders)");
+        $stmtImages->execute($caseIds);
+        while ($row = $stmtImages->fetch(PDO::FETCH_ASSOC)) {
+            $caseImages[$row['case_id']][] = $row['file_name'];
+        }
+    }
 }
 ?>
 <!DOCTYPE html>
@@ -194,9 +206,9 @@ if (!empty($pid)) {
                     </div>
                 </div>
                 <div class="card-body p-0">
-                    <div class="table-responsive">
+                    <div class="table-responsive" style="max-height: 250px; overflow-y: auto;">
                         <table class="table table-hover mb-0">
-                            <thead class="table-light">
+                            <thead class="table-light" style="position: sticky; top: 0; z-index: 5;">
                                 <tr>
                                     <th>ครั้งที่</th>
                                     <th>วันที่</th>
@@ -242,6 +254,18 @@ if (!empty($pid)) {
                                                             <li>ผู้ปกครอง: <?= htmlspecialchars($log['assist_parent'] ?? '-') ?></li>
                                                             <li>โรงพยาบาล: <?= htmlspecialchars($log['assist_hospital'] ?? '-') ?></li>
                                                         </ul>
+                                                        <?php if (!empty($caseImages[$log['id']])): ?>
+                                                            <div class="mt-3">
+                                                                <strong>รูปภาพประกอบ:</strong>
+                                                                <div class="d-flex flex-wrap gap-2 mt-2">
+                                                                    <?php foreach ($caseImages[$log['id']] as $img): ?>
+                                                                        <a href="uploads/cases/<?= htmlspecialchars($img) ?>" target="_blank">
+                                                                            <img src="uploads/cases/<?= htmlspecialchars($img) ?>" class="rounded border shadow-sm" style="width: 100px; height: 100px; object-fit: cover;">
+                                                                        </a>
+                                                                    <?php endforeach; ?>
+                                                                </div>
+                                                            </div>
+                                                        <?php endif; ?>
                                                     </div>
                                                     <div class="modal-footer">
                                                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ปิด</button>

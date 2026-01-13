@@ -43,6 +43,18 @@ try {
     $stmtHistory = $db->prepare("SELECT * FROM add_caselog WHERE pid = :pid ORDER BY report_date DESC, created_at DESC");
     $stmtHistory->execute([':pid' => $pid]);
     $caseLogs = $stmtHistory->fetchAll(PDO::FETCH_ASSOC);
+
+    // 5. ดึงข้อมูลรูปภาพประกอบ (ถ้ามี)
+    $caseImages = [];
+    if (!empty($caseLogs)) {
+        $caseIds = array_column($caseLogs, 'id');
+        $placeholders = implode(',', array_fill(0, count($caseIds), '?'));
+        $stmtImages = $db->prepare("SELECT * FROM images WHERE case_id IN ($placeholders)");
+        $stmtImages->execute($caseIds);
+        while ($row = $stmtImages->fetch(PDO::FETCH_ASSOC)) {
+            $caseImages[$row['case_id']][] = $row['file_name'];
+        }
+    }
 } catch (PDOException $e) {
     echo "<div class='alert alert-danger'>เกิดข้อผิดพลาด: " . htmlspecialchars($e->getMessage()) . "</div>";
     exit;
@@ -57,6 +69,7 @@ try {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ประวัติการช่วยเหลือรายกรณี - PHQ System</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600&display=swap" rel="stylesheet">
     <style>
         body {
@@ -110,10 +123,10 @@ try {
                 <h5 class="mb-0">รายการบันทึกย้อนหลัง (<?= count($caseLogs) ?> ครั้ง)</h5>
                 <div class="d-flex gap-2">
                     <a href="add_case.php?pid=<?= htmlspecialchars($pid) ?>" class="btn btn-success btn-sm">
-                        ➕ เพิ่มรายงานใหม่
+                        <i class="bi bi-clock-history"></i> เพิ่มรายงานใหม่
                     </a>
                     <a href="closure_report.php?pid=<?= htmlspecialchars($pid) ?>" class="btn btn-danger btn-sm">
-                        ➕ รายงานการยุติให้การดูแล
+                        <i class="bi bi-clock-history"></i> รายงานการยุติให้การดูแล
                     </a>
                 </div>
             </div>
@@ -169,6 +182,18 @@ try {
                                                                 <li>ผู้ปกครอง: <?= htmlspecialchars($log['assist_parent'] ?? '-') ?></li>
                                                                 <li>โรงพยาบาล: <?= htmlspecialchars($log['assist_hospital'] ?? '-') ?></li>
                                                             </ul>
+                                                            <?php if (!empty($caseImages[$log['id']])): ?>
+                                                                <div class="mt-3">
+                                                                    <strong>รูปภาพประกอบ:</strong>
+                                                                    <div class="d-flex flex-wrap gap-2 mt-2">
+                                                                        <?php foreach ($caseImages[$log['id']] as $img): ?>
+                                                                            <a href="uploads/cases/<?= htmlspecialchars($img) ?>" target="_blank">
+                                                                                <img src="uploads/cases/<?= htmlspecialchars($img) ?>" class="rounded border shadow-sm" style="width: 100px; height: 100px; object-fit: cover;">
+                                                                            </a>
+                                                                        <?php endforeach; ?>
+                                                                    </div>
+                                                                </div>
+                                                            <?php endif; ?>
                                                             <p class="text-muted small text-end">บันทึกเมื่อ: <?= $log['created_at'] ?></p>
                                                         </div>
                                                         <div class="modal-footer">

@@ -225,7 +225,7 @@ if (isset($_SESSION['user']['username'])) {
 
                 <div class="form-row" style="margin-top: 1rem">
                     <div class="form-col">
-                        <label for="edu_level">ระดับชั้น</label>
+                        <label for="edu_level">ระดับชั้น (ม.)</label>
                         <select id="edu_level" name="edu_level">
                             <option value="">-- เลือกระดับชั้น --</option>
                             <?php for ($i = 1; $i <= 6; $i++): ?>
