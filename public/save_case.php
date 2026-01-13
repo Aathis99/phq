@@ -143,10 +143,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // ---------------------------------------------------------
         // ใช้ $next_id เป็น case_id สำหรับเชื่อมโยง
         if (!empty($_FILES['case_images']['name'][0])) {
-            $upload_dir = dirname(__DIR__) . '/public/uploads/cases/';
+            // ใช้ __DIR__ เพื่ออ้างอิงจากโฟลเดอร์ public โดยตรง
+            $upload_dir = __DIR__ . '/uploads/cases/';
             // สร้างโฟลเดอร์ถ้ายังไม่มี
             if (!is_dir($upload_dir)) {
-                mkdir($upload_dir, 0777, true);
+                if (!mkdir($upload_dir, 0777, true)) {
+                    throw new Exception("ไม่สามารถสร้างโฟลเดอร์ uploads/cases/ ได้ (Permission Denied)");
+                }
             }
 
             $total_files = count($_FILES['case_images']['name']);
@@ -161,6 +164,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     if (move_uploaded_file($tmp_name, $upload_dir . $new_name)) {
                         $stmt_img = $db->prepare("INSERT INTO images (case_id, file_name) VALUES (:case_id, :file_name)");
                         $stmt_img->execute([':case_id' => $next_id, ':file_name' => $new_name]);
+                    } else {
+                        // หากย้ายไฟล์ไม่ได้ ให้แจ้ง Error ทันที
+                        throw new Exception("ไม่สามารถบันทึกไฟล์รูปภาพได้ (ตรวจสอบ Permission ของโฟลเดอร์ uploads)");
                     }
                 }
             }
@@ -172,7 +178,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // แจ้งเตือนและกลับไปหน้าประวัติ
         echo "<script>
                 alert('บันทึกข้อมูลเรียบร้อยแล้ว');
-                window.location.href = 'add_case_history.php.php?pid=" . htmlspecialchars($pid) . "';
+                window.location.href = 'add_case_history.php?pid=" . htmlspecialchars($pid) . "';
               </script>";
     } catch (Exception $e) {
         // หากเกิดข้อผิดพลาด ให้ยกเลิกการทำงาน (Rollback)

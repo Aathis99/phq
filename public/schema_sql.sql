@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Generation Time: Jan 08, 2026 at 09:07 AM
+-- Generation Time: Jan 13, 2026 at 09:27 AM
 -- Server version: 8.0.44-0ubuntu0.22.04.1
 -- PHP Version: 7.4.33
 
@@ -75,6 +75,27 @@ CREATE TABLE `assessment` (
   `manage_stress` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT 'คำถามที่ 13',
   `score` int DEFAULT NULL COMMENT 'คะแนนรวม'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=COMPACT;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `closure_report`
+--
+
+CREATE TABLE `closure_report` (
+  `id` int NOT NULL COMMENT 'รหัสรายงาน (Primary Key)',
+  `pid` varchar(13) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT 'รหัสบัตรประชาชนนักเรียน (FK)',
+  `case_type` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT 'ประเภทกรณี (ซึมเศร้า, เครียด, ฯลฯ)',
+  `case_count` int DEFAULT NULL COMMENT 'ครั้งที่ (1-10)',
+  `report_date` date DEFAULT NULL COMMENT 'วันที่รายงาน',
+  `detail_family` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci COMMENT 'รายละเอียดการติดตาม-ครอบครัว',
+  `detail_school` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci COMMENT 'รายละเอียดการติดตาม-โรงเรียน',
+  `detail_hospital` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci COMMENT 'รายละเอียดการติดตาม-โรงพยาบาล',
+  `suggestion` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci COMMENT 'ข้อเสนอแนะ',
+  `recorder` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT 'ผู้บันทึกข้อมูล (Username)',
+  `created_at` datetime DEFAULT CURRENT_TIMESTAMP COMMENT 'วันเวลาที่บันทึก',
+  `updated_at` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'วันเวลาที่แก้ไขล่าสุด'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='ตารางรายงานการยุติให้การดูแลช่วยเหลือรายกรณี';
 
 -- --------------------------------------------------------
 
@@ -211,6 +232,14 @@ ALTER TABLE `assessment`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Indexes for table `closure_report`
+--
+ALTER TABLE `closure_report`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `idx_closure_pid` (`pid`),
+  ADD KEY `idx_closure_recorder` (`recorder`);
+
+--
 -- Indexes for table `images`
 --
 ALTER TABLE `images`
@@ -287,6 +316,12 @@ ALTER TABLE `assessment`
   MODIFY `id` int NOT NULL AUTO_INCREMENT COMMENT 'idรันaa';
 
 --
+-- AUTO_INCREMENT for table `closure_report`
+--
+ALTER TABLE `closure_report`
+  MODIFY `id` int NOT NULL AUTO_INCREMENT COMMENT 'รหัสรายงาน (Primary Key)';
+
+--
 -- AUTO_INCREMENT for table `images`
 --
 ALTER TABLE `images`
@@ -301,6 +336,13 @@ ALTER TABLE `images`
 --
 ALTER TABLE `add_caselog`
   ADD CONSTRAINT `fk_caselog_student` FOREIGN KEY (`pid`) REFERENCES `student_data` (`pid`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `closure_report`
+--
+ALTER TABLE `closure_report`
+  ADD CONSTRAINT `fk_closure_student` FOREIGN KEY (`pid`) REFERENCES `student_data` (`pid`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_closure_users` FOREIGN KEY (`recorder`) REFERENCES `users` (`username`) ON DELETE SET NULL ON UPDATE CASCADE;
 
 --
 -- Constraints for table `member`
