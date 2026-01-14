@@ -85,7 +85,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'fetch_data') {
 <body class="bg-light">
     <?php include 'navbar.php'; ?>
     <div class="container">
-        <div class="card shadow-sm mb-4">
+        <!-- <div class="card shadow-sm mb-4">
             <div class="card-body">
                 <h4 class="card-title mb-3">🔍 ค้นหาข้อมูล</h4>
                 <div class="input-group">
@@ -94,7 +94,20 @@ if (isset($_GET['action']) && $_GET['action'] === 'fetch_data') {
                     <button class="btn btn-warning" type="button" onclick="document.getElementById('searchInput').value = ''; loadData(true);">รีเซ็ต</button>
                 </div>
             </div>
+        </div> -->
+
+        <div class="card shadow-sm mb-4">
+            <div class="card-body">
+                <h4 class="card-title mb-3">🔍 ค้นหาข้อมูล</h4>
+                <div class="d-flex gap-2">
+                    <input type="text" id="searchInput" class="form-control form-control-lg rounded-pill shadow-sm" placeholder="ระบุ ชื่อ, นามสกุล หรือ เลขบัตรประชาชน...">
+                    <button class="btn btn-primary btn-lg rounded-pill px-4 shadow-sm bg-gradient" type="button" onclick="loadData(true)">🔍ค้นหา</button>
+                    <button class="btn btn-warning btn-lg rounded-pill px-4 shadow-sm bg-gradient" type="button" onclick="document.getElementById('searchInput').value = ''; loadData(true);">⟲ รีเซ็ต</button>
+                </div>
+            </div>
         </div>
+
+
 
         <div class="card shadow-sm">
             <div class="card-header bg-white d-flex justify-content-between align-items-center">

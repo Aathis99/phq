@@ -84,7 +84,7 @@ try {
     <div class="container mt-5">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h2>📜 ประวัติการช่วยเหลือรายกรณี (Case History)</h2>
-            <a href="phq_history.php?pid=<?= htmlspecialchars($pid) ?>" class="btn btn-danger">← กลับหน้าประวัติการประเมิน</a>
+            <a href="phq_history.php?pid=<?= htmlspecialchars($pid) ?>" class="btn btn-danger">↩ กลับหน้าประวัติการประเมิน</a>
         </div>
 
         <!-- ข้อมูลส่วนตัว -->
@@ -163,6 +163,11 @@ try {
                                             <button type="button" class="btn btn-sm btn-warning text-nowrap ms-1" data-bs-toggle="modal" data-bs-target="#editCaseModal<?= $log['id'] ?>">
                                                 ✏️ แก้ไข
                                             </button>
+                                            <form action="api/delete_case.php" method="POST" class="d-inline" onsubmit="return confirm('คุณต้องการลบรายงานนี้ใช่หรือไม่?\n⚠️ การกระทำนี้ไม่สามารถย้อนกลับได้ และรูปภาพประกอบจะถูกลบด้วย');">
+                                                <input type="hidden" name="id" value="<?= $log['id'] ?>">
+                                                <input type="hidden" name="pid" value="<?= htmlspecialchars($pid) ?>">
+                                                <button type="submit" class="btn btn-sm btn-danger text-nowrap ms-1">⛔ ลบ</button>
+                                            </form>
                                             
                                             
 

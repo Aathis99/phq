@@ -75,7 +75,7 @@ function getScoreMeaning($score)
     <div class="container mt-5">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h2>📜 ประวัติการประเมิน (PHQ-9)</h2>
-            <a href="main.php" class="btn btn-danger">← กลับหน้าหลัก</a>
+            <a href="main.php" class="btn btn-danger">↩ กลับหน้าหลัก</a>
         </div>
 
         <!-- ข้อมูลส่วนตัว -->

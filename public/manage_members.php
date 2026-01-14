@@ -43,7 +43,7 @@ $isAdmin = ($stmtRole->fetchColumn() === 'admin');
     <div class="container">
         <div class="d-flex justify-content-between align-items-center mb-3">
             <h3>👥 จัดการข้อมูลสมาชิก (Members)</h3>
-            <a href="main.php" class="btn btn-danger">← กลับหน้าหลัก</a>
+            <a href="main.php" class="btn btn-danger">↩ กลับหน้าหลัก</a>
         </div>
 
         <div class="card shadow-sm">
