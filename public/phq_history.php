@@ -61,6 +61,7 @@ function getScoreMeaning($score)
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ประวัติการประเมิน | PHQ System</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700&display=swap" rel="stylesheet">
     <style>
         body {
@@ -113,7 +114,7 @@ function getScoreMeaning($score)
                 <h5 class="mb-0">รายการประเมินย้อนหลัง (<?= count($history) ?> ครั้ง)</h5>
                 <div class="d-flex gap-2">
                     <a href="add_case_history.php?pid=<?= htmlspecialchars($pid) ?>" class="btn btn-warning btn-sm mb-2">
-                        ➕ ดูรายงานการช่วยเหลือรายกรณี
+                        📝 ดูรายงานการช่วยเหลือรายกรณี
                     </a>
                 </div>
             </div>

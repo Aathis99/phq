@@ -122,11 +122,11 @@ try {
             <div class="card-header bg-white d-flex justify-content-between align-items-center">
                 <h5 class="mb-0">รายการบันทึกย้อนหลัง (<?= count($caseLogs) ?> ครั้ง)</h5>
                 <div class="d-flex gap-2">
-                    <a href="add_case.php?pid=<?= htmlspecialchars($pid) ?>" class="btn btn-success btn-sm">
-                        <i class="bi bi-clock-history"></i> เพิ่มรายงานใหม่
+                    <a href="add_case.php?pid=<?= htmlspecialchars($pid) ?>" class="btn btn-success btn-sm d-inline-flex align-items-center gap-1">
+                        <i class="bi bi-file-earmark-plus-fill fs-5"></i> เพิ่มรายงานใหม่
                     </a>
-                    <a href="closure_report.php?pid=<?= htmlspecialchars($pid) ?>" class="btn btn-danger btn-sm">
-                        <i class="bi bi-clock-history"></i> รายงานการยุติให้การดูแล
+                    <a href="closure_report.php?pid=<?= htmlspecialchars($pid) ?>" class="btn btn-danger btn-sm d-inline-flex align-items-center gap-1">
+                        <i class="bi bi-file-earmark-x fs-5"></i> รายงานการยุติให้การดูแล
                     </a>
                 </div>
             </div>
