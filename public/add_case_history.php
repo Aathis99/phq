@@ -52,7 +52,7 @@ try {
         $stmtImages = $db->prepare("SELECT * FROM images WHERE case_id IN ($placeholders)");
         $stmtImages->execute($caseIds);
         while ($row = $stmtImages->fetch(PDO::FETCH_ASSOC)) {
-            $caseImages[$row['case_id']][] = $row['file_name'];
+            $caseImages[$row['case_id']][] = $row;
         }
     }
 } catch (PDOException $e) {
@@ -156,10 +156,15 @@ try {
                                         </td>
                                         <td><small><?= htmlspecialchars(mb_strimwidth($log['presenting_symptoms'], 0, 100, '...')) ?></small></td>
                                         <td><?= htmlspecialchars($log['recorder']) ?></td>
-                                        <td class="text-center">
+                                        <td class="text-center text-nowrap">
                                             <button type="button" class="btn btn-sm btn-primary text-nowrap" data-bs-toggle="modal" data-bs-target="#viewCaseModal<?= $log['id'] ?>">
                                                 📄 ดูข้อมูล
                                             </button>
+                                            <button type="button" class="btn btn-sm btn-warning text-nowrap ms-1" data-bs-toggle="modal" data-bs-target="#editCaseModal<?= $log['id'] ?>">
+                                                ✏️ แก้ไข
+                                            </button>
+                                            
+                                            
 
                                             <div class="modal fade text-start" id="viewCaseModal<?= $log['id'] ?>" tabindex="-1" aria-hidden="true">
                                                 <div class="modal-dialog modal-lg">
@@ -187,8 +192,8 @@ try {
                                                                     <strong>รูปภาพประกอบ:</strong>
                                                                     <div class="d-flex flex-wrap gap-2 mt-2">
                                                                         <?php foreach ($caseImages[$log['id']] as $img): ?>
-                                                                            <a href="uploads/cases/<?= htmlspecialchars($img) ?>" target="_blank">
-                                                                                <img src="uploads/cases/<?= htmlspecialchars($img) ?>" class="rounded border shadow-sm" style="width: 100px; height: 100px; object-fit: cover;">
+                                                                            <a href="uploads/cases/<?= htmlspecialchars($img['file_name']) ?>" target="_blank">
+                                                                                <img src="uploads/cases/<?= htmlspecialchars($img['file_name']) ?>" class="rounded border shadow-sm" style="width: 100px; height: 100px; object-fit: cover;">
                                                                             </a>
                                                                         <?php endforeach; ?>
                                                                     </div>
@@ -199,6 +204,91 @@ try {
                                                         <div class="modal-footer">
                                                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ปิด</button>
                                                         </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <!-- Modal แก้ไขข้อมูล -->
+                                            <div class="modal fade text-start" id="editCaseModal<?= $log['id'] ?>" tabindex="-1" aria-hidden="true">
+                                                <div class="modal-dialog modal-lg">
+                                                    <div class="modal-content">
+                                                        <div class="modal-header bg-warning">
+                                                            <h5 class="modal-title">✏️ แก้ไขข้อมูลเคส วันที่ <?= date('d/m/Y', strtotime($log['report_date'])) ?></h5>
+                                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                        </div>
+                                                        <form action="api/update_case.php" method="POST" enctype="multipart/form-data">
+                                                            <div class="modal-body">
+                                                                <input type="hidden" name="id" value="<?= $log['id'] ?>">
+                                                                <input type="hidden" name="pid" value="<?= htmlspecialchars($pid) ?>">
+                                                                
+                                                                <div class="row mb-3">
+                                                                    <div class="col-md-6">
+                                                                        <label class="form-label">วันที่รายงาน</label>
+                                                                        <input type="date" name="report_date" class="form-control" value="<?= $log['report_date'] ?>" required>
+                                                                    </div>
+                                                                    <div class="col-md-6">
+                                                                        <label class="form-label">ประเภทกรณี</label>
+                                                                        <select name="case_type" class="form-select" required>
+                                                                            <option value="ซึมเศร้า" <?= $log['case_type'] == 'ซึมเศร้า' ? 'selected' : '' ?>>ซึมเศร้า</option>
+                                                                            <option value="เครียด" <?= $log['case_type'] == 'เครียด' ? 'selected' : '' ?>>เครียด</option>
+                                                                            <option value="วิตกกังวล" <?= $log['case_type'] == 'วิตกกังวล' ? 'selected' : '' ?>>วิตกกังวล</option>
+                                                                            <option value="ปัญหาครอบครัว" <?= $log['case_type'] == 'ปัญหาครอบครัว' ? 'selected' : '' ?>>ปัญหาครอบครัว</option>
+                                                                            <option value="อื่นๆ" <?= $log['case_type'] == 'อื่นๆ' ? 'selected' : '' ?>>อื่นๆ</option>
+                                                                        </select>
+                                                                    </div>
+                                                                </div>
+
+                                                                <div class="mb-3">
+                                                                    <label class="form-label">อาการนำ (Presenting Symptoms)</label>
+                                                                    <textarea name="presenting_symptoms" class="form-control" rows="3"><?= htmlspecialchars($log['presenting_symptoms']) ?></textarea>
+                                                                </div>
+
+                                                                <h6 class="text-primary border-bottom pb-2 mt-4">ข้อมูลเพิ่มเติม</h6>
+                                                                <div class="row">
+                                                                    <div class="col-md-6 mb-2"><label class="form-label small">ประวัติส่วนตัว</label><textarea name="history_personal" class="form-control" rows="2"><?= htmlspecialchars($log['history_personal']) ?></textarea></div>
+                                                                    <div class="col-md-6 mb-2"><label class="form-label small">ข้อมูลจากครอบครัว</label><textarea name="history_family" class="form-control" rows="2"><?= htmlspecialchars($log['history_family']) ?></textarea></div>
+                                                                    <div class="col-md-6 mb-2"><label class="form-label small">ข้อมูลจากโรงเรียน</label><textarea name="history_school" class="form-control" rows="2"><?= htmlspecialchars($log['history_school']) ?></textarea></div>
+                                                                    <div class="col-md-6 mb-2"><label class="form-label small">ข้อมูลจากโรงพยาบาล</label><textarea name="history_hospital" class="form-control" rows="2"><?= htmlspecialchars($log['history_hospital']) ?></textarea></div>
+                                                                </div>
+
+                                                                <h6 class="text-primary border-bottom pb-2 mt-4">แนวทางการช่วยเหลือ</h6>
+                                                                <div class="row">
+                                                                    <div class="col-md-6 mb-2"><label class="form-label small">โรงเรียน</label><textarea name="assist_school" class="form-control" rows="2"><?= htmlspecialchars($log['assist_school']) ?></textarea></div>
+                                                                    <div class="col-md-6 mb-2"><label class="form-label small">ผู้ปกครอง</label><textarea name="assist_parent" class="form-control" rows="2"><?= htmlspecialchars($log['assist_parent']) ?></textarea></div>
+                                                                    <div class="col-md-6 mb-2"><label class="form-label small">โรงพยาบาล</label><textarea name="assist_hospital" class="form-control" rows="2"><?= htmlspecialchars($log['assist_hospital']) ?></textarea></div>
+                                                                    <div class="col-md-6 mb-2"><label class="form-label small">หน่วยงานอื่น</label><textarea name="assist_other" class="form-control" rows="2"><?= htmlspecialchars($log['assist_other']) ?></textarea></div>
+                                                                </div>
+                                                                
+                                                                <div class="mb-3 mt-3">
+                                                                    <label class="form-label">ข้อเสนอแนะ</label>
+                                                                    <textarea name="suggestions" class="form-control" rows="2"><?= htmlspecialchars($log['suggestions']) ?></textarea>
+                                                                </div>
+
+                                                                <div class="mb-3 border-top pt-3">
+                                                                    <label class="form-label fw-bold">จัดการรูปภาพ</label>
+                                                                    <?php if (!empty($caseImages[$log['id']])): ?>
+                                                                        <div class="d-flex flex-wrap gap-3 mb-3">
+                                                                            <?php foreach ($caseImages[$log['id']] as $img): ?>
+                                                                                <div class="text-center">
+                                                                                    <img src="uploads/cases/<?= htmlspecialchars($img['file_name']) ?>" class="rounded border shadow-sm mb-1" style="width: 80px; height: 80px; object-fit: cover;">
+                                                                                    <div class="form-check d-flex justify-content-center">
+                                                                                        <input class="form-check-input me-1" type="checkbox" name="delete_images[]" value="<?= $img['id'] ?>" id="del_img_<?= $img['id'] ?>">
+                                                                                        <label class="form-check-label small text-danger" for="del_img_<?= $img['id'] ?>">ลบ</label>
+                                                                                    </div>
+                                                                                </div>
+                                                                            <?php endforeach; ?>
+                                                                        </div>
+                                                                    <?php endif; ?>
+                                                                    <label class="form-label small">อัปโหลดรูปภาพเพิ่ม (เลือกได้หลายรูป)</label>
+                                                                    <input type="file" name="new_images[]" class="form-control" multiple accept="image/*">
+                                                                </div>
+
+                                                            </div>
+                                                            <div class="modal-footer">
+                                                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ยกเลิก</button>
+                                                                <button type="submit" class="btn btn-primary">บันทึกการแก้ไข</button>
+                                                            </div>
+                                                        </form>
                                                     </div>
                                                 </div>
                                             </div>
