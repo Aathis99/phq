@@ -170,14 +170,14 @@ $isAdmin = ($stmtRole->fetchColumn() === 'admin');
                             const rowData = encodeURIComponent(JSON.stringify(row));
                             
                             // ปุ่มลบ แสดงเฉพาะ Admin
-                            const deleteBtn = isAdmin ? `<button class="btn btn-sm btn-danger" onclick="deleteMember('${row.username}')">🗑️ ลบ</button>` : '';
+                            const deleteBtn = isAdmin ? `<button class="btn btn-sm btn-danger ms-1" onclick="deleteMember('${row.username}')">⛔ ลบ</button>` : '';
 
                             tr.innerHTML = `
                                 <td>${row.prefix_name || ''} ${row.fname} ${row.lname}</td>
                                 <td>${row.position || '-'}</td>
                                 <td><span class="badge bg-secondary">${row.username}</span></td>
                                 <td>${row.typeuser || '-'}</td>
-                                <td class="text-center">
+                                <td class="text-center text-nowrap">
                                     <button class="btn btn-sm btn-warning" onclick="openEditModal('${rowData}')">✏️ แก้ไข</button>
                                     ${deleteBtn}
                                 </td>
