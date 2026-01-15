@@ -97,19 +97,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // 4. บันทึกข้อมูล Case (ตาราง add_caselog)
         // ---------------------------------------------------------
 
-        // หา ID ถัดไป (เผื่อกรณีที่ตารางไม่ได้ตั้ง Auto Increment ไว้)
-        $stmt_max_id = $db->query("SELECT MAX(id) as max_id FROM add_caselog");
-        $res_max = $stmt_max_id->fetch(PDO::FETCH_ASSOC);
-        $next_id = ($res_max['max_id'] ?? 0) + 1;
-
+        // แก้ไข: ตัดการคำนวณ ID เองออก และปล่อยให้ Database จัดการ Auto Increment
         $sql_case = "INSERT INTO add_caselog (
-                        id, pid, case_type, report_date, 
+                        pid, case_type, report_date, 
                         presenting_symptoms, history_personal, history_family, history_school, 
                         personal_habits, history_hospital, consultation_details, event_details, 
                         assist_school, assist_hospital, assist_parent, assist_other, 
                         suggestions, recorder, created_at, updated_at
                     ) VALUES (
-                        :id, :pid, :case_type, :report_date,
+                        :pid, :case_type, :report_date,
                         :presenting_symptoms, :history_personal, :history_family, :history_school,
                         :personal_habits, :history_hospital, :consultation_details, :event_details,
                         :assist_school, :assist_hospital, :assist_parent, :assist_other,
@@ -118,7 +114,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         $stmt_case = $db->prepare($sql_case);
         $stmt_case->execute([
-            ':id' => $next_id,
             ':pid' => $pid,
             ':case_type' => $case_type,
             ':report_date' => $report_date,
@@ -137,6 +132,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ':suggestions' => $suggestions,
             ':recorder' => $recorder
         ]);
+
+        // ดึง ID ที่เพิ่งถูกสร้างโดย Database
+        $next_id = $db->lastInsertId();
 
         // ---------------------------------------------------------
         // 5. จัดการอัปโหลดรูปภาพ (Images)
