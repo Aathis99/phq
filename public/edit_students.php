@@ -50,8 +50,8 @@ $sexes = $db->query("SELECT sex_id, sex_name FROM sex ORDER BY sex_id")->fetchAl
                 <h4 class="card-title mb-3">🔍 ค้นหาข้อมูล</h4>
                 <div class="d-flex gap-2">
                     <input type="text" id="searchInput" class="form-control form-control-lg rounded-pill shadow-sm" placeholder="ระบุ ชื่อ, นามสกุล หรือ เลขบัตรประชาชน...">
-                    <button class="btn btn-primary btn-lg rounded-pill px-4 shadow-sm bg-gradient" type="button" onclick="loadData(true)">🔍 ค้นหา</button>
-                    <button class="btn btn-warning btn-lg rounded-pill px-4 shadow-sm bg-gradient" type="button" onclick="document.getElementById('searchInput').value = ''; loadData(true);">⟲ รีเซ็ต</button>
+                    <button class="btn btn-primary btn-lg rounded-pill px-4 shadow-sm bg-gradient" type="button" onclick="loadData(true)"> ค้นหา</button>
+                    <button class="btn btn-warning btn-lg rounded-pill px-4 shadow-sm bg-gradient" type="button" onclick="document.getElementById('searchInput').value = ''; loadData(true);"> รีเซ็ต</button>
                 </div>
             </div>
         </div>

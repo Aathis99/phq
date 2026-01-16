@@ -161,11 +161,11 @@ if (!empty($pid)) {
                     <label class="form-label">ระดับการศึกษา</label>
                     <select name="education_level" class="form-select" required>
                         <option value="" disabled selected>-- เลือกระดับชั้น --</option>
-                        <?php 
+                        <?php
                         // ดึงเฉพาะตัวเลขจากข้อมูลใน DB (เช่น "ม.1" -> 1, "1" -> 1) เพื่อให้เทียบกับ $i ได้ถูกต้อง
                         $db_class = isset($student['class']) ? (int)preg_replace('/[^0-9]/', '', $student['class']) : 0;
-                        
-                        for ($i = 1; $i <= 6; $i++): 
+
+                        for ($i = 1; $i <= 6; $i++):
                         ?>
                             <option value="<?= $i ?>" <?= ($db_class == $i) ? 'selected' : '' ?>>ม.<?= $i ?></option>
                         <?php endfor; ?>
@@ -231,7 +231,7 @@ if (!empty($pid)) {
                                                 </button>
                                             </td>
                                         </tr>
-                                        
+
                                         <!-- Modal แสดงรายละเอียด -->
                                         <div class="modal fade" id="viewCaseModal<?= $log['id'] ?>" tabindex="-1" aria-hidden="true">
                                             <div class="modal-dialog modal-lg">
@@ -275,13 +275,15 @@ if (!empty($pid)) {
                                         </div>
                                     <?php endforeach; ?>
                                 <?php else: ?>
-                                    <tr><td colspan="5" class="text-center text-muted py-3">ไม่พบประวัติการช่วยเหลือ</td></tr>
+                                    <tr>
+                                        <td colspan="5" class="text-center text-muted py-3">ไม่พบประวัติการช่วยเหลือ</td>
+                                    </tr>
                                 <?php endif; ?>
                             </tbody>
                         </table>
                     </div>
                 </div>
-            </div>          
+            </div>
 
             <div class="form-section-header">รายละเอียดการติดตาม พฤติกรรม/อาการ</div>
 
@@ -303,6 +305,28 @@ if (!empty($pid)) {
                 <textarea name="suggestion" class="form-control" rows="4" placeholder="ระบุข้อเสนอแนะ..."></textarea>
             </div>
 
+            <!-- *** จุดเริ่มต้น code การส่งต่อกรณี *** -->
+            <div class="form-section-header" style="background-color: #ffe0b2; color: #e65100;">การส่งต่อกรณี</div>
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label class="form-label">หน่วยงานที่จะส่งต่อ</label>
+                    <select name="referral_agency" id="referral_agency" class="form-select">
+                        <option value="" selected>-- ไม่มีการส่งต่อ --</option>
+                        <option value="โรงพยาบาลส่งเสริมสุขภาพตำบล">โรงพยาบาลส่งเสริมสุขภาพตำบล</option>
+                        <option value="โรงพยาบาลชุมชน">โรงพยาบาลชุมชน</option>
+                        <option value="โรงพยาบาลทั่วไป/ศูนย์">โรงพยาบาลทั่วไป/ศูนย์</option>
+                        <option value="อื่นๆ">อื่นๆ</option>
+                    </select>
+                </div>
+            </div>
+            <div class="row mb-3" id="referral_other_container" style="display: none;">
+                <div class="col-md-12">
+                    <label class="form-label">ระบุหน่วยงานอื่น</label>
+                    <input type="text" name="referral_other" id="referral_other" class="form-control" placeholder="โปรดระบุ...">
+                </div>
+            </div>
+            <!-- *** บรรทัดที่สิ้นสุด code การส่งต่อกรณี *** -->
+             
             <div class="form-section-header">การบันทึกข้อมูล</div>
             <div class="row mb-4">
                 <div class="col-md-6">
@@ -346,7 +370,7 @@ if (!empty($pid)) {
 
             // Script สำหรับ Filter ประวัติการช่วยเหลือ
             const historyFilter = document.getElementById('historyFilter');
-            if(historyFilter){
+            if (historyFilter) {
                 historyFilter.addEventListener('change', function() {
                     const selectedId = this.value;
                     const rows = document.querySelectorAll('.case-row');
@@ -357,6 +381,24 @@ if (!empty($pid)) {
                             row.style.display = 'none';
                         }
                     });
+                });
+            }
+
+            // Script สำหรับจัดการ Dropdown การส่งต่อกรณี
+            const referralSelect = document.getElementById('referral_agency');
+            const referralOtherContainer = document.getElementById('referral_other_container');
+            const referralOtherInput = document.getElementById('referral_other');
+
+            if (referralSelect) {
+                referralSelect.addEventListener('change', function() {
+                    if (this.value === 'อื่นๆ') {
+                        referralOtherContainer.style.display = 'block';
+                        referralOtherInput.required = true;
+                    } else {
+                        referralOtherContainer.style.display = 'none';
+                        referralOtherInput.required = false;
+                        referralOtherInput.value = '';
+                    }
                 });
             }
         });
