@@ -23,17 +23,16 @@ $method = $_SERVER['REQUEST_METHOD'];
 try {
     // --- GET: ดึงข้อมูลสมาชิกทั้งหมด ---
     if ($method === 'GET' && isset($_GET['action']) && $_GET['action'] === 'fetch') {
-        $sql = "SELECT m.*, u.typeuser, p.prefix_name 
-                FROM member m 
-                JOIN users u ON m.username = u.username 
-                LEFT JOIN prefix p ON m.prefix_id = p.prefix_id";
+        $sql = "SELECT u.*, p.prefix_name 
+                FROM users u 
+                LEFT JOIN prefix p ON u.prefix_id = p.prefix_id";
         
         // ถ้าไม่ใช่ Admin ให้ดึงเฉพาะข้อมูลตัวเอง
         if (!$isAdmin) {
-            $sql .= " WHERE m.username = '" . $currentUser . "'";
+            $sql .= " WHERE u.username = '" . $currentUser . "'";
         }
         
-        $sql .= " ORDER BY m.fname ASC";
+        $sql .= " ORDER BY u.fname ASC";
         $stmt = $db->query($sql);
         $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
         echo json_encode(['status' => 'success', 'data' => $data]);
@@ -54,7 +53,7 @@ try {
             $username = $_POST['username'] ?? '';
             if (empty($username)) throw new Exception("Invalid Username");
 
-            // ลบจาก users (member จะถูกลบด้วย Cascade ตาม Schema)
+            // ลบจาก users
             $stmt = $db->prepare("DELETE FROM users WHERE username = :username");
             $stmt->execute([':username' => $username]);
             
@@ -85,35 +84,38 @@ try {
                     throw new Exception("Permission denied: Cannot edit other users.");
                 }
                 
-                // 1. อัปเดตตาราง users
+                // 1. อัปเดตตาราง users (รวมข้อมูลส่วนตัวและ Login)
+                $sql_update = "";
+                $params = [
+                    ':pid' => $pid,
+                    ':prefix' => $prefix_id,
+                    ':fname' => $fname,
+                    ':lname' => $lname,
+                    ':pos' => $position,
+                    ':user' => $old_username
+                ];
+
                 if (!empty($password)) {
-                    // ถ้ากรอกรหัสผ่านใหม่ ให้แก้ด้วย (Plain text ตามระบบเดิม)
+                    // กรณีเปลี่ยนรหัสผ่าน
                     if ($isAdmin) {
-                        // Admin แก้ได้ทุกอย่างรวมถึง Type
-                        $sql_u = "UPDATE users SET password = :pass, typeuser = :type WHERE username = :user";
-                        $stmt_u = $db->prepare($sql_u);
-                        $stmt_u->execute([':pass' => $password, ':type' => $typeuser, ':user' => $old_username]);
+                        $sql_update = "UPDATE users SET password = :pass, typeuser = :type, pid = :pid, prefix_id = :prefix, fname = :fname, lname = :lname, position = :pos WHERE username = :user";
+                        $params[':type'] = $typeuser;
                     } else {
-                        // Member แก้ได้แค่ Password (ห้ามแก้ Type)
-                        $sql_u = "UPDATE users SET password = :pass WHERE username = :user";
-                        $stmt_u = $db->prepare($sql_u);
-                        $stmt_u->execute([':pass' => $password, ':user' => $old_username]);
+                        $sql_update = "UPDATE users SET password = :pass, pid = :pid, prefix_id = :prefix, fname = :fname, lname = :lname, position = :pos WHERE username = :user";
                     }
+                    $params[':pass'] = $password;
                 } else {
-                    // ถ้าไม่กรอกรหัสผ่าน
+                    // กรณีไม่เปลี่ยนรหัสผ่าน
                     if ($isAdmin) {
-                        $sql_u = "UPDATE users SET typeuser = :type WHERE username = :user";
-                        $stmt_u = $db->prepare($sql_u);
-                        $stmt_u->execute([':type' => $typeuser, ':user' => $old_username]);
+                        $sql_update = "UPDATE users SET typeuser = :type, pid = :pid, prefix_id = :prefix, fname = :fname, lname = :lname, position = :pos WHERE username = :user";
+                        $params[':type'] = $typeuser;
+                    } else {
+                        $sql_update = "UPDATE users SET pid = :pid, prefix_id = :prefix, fname = :fname, lname = :lname, position = :pos WHERE username = :user";
                     }
-                    // ถ้าเป็น Member และไม่เปลี่ยนรหัสผ่าน ก็ไม่ต้องทำอะไรกับตาราง users
                 }
 
-                // 2. อัปเดตตาราง member
-                $sql_m = "UPDATE member SET prefix_id = :prefix, fname = :fname, lname = :lname, position = :pos 
-                          WHERE username = :user";
-                $stmt_m = $db->prepare($sql_m);
-                $stmt_m->execute([':prefix' => $prefix_id, ':fname' => $fname, ':lname' => $lname, ':pos' => $position, ':user' => $old_username]);
+                $stmt = $db->prepare($sql_update);
+                $stmt->execute($params);
 
             } else {
                 // --- กรณีเพิ่มใหม่ (Insert) ---
@@ -123,16 +125,11 @@ try {
                     throw new Exception("Permission denied: Only admin can add new members.");
                 }
                 
-                // 1. เพิ่ม users
-                $sql_u = "INSERT INTO users (username, password, typeuser) VALUES (:user, :pass, :type)";
-                $stmt_u = $db->prepare($sql_u);
-                $stmt_u->execute([':user' => $username, ':pass' => $password, ':type' => $typeuser]);
-
-                // 2. เพิ่ม member
-                $sql_m = "INSERT INTO member (pid, username, prefix_id, fname, lname, position) 
-                          VALUES (:pid, :user, :prefix, :fname, :lname, :pos)";
-                $stmt_m = $db->prepare($sql_m);
-                $stmt_m->execute([':pid' => $pid, ':user' => $username, ':prefix' => $prefix_id, ':fname' => $fname, ':lname' => $lname, ':pos' => $position]);
+                // เพิ่ม users (รวมข้อมูลทั้งหมด)
+                $sql = "INSERT INTO users (username, password, typeuser, pid, prefix_id, fname, lname, position) 
+                        VALUES (:user, :pass, :type, :pid, :prefix, :fname, :lname, :pos)";
+                $stmt = $db->prepare($sql);
+                $stmt->execute([':user' => $username, ':pass' => $password, ':type' => $typeuser, ':pid' => $pid, ':prefix' => $prefix_id, ':fname' => $fname, ':lname' => $lname, ':pos' => $position]);
             }
 
             $db->commit();

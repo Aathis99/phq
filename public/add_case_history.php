@@ -40,7 +40,13 @@ try {
     }
 
     // 4. ดึงประวัติการช่วยเหลือ (add_caselog)
-    $stmtHistory = $db->prepare("SELECT * FROM add_caselog WHERE pid = :pid ORDER BY report_date DESC, created_at DESC");
+    $sql_history = "SELECT ac.*, u.fname AS u_fname, u.lname AS u_lname, p.prefix_name AS u_prefix 
+                    FROM add_caselog ac
+                    LEFT JOIN users u ON ac.recorder = u.username
+                    LEFT JOIN prefix p ON u.prefix_id = p.prefix_id
+                    WHERE ac.pid = :pid 
+                    ORDER BY ac.report_date DESC, ac.created_at DESC";
+    $stmtHistory = $db->prepare($sql_history);
     $stmtHistory->execute([':pid' => $pid]);
     $caseLogs = $stmtHistory->fetchAll(PDO::FETCH_ASSOC);
 
@@ -204,7 +210,12 @@ try {
                                                                     </div>
                                                                 </div>
                                                             <?php endif; ?>
-                                                            <p class="text-muted small text-end">บันทึกเมื่อ: <?= $log['created_at'] ?></p>
+                                                            <p class="text-muted small text-end mb-0">บันทึกเมื่อ: <?= $log['created_at'] ?></p>
+                                                            <?php 
+                                                                $recorder_show = trim(($log['u_prefix'] ?? '') . ($log['u_fname'] ?? '') . ' ' . ($log['u_lname'] ?? ''));
+                                                                if ($recorder_show === '') $recorder_show = $log['recorder'];
+                                                            ?>
+                                                            <p class="text-muted small text-end mt-0">ผู้บันทึก : <?= htmlspecialchars($recorder_show) ?></p>
                                                         </div>
                                                         <div class="modal-footer">
                                                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ปิด</button>

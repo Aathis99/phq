@@ -32,10 +32,10 @@ $recorder_name = "";
 if (isset($_SESSION['user']['username'])) {
     $current_user = $_SESSION['user']['username'];
 
-    $sql_recorder = "SELECT p.prefix_name, m.fname, m.lname 
-                     FROM member m 
-                     INNER JOIN prefix p ON m.prefix_id = p.prefix_id 
-                     WHERE m.username = :username";
+    $sql_recorder = "SELECT p.prefix_name, u.fname, u.lname 
+                     FROM users u 
+                     INNER JOIN prefix p ON u.prefix_id = p.prefix_id 
+                     WHERE u.username = :username";
 
     $stmt = $db->prepare($sql_recorder);
     $stmt->execute([':username' => $current_user]);

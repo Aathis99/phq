@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: localhost
--- Generation Time: Jan 13, 2026 at 09:27 AM
+-- Generation Time: Jan 19, 2026 at 02:10 PM
 -- Server version: 8.0.44-0ubuntu0.22.04.1
 -- PHP Version: 7.4.33
 
@@ -92,6 +92,8 @@ CREATE TABLE `closure_report` (
   `detail_school` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci COMMENT 'รายละเอียดการติดตาม-โรงเรียน',
   `detail_hospital` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci COMMENT 'รายละเอียดการติดตาม-โรงพยาบาล',
   `suggestion` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci COMMENT 'ข้อเสนอแนะ',
+  `referral_agency` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT 'หน่วยงานที่ส่งต่อ',
+  `referral_other` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT 'ระบุหน่วยงานอื่น',
   `recorder` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT 'ผู้บันทึกข้อมูล (Username)',
   `created_at` datetime DEFAULT CURRENT_TIMESTAMP COMMENT 'วันเวลาที่บันทึก',
   `updated_at` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'วันเวลาที่แก้ไขล่าสุด'
@@ -109,21 +111,6 @@ CREATE TABLE `images` (
   `file_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT 'ชื่อไฟล์รูปภาพที่บันทึกใน Server',
   `uploaded_at` datetime DEFAULT CURRENT_TIMESTAMP COMMENT 'เวลาที่อัปโหลด'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='ตารางเก็บรูปภาพประกอบเคส';
-
--- --------------------------------------------------------
-
---
--- Table structure for table `member`
---
-
-CREATE TABLE `member` (
-  `pid` varchar(13) COLLATE utf8mb4_general_ci NOT NULL COMMENT 'รหัสบัตรประชาชน (Primary Key)',
-  `username` varchar(50) COLLATE utf8mb4_general_ci NOT NULL COMMENT 'Foreign Key เชื่อมกับตาราง users',
-  `prefix_id` int DEFAULT NULL COMMENT 'Foreign Key เชื่อมกับตาราง prefix',
-  `fname` varchar(100) COLLATE utf8mb4_general_ci NOT NULL COMMENT 'ชื่อจริง',
-  `lname` varchar(100) COLLATE utf8mb4_general_ci NOT NULL COMMENT 'นามสกุล',
-  `position` varchar(100) COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT 'ตำแหน่ง'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -210,7 +197,12 @@ CREATE TABLE `users` (
   `username` varchar(20) COLLATE utf8mb4_general_ci NOT NULL,
   `password` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
   `typeuser` varchar(20) COLLATE utf8mb4_general_ci DEFAULT NULL,
-  `comment` varchar(100) COLLATE utf8mb4_general_ci DEFAULT NULL
+  `comment` varchar(100) COLLATE utf8mb4_general_ci DEFAULT NULL,
+  `pid` varchar(13) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT 'รหัสบัตรประชาชน',
+  `prefix_id` int DEFAULT NULL COMMENT 'Foreign Key เชื่อมกับตาราง prefix',
+  `fname` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT 'ชื่อจริง',
+  `lname` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT 'นามสกุล',
+  `position` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT 'ตำแหน่ง'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=DYNAMIC;
 
 --
@@ -245,14 +237,6 @@ ALTER TABLE `closure_report`
 ALTER TABLE `images`
   ADD PRIMARY KEY (`id`),
   ADD KEY `fk_images_caselog` (`case_id`);
-
---
--- Indexes for table `member`
---
-ALTER TABLE `member`
-  ADD PRIMARY KEY (`pid`),
-  ADD KEY `fk_member_users` (`username`),
-  ADD KEY `fk_member_prefix` (`prefix_id`);
 
 --
 -- Indexes for table `phq_question`
@@ -297,7 +281,8 @@ ALTER TABLE `type`
 -- Indexes for table `users`
 --
 ALTER TABLE `users`
-  ADD PRIMARY KEY (`username`) USING BTREE;
+  ADD PRIMARY KEY (`username`) USING BTREE,
+  ADD KEY `fk_users_prefix` (`prefix_id`);
 
 --
 -- AUTO_INCREMENT for dumped tables
@@ -345,19 +330,18 @@ ALTER TABLE `closure_report`
   ADD CONSTRAINT `fk_closure_users` FOREIGN KEY (`recorder`) REFERENCES `users` (`username`) ON DELETE SET NULL ON UPDATE CASCADE;
 
 --
--- Constraints for table `member`
---
-ALTER TABLE `member`
-  ADD CONSTRAINT `fk_member_prefix` FOREIGN KEY (`prefix_id`) REFERENCES `prefix` (`prefix_id`) ON DELETE SET NULL ON UPDATE CASCADE,
-  ADD CONSTRAINT `fk_member_users` FOREIGN KEY (`username`) REFERENCES `users` (`username`) ON DELETE CASCADE ON UPDATE CASCADE;
-
---
 -- Constraints for table `student_data`
 --
 ALTER TABLE `student_data`
   ADD CONSTRAINT `fk_student_prefix` FOREIGN KEY (`prefix_id`) REFERENCES `prefix` (`prefix_id`) ON DELETE SET NULL ON UPDATE CASCADE,
   ADD CONSTRAINT `fk_student_school` FOREIGN KEY (`school_id`) REFERENCES `school` (`school_id`) ON DELETE SET NULL ON UPDATE CASCADE,
   ADD CONSTRAINT `fk_student_sex` FOREIGN KEY (`sex`) REFERENCES `sex` (`sex_id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+--
+-- Constraints for table `users`
+--
+ALTER TABLE `users`
+  ADD CONSTRAINT `fk_users_prefix` FOREIGN KEY (`prefix_id`) REFERENCES `prefix` (`prefix_id`) ON DELETE SET NULL ON UPDATE CASCADE;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
