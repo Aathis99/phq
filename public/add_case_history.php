@@ -39,21 +39,55 @@ try {
         exit;
     }
 
-    // 4. ดึงประวัติการช่วยเหลือ (add_caselog)
-    $sql_history = "SELECT ac.*, u.fname AS u_fname, u.lname AS u_lname, p.prefix_name AS u_prefix 
+    // 4. ดึงประวัติการช่วยเหลือ (add_caselog) และ รายงานการยุติ (closure_report)
+    // 4.1 add_caselog
+    $sql_caselog = "SELECT ac.*, 'case' as record_type, u.fname AS u_fname, u.lname AS u_lname, p.prefix_name AS u_prefix 
                     FROM add_caselog ac
                     LEFT JOIN users u ON ac.recorder = u.username
                     LEFT JOIN prefix p ON u.prefix_id = p.prefix_id
-                    WHERE ac.pid = :pid 
-                    ORDER BY ac.report_date DESC, ac.created_at DESC";
-    $stmtHistory = $db->prepare($sql_history);
-    $stmtHistory->execute([':pid' => $pid]);
-    $caseLogs = $stmtHistory->fetchAll(PDO::FETCH_ASSOC);
+                    WHERE ac.pid = :pid";
+    $stmtCaselog = $db->prepare($sql_caselog);
+    $stmtCaselog->execute([':pid' => $pid]);
+    $logs = $stmtCaselog->fetchAll(PDO::FETCH_ASSOC);
 
-    // 5. ดึงข้อมูลรูปภาพประกอบ (ถ้ามี)
+    // 4.2 closure_report
+    $sql_closure = "SELECT cr.*, 'closure' as record_type, u.fname AS u_fname, u.lname AS u_lname, p.prefix_name AS u_prefix 
+                    FROM closure_report cr
+                    LEFT JOIN users u ON cr.recorder = u.username
+                    LEFT JOIN prefix p ON u.prefix_id = p.prefix_id
+                    WHERE cr.pid = :pid";
+    $stmtClosure = $db->prepare($sql_closure);
+    $stmtClosure->execute([':pid' => $pid]);
+    $closures = $stmtClosure->fetchAll(PDO::FETCH_ASSOC);
+
+    // ตรวจสอบว่ามีรายงานการยุติแล้วหรือไม่
+    $hasClosure = count($closures) > 0;
+
+    // รวมข้อมูลและเรียงลำดับตามวันที่ (ใหม่สุดขึ้นก่อน)
+    $caseLogs = array_merge($logs, $closures);
+    usort($caseLogs, function($a, $b) {
+        // ให้ Closure Report อยู่บนสุดเสมอ
+        if ($a['record_type'] === 'closure' && $b['record_type'] !== 'closure') {
+            return -1;
+        }
+        if ($a['record_type'] !== 'closure' && $b['record_type'] === 'closure') {
+            return 1;
+        }
+
+        // เรียงตามวันที่บันทึก (created_at) ล่าสุดขึ้นก่อน (ครั้งล่าสุดที่กรอก)
+        return strtotime($b['created_at']) - strtotime($a['created_at']);
+    });
+
+    // 5. ดึงข้อมูลรูปภาพประกอบ (เฉพาะ add_caselog)
     $caseImages = [];
-    if (!empty($caseLogs)) {
-        $caseIds = array_column($caseLogs, 'id');
+    $caseIds = [];
+    foreach ($caseLogs as $l) {
+        if ($l['record_type'] === 'case') {
+            $caseIds[] = $l['id'];
+        }
+    }
+
+    if (!empty($caseIds)) {
         $placeholders = implode(',', array_fill(0, count($caseIds), '?'));
         $stmtImages = $db->prepare("SELECT * FROM images WHERE case_id IN ($placeholders)");
         $stmtImages->execute($caseIds);
@@ -77,6 +111,8 @@ try {
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         body {
             font-family: 'Sarabun', sans-serif;
@@ -128,12 +164,23 @@ try {
             <div class="card-header bg-white d-flex justify-content-between align-items-center">
                 <h5 class="mb-0">รายการบันทึกย้อนหลัง (<?= count($caseLogs) ?> ครั้ง)</h5>
                 <div class="d-flex gap-2">
-                    <a href="add_case.php?pid=<?= htmlspecialchars($pid) ?>" class="btn btn-success btn-sm d-inline-flex align-items-center gap-1">
-                        <i class="bi bi-file-earmark-plus-fill fs-5"></i> เพิ่มรายงานใหม่
-                    </a>
-                    <a href="closure_report.php?pid=<?= htmlspecialchars($pid) ?>" class="btn btn-danger btn-sm d-inline-flex align-items-center gap-1">
-                        <i class="bi bi-file-earmark-x fs-5"></i> รายงานการยุติให้การดูแล
-                    </a>
+                    <?php if ($hasClosure): ?>
+                        <!-- กรณีมีรายงานการยุติแล้ว ให้แสดงปุ่มแบบกดแล้วแจ้งเตือน -->
+                        <button type="button" class="btn btn-secondary btn-sm d-inline-flex align-items-center gap-1" onclick="showClosureAlert()">
+                            <i class="bi bi-file-earmark-plus-fill fs-5"></i> เพิ่มรายงานใหม่
+                        </button>
+                        <button type="button" class="btn btn-secondary btn-sm d-inline-flex align-items-center gap-1" onclick="showClosureAlert()">
+                            <i class="bi bi-file-earmark-x fs-5"></i> รายงานการยุติให้การดูแล
+                        </button>
+                    <?php else: ?>
+                        <!-- กรณีปกติ -->
+                        <a href="add_case.php?pid=<?= htmlspecialchars($pid) ?>" class="btn btn-success btn-sm d-inline-flex align-items-center gap-1">
+                            <i class="bi bi-file-earmark-plus-fill fs-5"></i> เพิ่มรายงานใหม่
+                        </a>
+                        <a href="closure_report.php?pid=<?= htmlspecialchars($pid) ?>" class="btn btn-danger btn-sm d-inline-flex align-items-center gap-1">
+                            <i class="bi bi-file-earmark-x fs-5"></i> รายงานการยุติให้การดูแล
+                        </a>
+                    <?php endif; ?>
                 </div>
             </div>
             <div class="card-body p-0">
@@ -152,20 +199,35 @@ try {
                         <tbody>
                             <?php if (count($caseLogs) > 0): ?>
                                 <?php foreach ($caseLogs as $index => $log): ?>
-                                    <tr>
+                                    <?php 
+                                        $isClosure = ($log['record_type'] === 'closure');
+                                        // ใช้ --bs-table-bg เพื่อ override สีพื้นหลังของ Bootstrap table-striped
+                                        $rowStyle = $isClosure ? 'style="background-color: #5DD3B6; --bs-table-bg: #5DD3B6;"' : '';
+                                        $modalId = 'viewModal_' . $log['record_type'] . '_' . $log['id'];
+                                    ?>
+                                    <tr <?= $rowStyle ?>>
                                         <td><?= count($caseLogs) - $index ?></td>
                                         <td><?= date('d/m/Y', strtotime($log['report_date'])) ?></td>
                                         <td>
-                                            <span class="badge rounded-pill bg-info text-dark">
+                                            <span class="badge rounded-pill <?= $isClosure ? 'bg-success' : 'bg-info' ?> text-dark">
                                                 <?= htmlspecialchars($log['case_type']) ?>
                                             </span>
                                         </td>
-                                        <td><small><?= htmlspecialchars(mb_strimwidth($log['presenting_symptoms'], 0, 100, '...')) ?></small></td>
+                                        <td>
+                                            <small>
+                                                <?php if ($isClosure): ?>
+                                                    <strong>[รายงานการยุติ]</strong> <?= htmlspecialchars(mb_strimwidth($log['suggestion'] ?? '', 0, 100, '...')) ?>
+                                                <?php else: ?>
+                                                    <?= htmlspecialchars(mb_strimwidth($log['presenting_symptoms'] ?? '', 0, 100, '...')) ?>
+                                                <?php endif; ?>
+                                            </small>
+                                        </td>
                                         <td><?= htmlspecialchars($log['recorder']) ?></td>
                                         <td class="text-center text-nowrap">
-                                            <button type="button" class="btn btn-sm btn-primary text-nowrap" data-bs-toggle="modal" data-bs-target="#viewCaseModal<?= $log['id'] ?>">
+                                            <button type="button" class="btn btn-sm btn-primary text-nowrap" data-bs-toggle="modal" data-bs-target="#<?= $modalId ?>">
                                                 📄 ดูข้อมูล
                                             </button>
+                                            <?php if (!$isClosure): ?>
                                             <button type="button" class="btn btn-sm btn-warning text-nowrap ms-1" data-bs-toggle="modal" data-bs-target="#editCaseModal<?= $log['id'] ?>">
                                                 ✏️ แก้ไข
                                             </button>
@@ -174,17 +236,40 @@ try {
                                                 <input type="hidden" name="pid" value="<?= htmlspecialchars($pid) ?>">
                                                 <button type="submit" class="btn btn-sm btn-danger text-nowrap ms-1">⛔ ลบ</button>
                                             </form>
+                                            <?php endif; ?>
                                             
                                             
 
-                                            <div class="modal fade text-start" id="viewCaseModal<?= $log['id'] ?>" tabindex="-1" aria-hidden="true">
+                                            <div class="modal fade text-start" id="<?= $modalId ?>" tabindex="-1" aria-hidden="true">
                                                 <div class="modal-dialog modal-lg">
                                                     <div class="modal-content">
                                                         <div class="modal-header bg-primary text-white">
-                                                            <h5 class="modal-title">รายละเอียดเคส วันที่ <?= date('d/m/Y', strtotime($log['report_date'])) ?></h5>
+                                                            <h5 class="modal-title">
+                                                                <?= $isClosure ? 'รายละเอียดรายงานการยุติ' : 'รายละเอียดเคส' ?> 
+                                                                วันที่ <?= date('d/m/Y', strtotime($log['report_date'])) ?>
+                                                            </h5>
                                                             <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                                                         </div>
                                                         <div class="modal-body">
+                                                            <?php if ($isClosure): ?>
+                                                                <!-- ส่วนแสดงผลสำหรับ Closure Report -->
+                                                                <p><strong>ประเภทกรณี:</strong> <?= htmlspecialchars($log['case_type']) ?></p>
+                                                                <p><strong>ครั้งที่:</strong> <?= htmlspecialchars($log['case_count'] ?? '-') ?></p>
+                                                                <hr>
+                                                                <p><strong>รายละเอียดการติดตาม:</strong></p>
+                                                                <ul>
+                                                                    <li>ครอบครัว: <?= htmlspecialchars($log['detail_family'] ?? '-') ?></li>
+                                                                    <li>โรงเรียน: <?= htmlspecialchars($log['detail_school'] ?? '-') ?></li>
+                                                                    <li>โรงพยาบาล: <?= htmlspecialchars($log['detail_hospital'] ?? '-') ?></li>
+                                                                </ul>
+                                                                <hr>
+                                                                <p><strong>ข้อเสนอแนะ:</strong><br> <?= nl2br(htmlspecialchars($log['suggestion'] ?? '-')) ?></p>
+                                                                <p><strong>การส่งต่อ:</strong> 
+                                                                    <?= htmlspecialchars($log['referral_agency'] ?? '-') ?>
+                                                                    <?php if (!empty($log['referral_other'])) echo ' (' . htmlspecialchars($log['referral_other']) . ')'; ?>
+                                                                </p>
+                                                            <?php else: ?>
+                                                                <!-- ส่วนแสดงผลสำหรับ Case Log ปกติ -->
                                                             <p><strong>ประเภทกรณี:</strong> <?= htmlspecialchars($log['case_type']) ?></p>
                                                             <p><strong>อาการนำ:</strong><br> <?= nl2br(htmlspecialchars($log['presenting_symptoms'])) ?></p>
                                                             <hr>
@@ -210,6 +295,8 @@ try {
                                                                     </div>
                                                                 </div>
                                                             <?php endif; ?>
+                                                            <?php endif; ?>
+
                                                             <p class="text-muted small text-end mb-0">บันทึกเมื่อ: <?= $log['created_at'] ?></p>
                                                             <?php 
                                                                 $recorder_show = trim(($log['u_prefix'] ?? '') . ($log['u_fname'] ?? '') . ' ' . ($log['u_lname'] ?? ''));
@@ -224,6 +311,7 @@ try {
                                                 </div>
                                             </div>
 
+                                            <?php if (!$isClosure): ?>
                                             <!-- Modal แก้ไขข้อมูล -->
                                             <div class="modal fade text-start" id="editCaseModal<?= $log['id'] ?>" tabindex="-1" aria-hidden="true">
                                                 <div class="modal-dialog modal-lg">
@@ -308,6 +396,7 @@ try {
                                                     </div>
                                                 </div>
                                             </div>
+                                            <?php endif; ?>
                                         </td>
                                     </tr>
                                 <?php endforeach; ?>
@@ -326,6 +415,16 @@ try {
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function showClosureAlert() {
+            Swal.fire({
+                icon: 'warning',
+                title: 'ไม่สามารถบันทึกได้',
+                text: 'นักเรียนคนนี้ ได้ยุติการช่วยเหลือไปแล้ว ตรวจสอบรายละเอียด หรือ พิมพ์รายงาน ได้ที่ปุ่มดูข้อมูล',
+                confirmButtonText: 'ตกลง'
+            });
+        }
+    </script>
 </body>
 
 </html>

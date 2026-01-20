@@ -21,7 +21,8 @@ if (isset($_GET['action']) && $_GET['action'] === 'fetch_data') {
         $search = isset($_GET['search']) ? preg_replace('/\s+/', ' ', trim($_GET['search'])) : '';
 
         // Query ข้อมูลจาก student_data
-        $sql = "SELECT s.*, p.prefix_name, sc.school_name, sx.sex_name
+        $sql = "SELECT s.*, p.prefix_name, sc.school_name, sx.sex_name,
+                (SELECT COUNT(*) FROM closure_report cr WHERE cr.pid = s.pid) as has_closure
                 FROM student_data s
                 LEFT JOIN prefix p ON s.prefix_id = p.prefix_id
                 LEFT JOIN school sc ON s.school_id = sc.school_id
@@ -85,17 +86,6 @@ if (isset($_GET['action']) && $_GET['action'] === 'fetch_data') {
 <body class="bg-light">
     <?php include 'navbar.php'; ?>
     <div class="container">
-        <!-- <div class="card shadow-sm mb-4">
-            <div class="card-body">
-                <h4 class="card-title mb-3">🔍 ค้นหาข้อมูล</h4>
-                <div class="input-group">
-                    <input type="text" id="searchInput" class="form-control form-control-lg" placeholder="ระบุ ชื่อ, นามสกุล หรือ เลขบัตรประชาชน...">
-                    <button class="btn btn-primary" type="button" onclick="loadData(true)">ค้นหา</button>
-                    <button class="btn btn-warning" type="button" onclick="document.getElementById('searchInput').value = ''; loadData(true);">รีเซ็ต</button>
-                </div>
-            </div>
-        </div> -->
-
         <div class="card shadow-sm mb-4">
             <div class="card-body">
                 <h4 class="card-title mb-3">🔍 ค้นหาข้อมูล</h4>
@@ -183,6 +173,13 @@ if (isset($_GET['action']) && $_GET['action'] === 'fetch_data') {
                             if (data.length > 0) {
                                 data.forEach(row => {
                                     const tr = document.createElement('tr');
+                                    
+                                    // ตรวจสอบว่ามีรายงานการยุติหรือไม่ ถ้ามีให้เปลี่ยนสีพื้นหลัง
+                                    if (row.has_closure > 0) {
+                                        tr.style.backgroundColor = '#5DD3B6';
+                                        tr.style.setProperty('--bs-table-bg', '#5DD3B6');
+                                    }
+
                                     // ${row.pid} อยากแสดง เลขบัตรประชาชนด้วย ให้เพิ่ม ไปตรงกลาง <br><small class="text-muted">+++++++++++++</small></td>
                                     tr.innerHTML = `
                                         <td>${(row.prefix_name || '')} ${row.fname} ${row.lname} <br><small class="text-muted"></small></td>
