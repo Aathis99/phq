@@ -414,11 +414,13 @@ try {
         </div>
     </div>
 
+
+    <!-- 16:12 ติดตั้ง sweet alert และต้องสร้าง function และเรียกใช้  จะนำไปใช้กับทุกหน้าในเพจ -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         function showClosureAlert() {
             Swal.fire({
-                icon: 'warning',
+                icon: 'error',
                 title: 'ไม่สามารถบันทึกได้',
                 text: 'นักเรียนคนนี้ ได้ยุติการช่วยเหลือไปแล้ว ตรวจสอบรายละเอียด หรือ พิมพ์รายงาน ได้ที่ปุ่มดูข้อมูล',
                 confirmButtonText: 'ตกลง'
