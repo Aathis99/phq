@@ -221,7 +221,8 @@ ALTER TABLE `add_caselog`
 -- Indexes for table `assessment`
 --
 ALTER TABLE `assessment`
-  ADD PRIMARY KEY (`id`);
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `idx_pid` (`pid`);
 
 --
 -- Indexes for table `closure_report`
@@ -323,11 +324,23 @@ ALTER TABLE `add_caselog`
   ADD CONSTRAINT `fk_caselog_student` FOREIGN KEY (`pid`) REFERENCES `student_data` (`pid`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
+-- Constraints for table `assessment`
+--
+ALTER TABLE `assessment`
+  ADD CONSTRAINT `fk_assessment_student` FOREIGN KEY (`pid`) REFERENCES `student_data` (`pid`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
 -- Constraints for table `closure_report`
 --
 ALTER TABLE `closure_report`
   ADD CONSTRAINT `fk_closure_student` FOREIGN KEY (`pid`) REFERENCES `student_data` (`pid`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `fk_closure_users` FOREIGN KEY (`recorder`) REFERENCES `users` (`username`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+--
+-- Constraints for table `images`
+--
+ALTER TABLE `images`
+  ADD CONSTRAINT `fk_images_caselog_constraint` FOREIGN KEY (`case_id`) REFERENCES `add_caselog` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 --
 -- Constraints for table `student_data`
