@@ -15,12 +15,20 @@ if (isset($_SESSION['user'])) {
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
-            /* ส่วนสำหรับใส่ภาพพื้นหลัง (Uncomment และใส่ URL รูปภาพที่ต้องการ) */
-            background-image: url('image/bg_login.jpg');
             background-color: #ACBAC4; /* สีพื้นหลังสำรอง */
+            position: relative;
+        }
+        /* ใช้ pseudo-element เพื่อปรับ Opacity ของภาพพื้นหลังโดยไม่กระทบเนื้อหา */
+        body::before {
+            content: "";
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background-image: url('image/bg_login.jpg');
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
+            opacity: 0.8; /* ปรับระดับความจาง (0.0 - 1.0) */
+            z-index: -1;
         }
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(20px); }
@@ -62,8 +70,8 @@ if (isset($_SESSION['user'])) {
                             </button>
                         </form>
 
-                        <div class="text-center mt-3">
-                            <a href="index.php">← กลับหน้าแบบประเมิน</a>
+                        <div class="mt-4 pt-3 border-top text-center">
+                            <a href="index.php" class="text-decoration-none text-secondary">← กลับหน้าแบบประเมิน</a>
                         </div>
                     </div>
                 </div>
