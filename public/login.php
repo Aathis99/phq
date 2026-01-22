@@ -13,32 +13,8 @@ if (isset($_SESSION['user'])) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login | PHQ System</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        body {
-            background-color: #ACBAC4; /* สีพื้นหลังสำรอง */
-            position: relative;
-        }
-        /* ใช้ pseudo-element เพื่อปรับ Opacity ของภาพพื้นหลังโดยไม่กระทบเนื้อหา */
-        body::before {
-            content: "";
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background-image: url('image/bg_login.jpg');
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
-            opacity: 0.8; /* ปรับระดับความจาง (0.0 - 1.0) */
-            z-index: -1;
-        }
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        .card {
-            border-radius: 1rem; /* ปรับความโค้งมนของการ์ดให้ดูทันสมัยขึ้น */
-            animation: fadeIn 0.7s ease-out;
-        }
-    </style>
+    <!-- แยกไฟล์ CSS ออกไปที่ css/login.css -->
+    <link href="css/login.css" rel="stylesheet">
 </head>
 
 <body class="d-flex align-items-center min-vh-100 py-4">
