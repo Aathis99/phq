@@ -2,9 +2,6 @@
 session_start();
 require_once dirname(__DIR__) . '/app/core/Database.php';
 
-// ... (ส่วน Logic PHP ด้านบนเหมือนเดิมทุกประการ ไม่ต้องแก้) ...
-// เพื่อความกระชับ ผมขอละไว้ในฐานที่เข้าใจนะครับ ให้คง code php เดิมไว้
-// เริ่มแก้ตั้งแต่บรรทัด <!DOCTYPE html> ครับ
 
 $message = '';
 if (isset($_SESSION['message'])) {
@@ -172,17 +169,17 @@ $db = null;
                     </div>
                     <div class="form-col">
                         <label for="firstname">ชื่อ</label>
-                        <input type="text" id="firstname" name="firstname" />
+                        <input type="text" id="firstname" name="firstname" required />
                     </div>
                     <div class="form-col">
                         <label for="lastname">นามสกุล</label>
-                        <input type="text" id="lastname" name="lastname" />
+                        <input type="text" id="lastname" name="lastname" required />
                     </div>
                 </div>
                 <div class="form-row" style="margin-top: 1rem">
                     <div class="form-col">
                         <label for="gender">เพศ</label>
-                        <select id="gender" name="gender">
+                        <select id="gender" name="gender" required>
                             <option value="">-- เลือกเพศ --</option>
                             <?php foreach ($sexes as $sex): ?>
                                 <option value="<?= $sex['sex_id'] ?>"><?= htmlspecialchars($sex['sex_name']) ?></option>
@@ -191,7 +188,7 @@ $db = null;
                     </div>
                     <div class="form-col">
                         <label for="age">อายุ</label>
-                        <select id="age" name="age">
+                        <select id="age" name="age" required>
                             <option value="">-- เลือกอายุ --</option>
                             <?php for ($i = 12; $i <= 20; $i++): ?>
                                 <option value="<?= $i ?>"><?= $i ?></option>
@@ -202,7 +199,7 @@ $db = null;
                 <div class="form-row" style="margin-top: 1rem;">
                     <div class="form-col">
                         <label for="school">โรงเรียน</label>
-                        <select id="school" name="school">
+                        <select id="school" name="school" required>
                             <option value="">-- เลือกโรงเรียน --</option>
                             <?php foreach ($schools as $school): ?>
                                 <option value="<?= $school['school_id'] ?>"><?= htmlspecialchars($school['school_name']) ?></option>
@@ -213,7 +210,7 @@ $db = null;
                 <div class="form-row" style="margin-top: 1rem;">
                     <div class="form-col">
                         <label for="class_level">ระดับชั้นมัธยมศึกษา (ม.)</label>
-                        <select id="class_level" name="class_level">
+                        <select id="class_level" name="class_level" required>
                             <option value="">-- เลือกระดับชั้น --</option>
                             <?php for ($i = 1; $i <= 6; $i++): ?>
                                 <option value="<?= $i ?>"><?= $i ?></option>
@@ -222,7 +219,7 @@ $db = null;
                     </div>
                     <div class="form-col">
                         <label for="room">ห้อง</label>
-                        <select id="room" name="room">
+                        <select id="room" name="room" required>
                             <option value="">-- เลือกห้อง --</option>
                             <?php for ($i = 1; $i <= 20; $i++): ?>
                                 <option value="<?= $i ?>"><?= $i ?></option>
@@ -233,7 +230,7 @@ $db = null;
                 <div class="form-row" style="margin-top: 1rem;">
                     <div class="form-col">
                         <label for="tel">เบอร์โทรศัพท์</label>
-                        <input type="text" id="tel" name="tel" inputmode="numeric" pattern="[0-9]{10}" maxlength="10" minlength="10" oninput="this.value = this.value.replace(/[^0-9]/g, '')" title="กรุณากรอกเบอร์โทรศัพท์ 10 หลัก" />
+                        <input type="text" id="tel" name="tel" inputmode="numeric" pattern="[0-9]{10}" maxlength="10" minlength="10" oninput="this.value = this.value.replace(/[^0-9]/g, '')" title="กรุณากรอกเบอร์โทรศัพท์ 10 หลัก" required />
                     </div>
                 </div>
             </section>

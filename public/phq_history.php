@@ -129,7 +129,7 @@ function getScoreMeaning($score)
                                 <th style="width: 15%">ผลการประเมิน</th>
                                 <th style="width: 20%">สาเหตุความเครียด</th>
                                 <th style="width: 20%">การจัดการความเครียด</th>
-                                <th style="width: 10%">รายงาน</th>
+                                <th style="width: 15%" class="text-center">จัดการ</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -146,10 +146,15 @@ function getScoreMeaning($score)
                                         <td><?= getScoreMeaning($row['score']) ?></td>
                                         <td><small><?= htmlspecialchars($row['stress'] ?? '-') ?></small></td>
                                         <td><small><?= htmlspecialchars($row['manage_stress'] ?? '-') ?></small></td>
-                                        <td class="text-center">
-                                            <a href="phq_report.php?id=<?= $row['id'] ?>" class="btn btn-sm btn-info text-nowrap" target="_blank">
+                                        <td class="text-center text-nowrap">
+                                            <a href="phq_report.php?id=<?= $row['id'] ?>" class="btn btn-sm btn-info" target="_blank">
                                                 📄 ดูรายงาน
                                             </a>
+                                            <form action="api/delete_assessment.php" method="POST" class="d-inline" onsubmit="return confirm('คุณต้องการลบรายงานการประเมินนี้ใช่หรือไม่?');">
+                                                <input type="hidden" name="id" value="<?= $row['id'] ?>">
+                                                <input type="hidden" name="pid" value="<?= htmlspecialchars($pid) ?>">
+                                                <button type="submit" class="btn btn-sm btn-danger ms-1">⛔ ลบ</button>
+                                            </form>
                                         </td>
                                     </tr>
                                 <?php endforeach; ?>

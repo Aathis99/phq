@@ -10,11 +10,30 @@ if (isset($_SESSION['user'])) {
 
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login | PHQ System</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            /* ส่วนสำหรับใส่ภาพพื้นหลัง (Uncomment และใส่ URL รูปภาพที่ต้องการ) */
+            background-image: url('image/bg_login.jpg');
+            background-color: #ACBAC4; /* สีพื้นหลังสำรอง */
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .card {
+            border-radius: 1rem; /* ปรับความโค้งมนของการ์ดให้ดูทันสมัยขึ้น */
+            animation: fadeIn 0.7s ease-out;
+        }
+    </style>
 </head>
 
-<body class="bg-light d-flex align-items-center min-vh-100">
+<body class="d-flex align-items-center min-vh-100 py-4">
 
     <div class="container">
         <div class="row justify-content-center">
