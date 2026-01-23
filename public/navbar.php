@@ -2,38 +2,106 @@
 // ตรวจสอบชื่อไฟล์ปัจจุบัน
 $current_page = basename($_SERVER['PHP_SELF']);
 ?>
-<nav class="navbar navbar-expand-lg navbar-dark bg-primary mb-4">
+<!-- เพิ่ม Bootstrap Icons -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+<style>
+    .navbar-modern {
+        background-color: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
+        border-bottom: 1px solid rgba(0,0,0,0.05);
+        padding: 0.8rem 0;
+    }
+    .navbar-brand-modern {
+        font-weight: 700;
+        color: #334155 !important;
+        font-size: 1.3rem;
+        letter-spacing: -0.5px;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    .nav-btn-modern {
+        border-radius: 50px;
+        padding: 0.5rem 1.2rem;
+        font-size: 0.9rem;
+        font-weight: 500;
+        transition: all 0.2s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        border: 1px solid transparent;
+    }
+    .nav-btn-modern:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    }
+    
+    /* Soft Button Styles */
+    .btn-soft-primary { background-color: #e0f2fe; color: #0284c7; }
+    .btn-soft-primary:hover { background-color: #0284c7; color: #ffffff; }
+
+    .btn-soft-teal { background-color: #ccfbf1; color: #0f766e; }
+    .btn-soft-teal:hover { background-color: #0f766e; color: #ffffff; }
+
+    .btn-soft-danger { background-color: #fee2e2; color: #991b1b; }
+    .btn-soft-danger:hover { background-color: #ef4444; color: #ffffff; }
+    
+    .user-badge {
+        background-color: #f1f5f9;
+        padding: 0.4rem 1rem;
+        border-radius: 50px;
+        font-size: 0.85rem;
+        color: #475569;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+</style>
+
+<nav class="navbar navbar-expand-lg navbar-light navbar-modern mb-4 sticky-top">
     <div class="container">
-        <a class="navbar-brand" href="index.php">Student Data Management</a>
+        <a class="navbar-brand navbar-brand-modern" href="index.php">
+            <i class="bi bi-heart-pulse-fill text-primary"></i>
+            แบบทดสอบภาวะซึมเศร้า PHQ-9
+        </a>
 
-        <div class="d-flex gap-2">
-            <?php if (isset($_SESSION['user'])): ?>
+        <button class="navbar-toggler border-0 shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
+            <span class="navbar-toggler-icon"></span>
+        </button>
 
-                <?php if ($current_page != 'main.php'): ?>
-                    <a href="main.php" class="btn btn-warning btn-sm">จัดการข้อมูล</a>
-                <?php endif; ?>
-                <!-- ใช้ style เพื่อกำหนด Hex Code สีม่วง -->
-                <a href="manage_members.php" class="btn btn-sm text-black" style="background-color: #8ddcdc; border-color: #8ddcdc;">แก้ไขข้อมูลสมาชิก</a>
-                <?php
-                // --- ส่วนเช็คเงื่อนไขปุ่มย้อนกลับ ---
-                // ถ้าอยู่หน้า phq_history.php ให้แสดงปุ่ม "ย้อนกลับ" (กลับไป main.php)
-                if ($current_page == 'phq_history.php'):
-                ?>
-                    <!-- <a href="main.php" class="btn btn-secondary btn-sm border-white text-white">
-                        <i class="bi bi-arrow-left"></i> ย้อนกลับ
-                    </a> -->
-                <?php endif; ?>
+        <div class="collapse navbar-collapse" id="navbarContent">
+            <div class="ms-auto d-flex gap-2 align-items-center flex-wrap mt-3 mt-lg-0">
+                <?php if (isset($_SESSION['user'])): ?>
+                    
+                    <div class="user-badge me-2 d-none d-lg-flex">
+                        <i class="bi bi-person-circle text-secondary"></i>
+                        <?= htmlspecialchars($_SESSION['user']['username']) ?>
+                    </div>
 
-                <!-- <a href="index.php" class="btn btn-light text-primary btn-sm">ไปหน้า Index</a> -->
+                    <?php if ($current_page != 'main.php'): ?>
+                        <a href="main.php" class="btn btn-soft-primary nav-btn-modern text-decoration-none">
+                            <i class="bi bi-database"></i> จัดการข้อมูล
+                        </a>
+                    <?php endif; ?>
+                    
+                    <a href="manage_members.php" class="btn btn-soft-teal nav-btn-modern text-decoration-none">
+                        <i class="bi bi-people"></i> สมาชิก
+                    </a>
 
-
-
-                <a href="logout.php" class="btn btn-danger btn-sm">ออกจากระบบ</a>
+                    <a href="logout.php" class="btn btn-soft-danger nav-btn-modern text-decoration-none">
+                        <i class="bi bi-box-arrow-right"></i> ออกจากระบบ
+                    </a>
 
             <?php else: ?>
-                <!-- <a href="index.php" class="btn btn-success btn-sm">ทำแบบประเมิน</a> -->
-                <a href="login.php" class="btn btn-success btn-sm">เข้าสู่ระบบผู้ดูแล</a>
+                    <a href="login.php" class="btn btn-primary nav-btn-modern shadow-sm border-0 px-4" style="background: linear-gradient(135deg, #0ea5e9 0%, #2563eb 100%);">
+                        <i class="bi bi-shield-lock"></i> เข้าสู่ระบบผู้ดูแล
+                    </a>
             <?php endif; ?>
+            </div>
         </div>
     </div>
 </nav>
