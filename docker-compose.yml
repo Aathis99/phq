@@ -1,0 +1,50 @@
+services:
+  # Web Server (ตามภาพใหม่ที่ระบุว่าเป็น nginx/1.28.0)
+  web:
+    image: nginx:stable-alpine
+    ports:
+      - "80:80"
+    volumes:
+      - ./:/var/www/html
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - app
+
+  # PHP Processor (ล็อคเวอร์ชัน 8.4 ตามภาพใหม่)
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ./:/var/www/html
+
+  # Database (ตามภาพใหม่ที่ระบุว่าเป็น MariaDB 10.11.14)
+  db:
+    image: mariadb:10.11
+    environment:
+      MARIADB_ROOT_PASSWORD: root_password
+      MARIADB_DATABASE: sesa_db
+      MARIADB_USER: sesalpglpn_supervision
+      MARIADB_PASSWORD: your_password
+    ports:
+      - "3306:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+      # ข้อแนะนำ: ควรใส่เครื่องหมาย " " ครอบพาธที่มีเว้นวรรคแบบนี้ครับ
+      - "./db/schema (1).sql:/docker-entrypoint-initdb.d/init.sql"
+
+  # ตัวจัดการฐานข้อมูล phpMyAdmin
+  phpmyadmin:
+    image: phpmyadmin:5.2.1
+    ports:
+      - "8080:80"
+    environment:
+      PMA_HOST: db
+      PMA_USER: root
+      PMA_PASSWORD: root_password
+    depends_on:
+      - db
+
+# --- จุดสำคัญที่ขาดไป และต้องเยื้องให้ชิดซ้ายสุด ---
+volumes:
+  db_data:
