@@ -364,8 +364,47 @@ if (isset($_SESSION['user']['username'])) {
             const previewContainer = document.getElementById('image_preview_container');
             const dataTransfer = new DataTransfer(); // ใช้จัดการรายการไฟล์
 
+            // ฟังก์ชันย่อรูปภาพ (Client-side Compression)
+            const compressImage = async (file) => {
+                if (!file.type.startsWith('image/')) return file;
+                
+                return new Promise((resolve) => {
+                    const reader = new FileReader();
+                    reader.readAsDataURL(file);
+                    reader.onload = (e) => {
+                        const img = new Image();
+                        img.src = e.target.result;
+                        img.onload = () => {
+                            const canvas = document.createElement('canvas');
+                            const maxWidth = 1200; // กำหนดความกว้างสูงสุด (Standard Size)
+                            let width = img.width;
+                            let height = img.height;
+
+                            if (width > maxWidth) {
+                                height *= maxWidth / width;
+                                width = maxWidth;
+                            }
+
+                            canvas.width = width;
+                            canvas.height = height;
+                            const ctx = canvas.getContext('2d');
+                            ctx.drawImage(img, 0, 0, width, height);
+
+                            canvas.toBlob((blob) => {
+                                // สร้างไฟล์ใหม่จาก Blob (บังคับเป็น JPEG เพื่อลดขนาด)
+                                const newFile = new File([blob], file.name.replace(/\.[^/.]+$/, ".jpg"), {
+                                    type: 'image/jpeg',
+                                    lastModified: Date.now()
+                                });
+                                resolve(newFile);
+                            }, 'image/jpeg', 0.8); // คุณภาพ 80%
+                        };
+                    };
+                });
+            };
+
             if (imageInput) {
-                imageInput.addEventListener('change', function(e) {
+                imageInput.addEventListener('change', async function(e) {
                     const files = Array.from(this.files);
                     
                     // ตรวจสอบจำนวนรูปรวม (ของเดิม + ที่เลือกใหม่)
@@ -375,14 +414,25 @@ if (isset($_SESSION['user']['username'])) {
                         return;
                     }
 
-                    // เพิ่มไฟล์ใหม่ลงใน DataTransfer (ป้องกันไฟล์ซ้ำ)
-                    files.forEach(file => {
+                    // เปลี่ยน Cursor เป็น Loading ระหว่างประมวลผล
+                    document.body.style.cursor = 'wait';
+
+                    for (let file of files) {
+                        // ตรวจสอบชื่อไฟล์ซ้ำ
                         let exists = Array.from(dataTransfer.files).some(f => f.name === file.name && f.size === file.size);
                         if (!exists) {
-                            dataTransfer.items.add(file);
+                            try {
+                                // ย่อรูปก่อนเพิ่มเข้า DataTransfer
+                                const compressedFile = await compressImage(file);
+                                dataTransfer.items.add(compressedFile);
+                            } catch (err) {
+                                console.error("Compression failed:", err);
+                                dataTransfer.items.add(file); // ถ้า error ให้ใช้ไฟล์เดิม
+                            }
                         }
-                    });
+                    }
 
+                    document.body.style.cursor = 'default';
                     updateImageInput();
                 });
             }

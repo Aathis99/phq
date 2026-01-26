@@ -390,7 +390,7 @@ try {
                                                             </div>
                                                             <div class="modal-footer">
                                                                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">ยกเลิก</button>
-                                                                <button type="submit" class="btn btn-primary">บันทึกการแก้ไข</button>
+                                                                <button type="button" class="btn btn-primary" onclick="validateAndSubmitEditForm(this.form, <?= count($caseImages[$log['id']] ?? []) ?>)">บันทึกการแก้ไข</button>
                                                             </div>
                                                         </form>
                                                     </div>
@@ -425,6 +425,29 @@ try {
                 text: 'นักเรียนคนนี้ ได้ยุติการช่วยเหลือไปแล้ว ตรวจสอบรายละเอียด หรือ พิมพ์รายงาน ได้ที่ปุ่มดูข้อมูล',
                 confirmButtonText: 'ตกลง'
             });
+        }
+
+// function ตรวจสอบจำนวนรูปภาพก่อนส่งฟอร์มแก้ไขเคส (จำนวนรูปเดิม - จำนวนรูปที่ติ๊กลบ) + จำนวนรูปที่อัปโหลดใหม่ พร้อม sweet alert
+        function validateAndSubmitEditForm(form, existingImageCount) {
+            const newImagesInput = form.querySelector('input[name="new_images[]"]');
+            const newImagesCount = newImagesInput ? newImagesInput.files.length : 0;
+            
+            const imagesToDeleteCount = form.querySelectorAll('input[name="delete_images[]"]:checked').length;
+            
+            const finalImageCount = (existingImageCount - imagesToDeleteCount) + newImagesCount;
+            
+            if (finalImageCount > 4) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'รูปภาพเกินจำนวนที่กำหนด',
+                    text: 'รูปต้องไม่เกิน 4 รูป หากต้องการอัพโหลด กรุณาติกลบรูปเดิมก่อน',
+                    confirmButtonText: 'ตกลง'
+                });
+                return false; // หยุดการส่งฟอร์ม
+            }
+            
+            // หากผ่านการตรวจสอบ ให้ส่งฟอร์ม
+            form.submit();
         }
     </script>
 </body>
