@@ -384,7 +384,8 @@ try {
                                                                         </div>
                                                                     <?php endif; ?>
                                                                     <label class="form-label small">อัปโหลดรูปภาพเพิ่ม (เลือกได้หลายรูป)</label>
-                                                                    <input type="file" name="new_images[]" class="form-control" multiple accept="image/*">
+                                                                    <input type="file" name="new_images[]" id="new_images_<?= $log['id'] ?>" class="form-control new-images-input" multiple accept="image/*">
+                                                                    <div id="preview_container_<?= $log['id'] ?>" class="d-flex flex-wrap gap-2 mt-2"></div>
                                                                 </div>
 
                                                             </div>
@@ -414,42 +415,10 @@ try {
         </div>
     </div>
 
-
     <!-- 16:12 ติดตั้ง sweet alert และต้องสร้าง function และเรียกใช้  จะนำไปใช้กับทุกหน้าในเพจ -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        function showClosureAlert() {
-            Swal.fire({
-                icon: 'error',
-                title: 'ไม่สามารถบันทึกได้',
-                text: 'นักเรียนคนนี้ ได้ยุติการช่วยเหลือไปแล้ว ตรวจสอบรายละเอียด หรือ พิมพ์รายงาน ได้ที่ปุ่มดูข้อมูล',
-                confirmButtonText: 'ตกลง'
-            });
-        }
-
-// function ตรวจสอบจำนวนรูปภาพก่อนส่งฟอร์มแก้ไขเคส (จำนวนรูปเดิม - จำนวนรูปที่ติ๊กลบ) + จำนวนรูปที่อัปโหลดใหม่ พร้อม sweet alert
-        function validateAndSubmitEditForm(form, existingImageCount) {
-            const newImagesInput = form.querySelector('input[name="new_images[]"]');
-            const newImagesCount = newImagesInput ? newImagesInput.files.length : 0;
-            
-            const imagesToDeleteCount = form.querySelectorAll('input[name="delete_images[]"]:checked').length;
-            
-            const finalImageCount = (existingImageCount - imagesToDeleteCount) + newImagesCount;
-            
-            if (finalImageCount > 4) {
-                Swal.fire({
-                    icon: 'warning',
-                    title: 'รูปภาพเกินจำนวนที่กำหนด',
-                    text: 'รูปต้องไม่เกิน 4 รูป หากต้องการอัพโหลด กรุณาติกลบรูปเดิมก่อน',
-                    confirmButtonText: 'ตกลง'
-                });
-                return false; // หยุดการส่งฟอร์ม
-            }
-            
-            // หากผ่านการตรวจสอบ ให้ส่งฟอร์ม
-            form.submit();
-        }
-    </script>
+    <script src="script/javascript/add_case_history.js"></script>
+    
 </body>
 
 </html>
