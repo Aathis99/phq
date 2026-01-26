@@ -4,6 +4,12 @@ if (isset($_SESSION['user'])) {
     header("Location: index.php");
     exit;
 }
+
+$message = '';
+if (isset($_SESSION['message'])) {
+    $message = $_SESSION['message'];
+    unset($_SESSION['message']);
+}
 ?>
 <!DOCTYPE html>
 <html lang="th">
@@ -12,7 +18,12 @@ if (isset($_SESSION['user'])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login | PHQ System</title>
+    <!-- SweetAlert2 CSS (optional, but good practice if customizing) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap JS Bundle (includes Popper) -->
+    <!-- Global Stylesheet (for background) -->
+    <link href="css/style.css" rel="stylesheet">
     <!-- แยกไฟล์ CSS ออกไปที่ css/login.css -->
     <link href="css/login.css" rel="stylesheet">
 </head>
@@ -26,8 +37,8 @@ if (isset($_SESSION['user'])) {
                     <div class="card-body">
                         <h4 class="text-center mb-3">🔐 เข้าสู่ระบบ</h4>
 
-                        <?php if (isset($_GET['error'])): ?>
-                            <div class="alert alert-danger">ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง</div>
+                        <?php if (!empty($message)): ?>
+                            <div id="session-message" data-type="<?= strpos($message, 'success') !== false ? 'success' : 'error' ?>" data-text="<?= strip_tags($message) ?>"></div>
                         <?php endif; ?>
 
                         <form method="post" action="login_process.php">
@@ -55,6 +66,10 @@ if (isset($_SESSION['user'])) {
         </div>
     </div>
 
+    <!-- SweetAlert2 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="script/javascript/sweetalert_utils.js"></script>
 </body>
 
 </html>

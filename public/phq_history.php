@@ -1,7 +1,6 @@
 <?php
 session_start();
 require_once dirname(__DIR__) . '/app/core/Database.php';
-require_once 'navbar.php';
 
 // ตรวจสอบสิทธิ์
 if (!isset($_SESSION['user'])) {
@@ -61,7 +60,10 @@ function getScoreMeaning($score)
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ประวัติการประเมิน | PHQ System</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap JS Bundle (includes Popper) -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <!-- Global Stylesheet (for background) -->
+    <link href="css/style.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700&display=swap" rel="stylesheet">
     <style>
         body {
@@ -70,8 +72,9 @@ function getScoreMeaning($score)
     </style>
 </head>
 
-<body class="bg-light">
+<body>
 
+    <?php require_once 'navbar.php'; ?>
     <div class="container mt-5">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h2>📜 ประวัติการประเมิน (PHQ-9)</h2>
@@ -169,6 +172,7 @@ function getScoreMeaning($score)
             </div>
         </div>
     </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 
 </html>

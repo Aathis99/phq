@@ -21,7 +21,12 @@ $sexes = $db->query("SELECT sex_id, sex_name FROM sex ORDER BY sex_id")->fetchAl
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>แก้ไขข้อมูลนักเรียน | PHQ System</title>
+    <!-- SweetAlert2 CSS (optional, but good practice if customizing) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap JS Bundle (includes Popper) -->
+    <!-- Global Stylesheet (for background) -->
+    <link href="css/style.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700&display=swap" rel="stylesheet">
     <style>
         body {
@@ -36,7 +41,7 @@ $sexes = $db->query("SELECT sex_id, sex_name FROM sex ORDER BY sex_id")->fetchAl
     </style>
 </head>
 
-<body class="bg-light">
+<body>
     <?php include 'navbar.php'; ?>
     <div class="container">
         <div class="d-flex justify-content-between align-items-center mb-3">
@@ -186,6 +191,8 @@ $sexes = $db->query("SELECT sex_id, sex_name FROM sex ORDER BY sex_id")->fetchAl
         </div>
     </div>
 
+    <!-- SweetAlert2 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         let page = 1;
@@ -303,7 +310,7 @@ $sexes = $db->query("SELECT sex_id, sex_name FROM sex ORDER BY sex_id")->fetchAl
                 .then(res => res.json())
                 .then(data => {
                     if (data.status === 'success') {
-                        alert('บันทึกข้อมูลเรียบร้อย');
+                        showSuccessAlert('บันทึกข้อมูลเรียบร้อย');
                         editModal.hide();
                         loadData(true); // รีโหลดตาราง
                     } else {
@@ -313,24 +320,27 @@ $sexes = $db->query("SELECT sex_id, sex_name FROM sex ORDER BY sex_id")->fetchAl
         }
 
         function deleteStudent(pid, name) {
-            if (confirm(`คุณต้องการลบข้อมูลของ "${name}" ใช่หรือไม่?\n\n⚠️ การกระทำนี้ไม่สามารถย้อนกลับได้ และข้อมูลการประเมินทั้งหมดจะถูกลบด้วย`)) {
+            showConfirmAlert(
+                `คุณต้องการลบข้อมูลของ "${name}" ใช่หรือไม่?`,
+                '⚠️ การกระทำนี้ไม่สามารถย้อนกลับได้ และข้อมูลการประเมินทั้งหมดจะถูกลบด้วย',
+                () => {
                 const formData = new FormData();
                 formData.append('pid', pid);
 
                 fetch('api/delete_student.php', {
                         method: 'POST',
                         body: formData
-                    })
-                    .then(res => res.json())
-                    .then(data => {
-                        if (data.status === 'success') {
-                            alert('ลบข้อมูลเรียบร้อยแล้ว');
-                            loadData(true); // รีโหลดตาราง
-                        } else {
-                            alert('เกิดข้อผิดพลาด: ' + data.message);
-                        }
-                    });
-            }
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        showSuccessAlert('ลบข้อมูลเรียบร้อยแล้ว');
+                        loadData(true); // รีโหลดตาราง
+                    } else {
+                        showErrorAlert('เกิดข้อผิดพลาด!', data.message);
+                    }
+                });
+            });
         }
 
         document.addEventListener('DOMContentLoaded', () => loadData());
@@ -343,6 +353,8 @@ $sexes = $db->query("SELECT sex_id, sex_name FROM sex ORDER BY sex_id")->fetchAl
                 loadData(true);
             }
         });
+    </script>
+    <script src="script/javascript/sweetalert_utils.js"></script>
     </script>
 </body>
 

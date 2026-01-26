@@ -18,14 +18,14 @@
   box-sizing: border-box;
 }
 
-body {
-  font-family: 'Sarabun', sans-serif;
-  background: linear-gradient(120deg, #e0c3fc 0%, #8ec5fc 100%);
-  color: var(--text-color);
-  min-height: 100vh;
-  margin: 0;
-  padding-bottom: 3rem; /* เผื่อพื้นที่ด้านล่าง */
-  line-height: 1.6;
+body { 
+  font-family: 'Sarabun', sans-serif; 
+  color: var(--text-color); 
+  min-height: 100vh; 
+  margin: 0; 
+  padding-bottom: 3rem; 
+  line-height: 1.6; 
+  background: linear-gradient(120deg, #e0f2fe 0%, #f0f9ff 100%); /* Soft blue gradient for a calming effect */
   background-attachment: fixed;
 }
 

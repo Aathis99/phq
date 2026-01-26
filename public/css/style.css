@@ -1,68 +1,34 @@
-/* General Body Styling */
+/* public/css/style.css */
+/* This file contains global styles for the entire application. */
+
 body {
-    background-color: #f8f9fa;
-    font-family: 'Kanit', sans-serif;
+    /* A neutral, light background color as a fallback and for pages without the image. */
+    background-color: #BBE0EF;
+    position: relative; /* Required for the ::before pseudo-element. */
+    background-attachment: fixed;
 }
 
-/* Login Container */
-.login-container {
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: url('../image/bg_login.jpg') no-repeat center center fixed;
+/* The pseudo-element for the background image. */
+body::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url('../image/bg_login.jpg');
     background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    /* A very subtle opacity for content pages, making text readable. */
+    opacity: 0.10;
+    z-index: -1; /* Place it behind all content. */
 }
 
-.login-card {
-    border: none;
-    border-radius: 15px;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-    background-color: rgba(255, 255, 255, 0.9);
-}
-
-.login-card .card-header {
-    background-color: transparent;
-    border-bottom: none;
-    text-align: center;
-    padding: 1.5rem 1.5rem 0 1.5rem;
-}
-
-.login-card .card-header h3 {
-    margin: 0;
-    font-weight: 700;
-    color: #333;
-}
-
-.login-card .card-body {
-    padding: 2rem;
-}
-
-/* Form Styling */
-.form-floating > .form-control {
-    border-radius: 10px;
-}
-
-.form-floating > label {
-    padding-left: 1.5rem;
-}
-
-/* Button Styling */
-.btn-primary {
-    background-color: #007bff;
-    border-color: #007bff;
-    border-radius: 10px;
-    padding: 0.75rem;
-    font-weight: 600;
-    transition: background-color 0.2s;
-}
-
-.btn-primary:hover {
-    background-color: #0056b3;
-    border-color: #0056b3;
-}
-
-/* Alerts */
-.alert {
-    border-radius: 10px;
+/* For print, remove the background to save ink. */
+@media print {
+    body, body::before {
+        background-image: none !important;
+        background-color: #fff !important;
+    }
 }

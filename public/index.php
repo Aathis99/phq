@@ -130,6 +130,11 @@ $db = null;
     <title>แบบประเมินภาวะซึมเศร้าในวัยรุ่น</title>
     <link rel="icon" href="images/favicon.png" type="image/png">
     
+    <!-- Global Stylesheet (for background) -->
+    <link href="css/style.css" rel="stylesheet">
+    <!-- SweetAlert2 CSS (optional, but good practice if customizing) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+    <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="css/index.css" rel="stylesheet">
 </head>
@@ -144,9 +149,9 @@ $db = null;
             <a href="graphs/dashboard.php" class="btn btn-primary">📊 คลิกเพื่อดูสถิติ</a>
         </div>
 
-        <?php if (!empty($message)) {
-            echo $message;
-        } ?>
+        <?php if (!empty($message)): ?>
+            <div id="session-message" data-type="<?= strpos($message, 'success') !== false ? 'success' : 'error' ?>" data-text="<?= strip_tags($message) ?>"></div>
+        <?php endif; ?>
 
         <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post">
             <section class="personal-info">
@@ -297,7 +302,12 @@ $db = null;
     </div>
 
     <!-- แยกไฟล์ JavaScript ออกไปที่ js/assessment.js -->
+    <!-- SweetAlert2 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- Bootstrap JS Bundle (includes Popper) -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="script/javascript/assessment.js"></script>
+    <script src="script/javascript/sweetalert_utils.js"></script>
 </body>
 
 </html>

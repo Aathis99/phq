@@ -109,7 +109,12 @@ if (isset($_SESSION['user']['username'])) {
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>แบบฟอร์มรายงานการช่วยเหลือรายกรณี</title>
+    <!-- SweetAlert2 CSS (optional, but good practice if customizing) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap JS Bundle (includes Popper) -->
+    <!-- Global Stylesheet (for background) -->
+    <link href="css/style.css" rel="stylesheet">
     <link href="css/form2.css" rel="stylesheet">
     <style>
         .sticky-back-btn {
@@ -356,6 +361,9 @@ if (isset($_SESSION['user']['username'])) {
             <button type="submit" class="submit-btn">บันทึกข้อมูล</button>
         </form>
     </div>
+    <!-- SweetAlert2 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="../public/script/javascript/form2.js"></script>
     <script>
         document.addEventListener("DOMContentLoaded", () => {
@@ -409,7 +417,7 @@ if (isset($_SESSION['user']['username'])) {
                     
                     // ตรวจสอบจำนวนรูปรวม (ของเดิม + ที่เลือกใหม่)
                     if (dataTransfer.files.length + files.length > 4) {
-                        alert('สามารถอัปโหลดได้สูงสุด 4 รูปครับ');
+                        showInfoAlert('จำกัดจำนวนรูปภาพ', 'สามารถอัปโหลดได้สูงสุด 4 รูปครับ');
                         this.files = dataTransfer.files; // คืนค่าเดิม
                         return;
                     }

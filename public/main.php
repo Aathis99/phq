@@ -63,27 +63,30 @@ if (isset($_GET['action']) && $_GET['action'] === 'fetch_data') {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>จัดการข้อมูลการประเมิน | PHQ System</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap JS Bundle (includes Popper) -->
+    <!-- Global Stylesheet (for background) -->
+    <link href="css/style.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700&display=swap" rel="stylesheet">
     <style>
         body {
             font-family: 'Sarabun', sans-serif;
-        }
 
-        .loading {
-            text-align: center;
-            padding: 20px;
-            display: none;
-        }
+            .loading {
+                text-align: center;
+                padding: 20px;
+                display: none;
+            }
 
-        .score-badge {
-            min-width: 30px;
-            display: inline-block;
-            text-align: center;
+            .score-badge {
+                min-width: 30px;
+                display: inline-block;
+                text-align: center;
+            }
         }
     </style>
 </head>
 
-<body class="bg-light">
+<body>
     <?php include 'navbar.php'; ?>
     <div class="container">
         <div class="card shadow-sm mb-4">
@@ -138,6 +141,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'fetch_data') {
         </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="script/javascript/main.js"></script>
 </body>
 

@@ -73,8 +73,13 @@ if (!empty($pid)) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>แบบรายงานการยุติให้การดูแลช่วยเหลือรายกรณี</title>
+    <!-- SweetAlert2 CSS (optional, but good practice if customizing) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap JS Bundle (includes Popper) -->
+    <!-- Global Stylesheet (for background) -->
+    <link href="css/style.css" rel="stylesheet">
 
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700&display=swap" rel="stylesheet">
     <link href="css/closure_report.css" rel="stylesheet">
@@ -353,6 +358,8 @@ if (!empty($pid)) {
         </form>
     </div>
 
+    <!-- SweetAlert2 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         // Script สำหรับแสดงวันที่ปัจจุบันแบบอัตโนมัติ

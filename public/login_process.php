@@ -15,14 +15,16 @@ $db = Database::connect();
 /*
   ✅ แก้ไข: เลือกจากตาราง users (เดิมโค้ดเขียน user)
 */
-$sql = "SELECT * FROM users WHERE username = :username LIMIT 1";
+$sql = "SELECT u.*, p.prefix_name 
+        FROM users u 
+        LEFT JOIN prefix p ON u.prefix_id = p.prefix_id WHERE u.username = :username LIMIT 1";
 $stmt = $db->prepare($sql);
 $stmt->execute(['username' => $username]);
 $user = $stmt->fetch();
 
 if (!$user) {
     // ไม่พบ Username
-    header("Location: login.php?error=1");
+    $_SESSION['message'] = '<p class="message error">ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง</p>';
     exit;
 }
 
@@ -34,9 +36,10 @@ if ($user['password'] === $passwordInput) {
     $_SESSION['user'] = [
         'username' => $user['username'],
         // เช็คว่ามี user_id หรือไม่ ถ้าไม่มีให้ใช้ username หรือค่าอื่นที่เป็น unique แทน
-        'user_id'  => $user['user_id'] ?? $user['username']
-    ];
-
+        'user_id'  => $user['user_id'] ?? $user['username'],
+        'fname'    => $user['fname'] ?? '', // เพิ่ม fname เข้าไปใน session
+        'prefix_name' => $user['prefix_name'] ?? '' // เพิ่ม prefix_name เข้าไปใน session
+    ];    
     header("Location: main.php");
     exit;
 }
@@ -48,5 +51,5 @@ if ($user['password'] === $passwordInput) {
 */
 
 // รหัสผ่านไม่ถูกต้อง
-header("Location: login.php?error=1");
+$_SESSION['message'] = '<p class="message error">ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง</p>';
 exit;

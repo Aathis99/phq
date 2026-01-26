@@ -7,7 +7,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
 
 <style>
     .navbar-modern {
-        background-color: rgba(255, 255, 255, 0.95);
+        background-color: #F8FCFF; /* Very light, calming blue (Alice Blue) */
         backdrop-filter: blur(12px);
         -webkit-backdrop-filter: blur(12px);
         box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
@@ -66,6 +66,8 @@ $current_page = basename($_SERVER['PHP_SELF']);
     <div class="container">
         <a class="navbar-brand navbar-brand-modern" href="index.php">
             <i class="bi bi-heart-pulse-fill text-primary"></i>
+            <!-- ไอคอนข้อความและเป็นกล่องหัวใจ -->
+            <!-- <i class="bi bi-chat-heart-fill text-primary"></i> -->
             แบบทดสอบภาวะซึมเศร้า PHQ-9
         </a>
 
@@ -77,21 +79,25 @@ $current_page = basename($_SERVER['PHP_SELF']);
             <div class="ms-auto d-flex gap-2 align-items-center flex-wrap mt-3 mt-lg-0">
                 <?php if (isset($_SESSION['user'])): ?>
                     
-                    <div class="user-badge me-2 d-none d-lg-flex">
+                    <!-- <div class="user-badge me-2 d-none d-lg-flex">
                         <i class="bi bi-person-circle text-secondary"></i>
-                        <?= htmlspecialchars($_SESSION['user']['username']) ?>
+                        สวัสดี คุณ <?= htmlspecialchars($_SESSION['user']['fname'] ?? '') ?>
+                    </div> -->
+
+                    <div class="dropdown">
+                        <button class="btn btn-soft-primary nav-btn-modern text-decoration-none dropdown-toggle" type="button" id="manageDataDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-database"></i> จัดการข้อมูล
+                        </button>
+                        <ul class="dropdown-menu" aria-labelledby="manageDataDropdown">
+                            <li><a class="dropdown-item" href="edit_students.php"><i class="bi bi-person-vcard-fill me-2 text-info"></i>จัดการข้อมูลนักเรียน</a></li>
+                            <li><a class="dropdown-item" href="manage_members.php"><i class="bi bi-people-fill me-2 text-success"></i>จัดการข้อมูลสมาชิก</a></li>
+                        </ul>
                     </div>
 
-                    <?php if ($current_page != 'main.php'): ?>
-                        <a href="main.php" class="btn btn-soft-primary nav-btn-modern text-decoration-none">
-                            <i class="bi bi-database"></i> จัดการข้อมูล
-                        </a>
-                    <?php endif; ?>
-                    
-                    <a href="manage_members.php" class="btn btn-soft-teal nav-btn-modern text-decoration-none">
-                        <i class="bi bi-people"></i> สมาชิก
+                    <a href="graphs/dashboard.php" class="btn btn-soft-primary nav-btn-modern text-decoration-none">
+                        <i class="bi bi-graph-up"></i> Dashboard
                     </a>
-
+                    
                     <a href="logout.php" class="btn btn-soft-danger nav-btn-modern text-decoration-none">
                         <i class="bi bi-box-arrow-right"></i> ออกจากระบบ
                     </a>

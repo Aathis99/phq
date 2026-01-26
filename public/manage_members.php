@@ -29,7 +29,11 @@ $isAdmin = ($stmtRole->fetchColumn() === 'admin');
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>จัดการข้อมูลสมาชิก | PHQ System</title>
+    <!-- SweetAlert2 CSS (optional, but good practice if customizing) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Global Stylesheet (for background) -->
+    <link href="css/style.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Sarabun', sans-serif; }
@@ -37,7 +41,7 @@ $isAdmin = ($stmtRole->fetchColumn() === 'admin');
     </style>
 </head>
 
-<body class="bg-light">
+<body>
     <?php include 'navbar.php'; ?>
     
     <div class="container">
@@ -152,6 +156,8 @@ $isAdmin = ($stmtRole->fetchColumn() === 'admin');
         </div>
     </div>
 
+    <!-- SweetAlert2 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         const memberModal = new bootstrap.Modal(document.getElementById('memberModal'));
@@ -253,7 +259,7 @@ $isAdmin = ($stmtRole->fetchColumn() === 'admin');
             .then(res => res.json())
             .then(data => {
                 if (data.status === 'success') {
-                    alert('บันทึกข้อมูลเรียบร้อย');
+                    showSuccessAlert('บันทึกข้อมูลเรียบร้อย');
                     memberModal.hide();
                     loadMembers();
                 } else {
