@@ -69,7 +69,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'fetch_data') {
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700&display=swap" rel="stylesheet">
     <style>
         body {
-            font-family: 'Sarabun', sans-serif;
+            /* font-family: 'Sarabun', sans-serif; */
 
             .loading {
                 text-align: center;
@@ -117,8 +117,8 @@ if (isset($_GET['action']) && $_GET['action'] === 'fetch_data') {
                                 <th style="width: 10%">เพศ</th>
                                 <th style="width: 5%">อายุ</th>
                                 <th style="width: 20%">โรงเรียน</th>
-                                <th style="width: 15%">ระดับชั้น/ห้อง</th>
-                                <th style="width: 15%">เบอร์โทร</th>
+                                <th style="width: 15%" class="text-center">ระดับชั้น/ห้อง</th>
+                                <th style="width: 15%" class="text-center">เบอร์โทร</th>
                                 <th style="width: 10%" class="text-center">ประวัติ</th>
                             </tr>
                         </thead>

@@ -144,8 +144,8 @@
                                         <td>${row.sex_name || '-'}</td>
                                         <td>${row.age || '-'}</td>
                                         <td>${row.school_name || '-'}</td>
-                                        <td>${row.class || '-'}/${row.room || '-'}</td>
-                                        <td>${row.tel || '-'}</td>
+                                        <td class="text-center">${row.class || '-'}/${row.room || '-'}</td>
+                                        <td class="text-center">${row.tel || '-'}</td>
                                         <td class="text-center">
                                             <a href="phq_history.php?pid=${row.pid}" class="btn btn-sm btn-info text-white">
                                                 📜 ดูประวัติ

@@ -72,9 +72,9 @@ $dashboard_path = $is_in_graphs_folder ? 'dashboard.php' : 'graphs/dashboard.php
 <nav class="navbar navbar-expand-lg navbar-light navbar-modern mb-4 sticky-top">
     <div class="container">
         <a class="navbar-brand navbar-brand-modern" href="<?= $path_prefix ?>index.php">
-            <i class="bi bi-heart-pulse-fill text-primary"></i>
+            <!-- <i class="bi bi-heart-pulse-fill text-primary"></i> -->
             <!-- ไอคอนข้อความและเป็นกล่องหัวใจ -->
-            <!-- <i class="bi bi-chat-heart-fill text-primary"></i> -->
+            <i class="bi bi-chat-heart-fill text-primary"></i>
             แบบทดสอบภาวะซึมเศร้า PHQ-9
         </a>
 

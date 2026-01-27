@@ -73,8 +73,8 @@ $sexes = $db->query("SELECT sex_id, sex_name FROM sex ORDER BY sex_id")->fetchAl
                                 <th style="width: 10%">เพศ</th>
                                 <th style="width: 5%">อายุ</th>
                                 <th style="width: 20%">โรงเรียน</th>
-                                <th style="width: 15%">ชั้น/ห้อง</th>
-                                <th style="width: 15%">เบอร์โทร</th>
+                                <th style="width: 15%" class="text-center">ชั้น/ห้อง</th>
+                                <th style="width: 15%" class="text-center">เบอร์โทร</th>
                                 <th style="width: 10%" class="text-center">จัดการ</th>
                             </tr>
                         </thead>
@@ -223,8 +223,8 @@ $sexes = $db->query("SELECT sex_id, sex_name FROM sex ORDER BY sex_id")->fetchAl
                                 <td>${row.sex_name || '-'}</td>
                                 <td>${row.age || '-'}</td>
                                 <td>${row.school_name || '-'}</td>
-                                <td>${row.class || '-'}/${row.room || '-'}</td>
-                                <td>${row.tel || '-'}</td>
+                                <td class="text-center">${row.class || '-'}/${row.room || '-'}</td>
+                                <td class="text-center">${row.tel || '-'}</td>
                                 <td class="text-center text-nowrap">
                                     <button class="btn btn-sm btn-warning" onclick="openEditModal('${rowData}')">
                                         ✏️ แก้ไข
