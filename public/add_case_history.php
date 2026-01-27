@@ -115,11 +115,6 @@ try {
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;500;600&display=swap" rel="stylesheet">
     <!-- Global Stylesheet (for background) -->
     <link href="css/style.css" rel="stylesheet">
-    <style>
-        body {
-            font-family: 'Sarabun', sans-serif;
-        }
-    </style>
 </head>
 
 <body>

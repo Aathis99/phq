@@ -1,6 +1,13 @@
 <?php
 // ตรวจสอบชื่อไฟล์ปัจจุบัน
 $current_page = basename($_SERVER['PHP_SELF']);
+
+// ตรวจสอบว่าไฟล์ปัจจุบันอยู่ในโฟลเดอร์ 'graphs' หรือไม่ เพื่อปรับ path ของลิงก์ให้ถูกต้อง
+$is_in_graphs_folder = (strpos($_SERVER['SCRIPT_NAME'], '/graphs/') !== false);
+// กำหนด path prefix สำหรับไฟล์ที่อยู่ใน root ของ /public
+$path_prefix = $is_in_graphs_folder ? '../' : '';
+// กำหนด path สำหรับ dashboard โดยเฉพาะ
+$dashboard_path = $is_in_graphs_folder ? 'dashboard.php' : 'graphs/dashboard.php';
 ?>
 <!-- เพิ่ม Bootstrap Icons -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
@@ -64,7 +71,7 @@ $current_page = basename($_SERVER['PHP_SELF']);
 
 <nav class="navbar navbar-expand-lg navbar-light navbar-modern mb-4 sticky-top">
     <div class="container">
-        <a class="navbar-brand navbar-brand-modern" href="index.php">
+        <a class="navbar-brand navbar-brand-modern" href="<?= $path_prefix ?>index.php">
             <i class="bi bi-heart-pulse-fill text-primary"></i>
             <!-- ไอคอนข้อความและเป็นกล่องหัวใจ -->
             <!-- <i class="bi bi-chat-heart-fill text-primary"></i> -->
@@ -84,26 +91,30 @@ $current_page = basename($_SERVER['PHP_SELF']);
                         สวัสดี คุณ <?= htmlspecialchars($_SESSION['user']['fname'] ?? '') ?>
                     </div> -->
 
+                    <a href="<?= $path_prefix ?>main.php" class="btn btn-soft-teal nav-btn-modern text-decoration-none">
+                        <i class="bi bi-card-checklist"></i> รายชื่อนักเรียน
+                    </a>
+
                     <div class="dropdown">
                         <button class="btn btn-soft-primary nav-btn-modern text-decoration-none dropdown-toggle" type="button" id="manageDataDropdown" data-bs-toggle="dropdown" aria-expanded="false">
                             <i class="bi bi-database"></i> จัดการข้อมูล
                         </button>
                         <ul class="dropdown-menu" aria-labelledby="manageDataDropdown">
-                            <li><a class="dropdown-item" href="edit_students.php"><i class="bi bi-person-vcard-fill me-2 text-info"></i>จัดการข้อมูลนักเรียน</a></li>
-                            <li><a class="dropdown-item" href="manage_members.php"><i class="bi bi-people-fill me-2 text-success"></i>จัดการข้อมูลสมาชิก</a></li>
+                            <li><a class="dropdown-item" href="<?= $path_prefix ?>edit_students.php"><i class="bi bi-person-vcard-fill me-2 text-info"></i>จัดการข้อมูลนักเรียน</a></li>
+                            <li><a class="dropdown-item" href="<?= $path_prefix ?>manage_members.php"><i class="bi bi-people-fill me-2 text-success"></i>จัดการข้อมูลสมาชิก</a></li>
                         </ul>
                     </div>
 
-                    <a href="graphs/dashboard.php" class="btn btn-soft-primary nav-btn-modern text-decoration-none">
+                    <a href="<?= $dashboard_path ?>" class="btn btn-soft-primary nav-btn-modern text-decoration-none">
                         <i class="bi bi-graph-up"></i> Dashboard
                     </a>
                     
-                    <a href="logout.php" class="btn btn-soft-danger nav-btn-modern text-decoration-none">
+                    <a href="<?= $path_prefix ?>logout.php" class="btn btn-soft-danger nav-btn-modern text-decoration-none">
                         <i class="bi bi-box-arrow-right"></i> ออกจากระบบ
                     </a>
 
             <?php else: ?>
-                    <a href="login.php" class="btn btn-primary nav-btn-modern shadow-sm border-0 px-4" style="background: linear-gradient(135deg, #0ea5e9 0%, #2563eb 100%);">
+                    <a href="<?= $path_prefix ?>login.php" class="btn btn-primary nav-btn-modern shadow-sm border-0 px-4" style="background: linear-gradient(135deg, #0ea5e9 0%, #2563eb 100%);">
                         <i class="bi bi-shield-lock"></i> เข้าสู่ระบบผู้ดูแล
                     </a>
             <?php endif; ?>

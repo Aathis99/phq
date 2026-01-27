@@ -65,11 +65,6 @@ function getScoreMeaning($score)
     <!-- Global Stylesheet (for background) -->
     <link href="css/style.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700&display=swap" rel="stylesheet">
-    <style>
-        body {
-            font-family: 'Sarabun', sans-serif;
-        }
-    </style>
 </head>
 
 <body>

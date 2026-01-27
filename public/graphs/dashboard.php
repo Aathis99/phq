@@ -1,4 +1,6 @@
 <?php
+session_start();
+
 /* ----โค้ดสำหรับตรวจสอบข้อผิดพลาด (ถ้าใช้งานได้แล้วควรลบออก)---- */
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
@@ -51,38 +53,61 @@ $dep_severe = $result_dep['severe'] ?? 0;
 ?>
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="th">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard</title>
+    <title>Dashboard - PHQ System</title>
     <!-- Bootstrap CSS and JS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <!-- Global Stylesheet (for background) -->
+    <link href="../css/style.css" rel="stylesheet">
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .card {
+            border: none;
+            border-radius: 1rem;
+            transition: all 0.2s ease-in-out;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 0.5rem 1rem rgba(0,0,0,.15)!important;
+        }
+        #genderChart, #depressionChart {
+            max-height: 350px;
+        }
+    </style>
 </head>
-<body class="bg-light p-4">
-    <div class="container">
+<body>
+    <?php require_once '../navbar.php'; ?>
+    <div class="container mt-5">
         <div class="d-flex justify-content-between align-items-center mb-4">
-            <h1>PHQ Dashboard</h1>
-            <a href="../index.php" class="btn btn-primary">📊 กลับไปหน้าหลัก</a>
+            <h2 class="mb-0"><i class="bi bi-bar-chart-line-fill me-2"></i>Dashboard สรุปผล</h2>
+            <?php if (isset($_SESSION['user'])): ?>
+                <a href="../main.php" class="btn btn-danger">↩ กลับหน้ารายชื่อ</a>
+            <?php else: ?>
+                <a href="../index.php" class="btn btn-secondary">ย้อนกลับ</a>
+            <?php endif; ?>
         </div>
 
         <div class="row">
             <div class="col-lg-6 mb-4">
                 <div class="card shadow-sm h-100">
-                    <div class="card-body">
-                        <h3 class="card-title text-center mb-4">สถิตินักเรียนที่ทำแบบประเมินแยกตามเพศ</h3>
+                    <div class="card-header bg-white border-0 pt-3"><h5 class="card-title">สถิตินักเรียนที่ทำแบบประเมิน (แยกตามเพศ)</h5></div>
+                    <div class="card-body d-flex justify-content-center align-items-center">
                         <canvas id="genderChart"></canvas>
                     </div>
                 </div>
             </div>
             <div class="col-lg-6 mb-4">
                 <div class="card shadow-sm h-100">
+                    <div class="card-header bg-white border-0 pt-3">
+                        <h5 class="card-title">ผลการประเมินภาวะซึมเศร้า</h5>
+                        <p class="small text-muted mb-0">จำนวนรวมทั้งหมด: <?php echo $dep_normal + $dep_moderate + $dep_severe; ?> คน</p>
+                    </div>
                     <div class="card-body">
-                        <h3 class="card-title text-center mb-4">กราฟแสดงจำนวนนักเรียนที่มีภาวะซึมเศร้า</h3>
-                        <p class="text-center small text-muted">จำนวนรวมทั้งหมด: <?php echo $dep_normal + $dep_moderate + $dep_severe; ?> คน</p>
                         <canvas id="depressionChart"></canvas>
                     </div>
                 </div>
@@ -90,6 +115,7 @@ $dep_severe = $result_dep['severe'] ?? 0;
         </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         const ctx = document.getElementById('genderChart').getContext('2d');
         
@@ -196,6 +222,5 @@ $dep_severe = $result_dep['severe'] ?? 0;
             colors: <?php echo json_encode($colors); ?>
         };
     </script>
-    <script src="dashboard.js"></script>
 </body>
 </html>

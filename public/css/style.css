@@ -1,13 +1,29 @@
 /* public/css/style.css */
 /* This file contains global styles for the entire application. */
 
+/* --- [เพิ่ม] การนำเข้าฟอนต์จาก Google Fonts --- */
+/* [แก้ไข] เปลี่ยนมาใช้ฟอนต์ Mitr เพื่อทดลอง */
+@import url('https://fonts.googleapis.com/css2?family=Mitr:wght@400;700&display=swap');
+
+/* --- [เพิ่ม] กำหนดตัวแปรฟอนต์หลัก (CSS Variables) --- */
+:root {
+  --font-family-sans: 'Mitr', sans-serif; /* [แก้ไข] เปลี่ยนฟอนต์สำหรับเนื้อหา */
+  --font-family-heading: 'Mitr', sans-serif;          /* [แก้ไข] เปลี่ยนฟอนต์สำหรับหัวข้อ */
+}
+
 body {
     /* A neutral, light background color as a fallback and for pages without the image. */
     background-color: #BBE0EF;
     position: relative; /* Required for the ::before pseudo-element. */
     background-attachment: fixed;
+    /* --- [นำไปใช้] กำหนดฟอนต์หลักสำหรับเนื้อหาทั้งหมด --- */
+    font-family: var(--font-family-sans);
 }
 
+/* --- [เพิ่ม] กำหนดฟอนต์สำหรับหัวข้อทั้งหมด --- */
+h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6 {
+    font-family: var(--font-family-heading);
+}
 /* The pseudo-element for the background image. */
 body::before {
     content: "";

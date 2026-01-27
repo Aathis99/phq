@@ -29,10 +29,6 @@ $sexes = $db->query("SELECT sex_id, sex_name FROM sex ORDER BY sex_id")->fetchAl
     <link href="css/style.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        body {
-            font-family: 'Sarabun', sans-serif;
-        }
-
         .loading {
             text-align: center;
             padding: 20px;
