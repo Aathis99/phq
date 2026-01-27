@@ -102,7 +102,7 @@ $isAdmin = ($stmtRole->fetchColumn() === 'admin');
                             </div>
                             <div class="col-md-3">
                                 <label class="form-label">คำนำหน้า</label>
-                                <select class="form-select" id="prefix_id" name="prefix_id">
+                                <select class="form-select" id="prefix_id" name="prefix_id" required>
                                     <option value="">-- เลือก --</option>
                                     <?php foreach ($prefixes as $p): ?>
                                         <option value="<?= $p['prefix_id'] ?>"><?= $p['prefix_name'] ?></option>
@@ -159,6 +159,7 @@ $isAdmin = ($stmtRole->fetchColumn() === 'admin');
     <!-- SweetAlert2 JS -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="script/javascript/sweetalert_utils.js"></script>
     <script>
         const memberModal = new bootstrap.Modal(document.getElementById('memberModal'));
         const isAdmin = <?= json_encode($isAdmin) ?>;
@@ -249,8 +250,12 @@ $isAdmin = ($stmtRole->fetchColumn() === 'admin');
             }
 
             const formData = new FormData(form);
-            // เนื่องจาก disabled field จะไม่ถูกส่งค่าไปกับ FormData ต้อง append เองถ้าจำเป็น
-            // แต่ในกรณีนี้ Member ห้ามแก้ Type User ดังนั้น Backend จะจัดการไม่ให้อัปเดตค่านี้เอง
+            
+            // แก้ไข: เพิ่มค่าจาก disabled field ลงใน FormData ด้วยตัวเอง (เพราะ FormData จะข้าม disabled field)
+            const typeUserSelect = document.getElementById('typeuser');
+            if (typeUserSelect.disabled) {
+                formData.append('typeuser', typeUserSelect.value);
+            }
             
             fetch('api/member_api.php', {
                 method: 'POST',
@@ -265,14 +270,18 @@ $isAdmin = ($stmtRole->fetchColumn() === 'admin');
                 } else {
                     alert('เกิดข้อผิดพลาด: ' + data.message);
                 }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('เกิดข้อผิดพลาดในการเชื่อมต่อกับเซิร์ฟเวอร์ หรือข้อมูลตอบกลับไม่ถูกต้อง');
             });
         }
 
         function deleteMember(username) {
-            if (confirm('คุณต้องการลบผู้ใช้ "' + username + '" ใช่หรือไม่?')) {
+            showConfirmAlert('ยืนยันการลบ', 'คุณต้องการลบผู้ใช้ "' + username + '" ใช่หรือไม่?', () => {
                 const formData = new FormData();
                 formData.append('action', 'delete');
-                formData.append('username', username);
+                formData.append('username', username); 
 
                 fetch('api/member_api.php', {
                     method: 'POST',
@@ -281,12 +290,16 @@ $isAdmin = ($stmtRole->fetchColumn() === 'admin');
                 .then(res => res.json())
                 .then(data => {
                     if (data.status === 'success') {
+                        showSuccessAlert('ลบผู้ใช้เรียบร้อย');
                         loadMembers();
                     } else {
-                        alert('ลบไม่สำเร็จ: ' + data.message);
+                        showErrorAlert('ลบไม่สำเร็จ', data.message);
                     }
+                })
+                .catch(error => {
+                    showErrorAlert('เกิดข้อผิดพลาด', 'ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์ได้');
                 });
-            }
+            });
         }
 
         document.addEventListener('DOMContentLoaded', loadMembers);
