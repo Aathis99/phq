@@ -14,13 +14,15 @@ $dashboard_path = $is_in_graphs_folder ? 'dashboard.php' : 'graphs/dashboard.php
 
 <style>
     .navbar-modern {
-        background-color: #F8FCFF; /* Very light, calming blue (Alice Blue) */
+        background-color: #F8FCFF;
+        /* Very light, calming blue (Alice Blue) */
         backdrop-filter: blur(12px);
         -webkit-backdrop-filter: blur(12px);
         box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
-        border-bottom: 1px solid rgba(0,0,0,0.05);
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
         padding: 0.8rem 0;
     }
+
     .navbar-brand-modern {
         font-weight: 700;
         color: #334155 !important;
@@ -30,6 +32,7 @@ $dashboard_path = $is_in_graphs_folder ? 'dashboard.php' : 'graphs/dashboard.php
         align-items: center;
         gap: 0.5rem;
     }
+
     .nav-btn-modern {
         border-radius: 50px;
         padding: 0.5rem 1.2rem;
@@ -41,21 +44,43 @@ $dashboard_path = $is_in_graphs_folder ? 'dashboard.php' : 'graphs/dashboard.php
         gap: 0.4rem;
         border: 1px solid transparent;
     }
+
     .nav-btn-modern:hover {
         transform: translateY(-2px);
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
     }
-    
+
     /* Soft Button Styles */
-    .btn-soft-primary { background-color: #e0f2fe; color: #0284c7; }
-    .btn-soft-primary:hover { background-color: #0284c7; color: #ffffff; }
+    .btn-soft-primary {
+        background-color: #e0f2fe;
+        color: #0284c7;
+    }
 
-    .btn-soft-teal { background-color: #ccfbf1; color: #0f766e; }
-    .btn-soft-teal:hover { background-color: #0f766e; color: #ffffff; }
+    .btn-soft-primary:hover {
+        background-color: #0284c7;
+        color: #ffffff;
+    }
 
-    .btn-soft-danger { background-color: #fee2e2; color: #991b1b; }
-    .btn-soft-danger:hover { background-color: #ef4444; color: #ffffff; }
-    
+    .btn-soft-teal {
+        background-color: #ccfbf1;
+        color: #0f766e;
+    }
+
+    .btn-soft-teal:hover {
+        background-color: #0f766e;
+        color: #ffffff;
+    }
+
+    .btn-soft-danger {
+        background-color: #fee2e2;
+        color: #991b1b;
+    }
+
+    .btn-soft-danger:hover {
+        background-color: #ef4444;
+        color: #ffffff;
+    }
+
     .user-badge {
         background-color: #f1f5f9;
         padding: 0.4rem 1rem;
@@ -85,11 +110,6 @@ $dashboard_path = $is_in_graphs_folder ? 'dashboard.php' : 'graphs/dashboard.php
         <div class="collapse navbar-collapse" id="navbarContent">
             <div class="ms-auto d-flex gap-2 align-items-center flex-wrap mt-3 mt-lg-0">
                 <?php if (isset($_SESSION['user'])): ?>
-                    
-                    <!-- <div class="user-badge me-2 d-none d-lg-flex">
-                        <i class="bi bi-person-circle text-secondary"></i>
-                        สวัสดี คุณ <?= htmlspecialchars($_SESSION['user']['fname'] ?? '') ?>
-                    </div> -->
 
                     <a href="<?= $path_prefix ?>main.php" class="btn btn-soft-teal nav-btn-modern text-decoration-none">
                         <i class="bi bi-card-checklist"></i> รายชื่อนักเรียน
@@ -108,17 +128,26 @@ $dashboard_path = $is_in_graphs_folder ? 'dashboard.php' : 'graphs/dashboard.php
                     <a href="<?= $dashboard_path ?>" class="btn btn-soft-primary nav-btn-modern text-decoration-none">
                         <i class="bi bi-graph-up"></i> Dashboard
                     </a>
-                    
+
                     <a href="<?= $path_prefix ?>logout.php" class="btn btn-soft-danger nav-btn-modern text-decoration-none">
                         <i class="bi bi-box-arrow-right"></i> ออกจากระบบ
                     </a>
 
-            <?php else: ?>
+                    <div class="user-badge ms-2 d-none d-lg-flex">
+                        <i class="bi bi-person-circle text-info"></i>
+                        <?= htmlspecialchars($_SESSION['user']['fname'] ?? '') ?>
+                    </div>
+
+                <?php else: ?>
                     <a href="<?= $path_prefix ?>login.php" class="btn btn-primary nav-btn-modern shadow-sm border-0 px-4" style="background: linear-gradient(135deg, #0ea5e9 0%, #2563eb 100%);">
                         <i class="bi bi-shield-lock"></i> เข้าสู่ระบบผู้ดูแล
                     </a>
-            <?php endif; ?>
+                <?php endif; ?>
             </div>
         </div>
     </div>
+    <!-- ไอคอนสำหรับกด Dark Mode -->
+    <!-- <div class="user-badge ms-2 d-none d-lg-flex">
+        <i class="bi bi-person-circle text-info">testing จร้าาา</i>
+    </div> -->
 </nav>

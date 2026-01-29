@@ -140,7 +140,12 @@ $sexes = $db->query("SELECT sex_id, sex_name FROM sex ORDER BY sex_id")->fetchAl
                             </div>
                             <div class="col-md-4">
                                 <label class="form-label">อายุ</label>
-                                <input type="number" class="form-control" id="age" name="age" min="1" max="20">
+                                <select class="form-select" id="age" name="age">
+                                    <option value="">-- เลือก --</option>
+                                    <?php for ($i = 12; $i <= 20; $i++): ?>
+                                        <option value="<?= $i ?>"><?= $i ?></option>
+                                    <?php endfor; ?>
+                                </select>
                             </div>
                             <div class="col-md-4">
                                 <label class="form-label">เบอร์โทร <span class="text-danger">*</span></label>

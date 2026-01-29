@@ -88,7 +88,7 @@ $dep_severe = $result_dep['severe'] ?? 0;
             <?php if (isset($_SESSION['user'])): ?>
                 <a href="../main.php" class="btn btn-danger">↩ กลับหน้ารายชื่อ</a>
             <?php else: ?>
-                <a href="../index.php" class="btn btn-secondary">ย้อนกลับ</a>
+                <a href="../index.php" class="btn btn-danger">ย้อนกลับ</a>
             <?php endif; ?>
         </div>
 
