@@ -37,7 +37,7 @@ body::before {
     background-position: center;
     background-repeat: no-repeat;
     /* A very subtle opacity for content pages, making text readable. */
-    opacity: 0.10;
+    opacity: 0.30;
     z-index: -1; /* Place it behind all content. */
 }
 
