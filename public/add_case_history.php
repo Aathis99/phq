@@ -411,6 +411,7 @@ try {
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="script/javascript/add_case_history.js"></script>
+    <!-- เชค sweetalert มี sweetalert2 แล้วลองดูว่าศ้ำซ้อนไหม -->
     <script src="script/javascript/sweetalert_utils.js"></script>
     <script>
         // ฟังก์ชันสำหรับแจ้งเตือนเมื่อมีรายงานการยุติแล้ว

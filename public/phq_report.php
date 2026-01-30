@@ -71,6 +71,13 @@ function toThaiDate($dateTimeStr)
     $time = date('H:i', $timestamp);
     return "$day $month พ.ศ. $year เวลา $time น.";
 }
+
+function getScoreMeaning($score)
+{
+    if ($score < 7) return 'ปกติ';
+    if ($score < 13) return 'ปานกลาง';
+    return 'รุนแรง';
+}
 ?>
 <!DOCTYPE html>
 <html lang="th">
@@ -310,6 +317,9 @@ function toThaiDate($dateTimeStr)
                     <div class="score-summary">
                         <h4 class="mb-2">คะแนนรวม</h4>
                         <div class="score-value"><?= $data['score'] ?? 0 ?></div>
+                        <div class="mt-2 fs-5">
+                            ผลการประเมิน: <strong><?= getScoreMeaning($data['score'] ?? 0) ?></strong>
+                        </div>
                     </div>
                 </section>
             </main>
