@@ -146,8 +146,9 @@ $dashboard_path = $is_in_graphs_folder ? 'dashboard.php' : 'graphs/dashboard.php
             </div>
         </div>
     </div>
+
     <!-- ไอคอนสำหรับกด Dark Mode -->
-    <!-- <div class="user-badge ms-2 d-none d-lg-flex">
-        <i class="bi bi-person-circle text-info">testing จร้าาา</i>
-    </div> -->
+    <div class="user-badge ms-2 d-none d-lg-flex">
+        <i class="bi bi-brightness-high-fill"></i>
+    </div>
 </nav>
