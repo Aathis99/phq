@@ -310,28 +310,6 @@ if (!empty($pid)) {
                 <textarea name="suggestion" class="form-control" rows="4" placeholder="ระบุข้อเสนอแนะ..."></textarea>
             </div>
 
-            <!-- *** จุดเริ่มต้น code การส่งต่อกรณี *** -->
-            <div class="form-section-header" style="background-color: #ffe0b2; color: #e65100;">การส่งต่อกรณี</div>
-            <div class="row mb-3">
-                <div class="col-md-6">
-                    <label class="form-label">หน่วยงานที่จะส่งต่อ</label>
-                    <select name="referral_agency" id="referral_agency" class="form-select">
-                        <option value="" selected>-- ไม่มีการส่งต่อ --</option>
-                        <option value="โรงพยาบาลส่งเสริมสุขภาพตำบล">โรงพยาบาลส่งเสริมสุขภาพตำบล</option>
-                        <option value="โรงพยาบาลชุมชน">โรงพยาบาลชุมชน</option>
-                        <option value="โรงพยาบาลทั่วไป/ศูนย์">โรงพยาบาลทั่วไป/ศูนย์</option>
-                        <option value="อื่นๆ">อื่นๆ</option>
-                    </select>
-                </div>
-            </div>
-            <div class="row mb-3" id="referral_other_container" style="display: none;">
-                <div class="col-md-12">
-                    <label class="form-label">ระบุหน่วยงานอื่น</label>
-                    <input type="text" name="referral_other" id="referral_other" class="form-control" placeholder="โปรดระบุ...">
-                </div>
-            </div>
-            <!-- *** บรรทัดที่สิ้นสุด code การส่งต่อกรณี *** -->
-             
             <div class="form-section-header">การบันทึกข้อมูล</div>
             <div class="row mb-4">
                 <div class="col-md-6">

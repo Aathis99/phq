@@ -63,6 +63,19 @@ try {
     // ตรวจสอบว่ามีรายงานการยุติแล้วหรือไม่
     $hasClosure = count($closures) > 0;
 
+    // ตรวจสอบว่ามีการส่งต่อกรณีแล้วหรือไม่
+    $hasForward = false;
+    try {
+        $stmtForward = $db->prepare("SELECT id FROM forward_case WHERE pid = :pid LIMIT 1");
+        $stmtForward->execute([':pid' => $pid]);
+        if ($stmtForward->fetch()) {
+            $hasForward = true;
+        }
+    } catch (Exception $e) {
+        // กรณีตารางยังไม่ถูกสร้าง หรือเกิดข้อผิดพลาดอื่น ให้ข้ามไป
+    }
+    $isClosed = $hasClosure || $hasForward;
+
     // รวมข้อมูลและเรียงลำดับตามวันที่ (ใหม่สุดขึ้นก่อน)
     $caseLogs = array_merge($logs, $closures);
     usort($caseLogs, function ($a, $b) {
@@ -161,23 +174,22 @@ try {
             <div class="card-header bg-white d-flex justify-content-between align-items-center">
                 <h5 class="mb-0">รายการบันทึกย้อนหลัง (<?= count($caseLogs) ?> ครั้ง)</h5>
                 <div class="d-flex gap-2">
-                    <?php if ($hasClosure): ?>
-                        <!-- กรณีมีรายงานการยุติแล้ว ให้แสดงปุ่มแบบกดแล้วแจ้งเตือน -->
-                        <button type="button" class="btn btn-secondary btn-sm d-inline-flex align-items-center gap-1" onclick="showClosureAlert()">
+                    <div class="dropdown">
+                        <button class="btn btn-success btn-sm dropdown-toggle d-inline-flex align-items-center gap-1" type="button" data-bs-toggle="dropdown" aria-expanded="false">
                             <i class="bi bi-file-earmark-plus-fill fs-5"></i> เพิ่มรายงานใหม่
                         </button>
-                        <button type="button" class="btn btn-secondary btn-sm d-inline-flex align-items-center gap-1" onclick="showClosureAlert()">
-                            <i class="bi bi-file-earmark-x fs-5"></i> รายงานการยุติให้การดูแล
-                        </button>
-                    <?php else: ?>
-                        <!-- กรณีปกติ -->
-                        <a href="add_case.php?pid=<?= htmlspecialchars($pid) ?>" class="btn btn-success btn-sm d-inline-flex align-items-center gap-1">
-                            <i class="bi bi-file-earmark-plus-fill fs-5"></i> เพิ่มรายงานใหม่
-                        </a>
-                        <a href="closure_report.php?pid=<?= htmlspecialchars($pid) ?>" class="btn btn-danger btn-sm d-inline-flex align-items-center gap-1">
-                            <i class="bi bi-file-earmark-x fs-5"></i> รายงานการยุติให้การดูแล
-                        </a>
-                    <?php endif; ?>
+                        <ul class="dropdown-menu">
+                            <?php if ($isClosed): ?>
+                                <li><a class="dropdown-item text-success" href="#" onclick="showClosureAlert(); return false;"><i class="bi bi-file-earmark-plus-fill me-2"></i> เพิ่มรายงาน</a></li>
+                                <li><a class="dropdown-item text-info" href="#" onclick="showClosureAlert(); return false;"><i class="bi bi-send-fill me-2"></i> ส่งต่อกรณี</a></li>
+                                <li><a class="dropdown-item text-danger" href="#" onclick="showClosureAlert(); return false;"><i class="bi bi-file-earmark-x-fill me-2"></i> ยุติการช่วยเหลือ</a></li>
+                            <?php else: ?>
+                                <li><a class="dropdown-item text-success" href="add_case.php?pid=<?= htmlspecialchars($pid) ?>"><i class="bi bi-file-earmark-plus-fill me-2"></i> เพิ่มรายงาน</a></li>
+                                <li><a class="dropdown-item text-info" href="forward_case.php?pid=<?= htmlspecialchars($pid) ?>"><i class="bi bi-send-fill me-2"></i> ส่งต่อกรณี</a></li>
+                                <li><a class="dropdown-item text-danger" href="closure_report.php?pid=<?= htmlspecialchars($pid) ?>"><i class="bi bi-file-earmark-x-fill me-2"></i> ยุติการช่วยเหลือ</a></li>
+                            <?php endif; ?>
+                        </ul>
+                    </div>
                 </div>
             </div>
             <div class="card-body p-0">
