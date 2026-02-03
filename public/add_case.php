@@ -143,14 +143,20 @@ if (isset($_SESSION['user']['username'])) {
                 <div class="form-row">
                     <div class="form-col">
                         <label for="case_type">กรณี</label>
-                        <select id="case_type" name="case_type" required>
+                        <?php
+                        $standard_cases = ['ซึมเศร้า', 'เครียด', 'วิตกกังวล', 'ปัญหาครอบครัว'];
+                        $current_case_type = $case_to_follow['case_type'] ?? '';
+                        // ตรวจสอบว่าเป็นค่าที่ไม่อยู่ในลิสต์มาตรฐานหรือไม่ (กรณีอื่นๆ ที่เคยบันทึกไว้)
+                        $is_other = !empty($current_case_type) && !in_array($current_case_type, $standard_cases);
+                        ?>
+                        <select id="case_type" name="case_type" required onchange="toggleOtherCase(this)">
                             <option value="">-- เลือกกรณี --</option>
-                            <option value="ซึมเศร้า" <?= (isset($case_to_follow['case_type']) && $case_to_follow['case_type'] == 'ซึมเศร้า') ? 'selected' : '' ?>>ซึมเศร้า</option>
-                            <option value="เครียด" <?= (isset($case_to_follow['case_type']) && $case_to_follow['case_type'] == 'เครียด') ? 'selected' : '' ?>>เครียด</option>
-                            <option value="วิตกกังวล" <?= (isset($case_to_follow['case_type']) && $case_to_follow['case_type'] == 'วิตกกังวล') ? 'selected' : '' ?>>วิตกกังวล</option>
-                            <option value="ปัญหาครอบครัว" <?= (isset($case_to_follow['case_type']) && $case_to_follow['case_type'] == 'ปัญหาครอบครัว') ? 'selected' : '' ?>>ปัญหาครอบครัว</option>
-                            <option value="อื่นๆ" <?= (isset($case_to_follow['case_type']) && $case_to_follow['case_type'] == 'อื่นๆ') ? 'selected' : '' ?>>อื่นๆ</option>
+                            <?php foreach ($standard_cases as $type): ?>
+                                <option value="<?= $type ?>" <?= ($current_case_type == $type) ? 'selected' : '' ?>><?= $type ?></option>
+                            <?php endforeach; ?>
+                            <option value="อื่นๆ" <?= ($is_other || $current_case_type == 'อื่นๆ') ? 'selected' : '' ?>>อื่นๆ</option>
                         </select>
+                        <input type="text" id="case_type_other" name="case_type_other" class="form-control mt-2" style="display: <?= ($is_other || $current_case_type == 'อื่นๆ') ? 'block' : 'none' ?>;" placeholder="ระบุกรณีอื่นๆ..." value="<?= $is_other ? htmlspecialchars($current_case_type) : '' ?>">
                     </div>
                     <div class="mb-3">
                         <label for="case_id" class="form-label">บันทึกครั้งที่ (Case No.)</label>
@@ -366,6 +372,18 @@ if (isset($_SESSION['user']['username'])) {
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="../public/script/javascript/form2.js"></script>
     <script>
+        function toggleOtherCase(select) {
+            const otherInput = document.getElementById('case_type_other');
+            if (select.value === 'อื่นๆ') {
+                otherInput.style.display = 'block';
+                otherInput.required = true;
+            } else {
+                otherInput.style.display = 'none';
+                otherInput.required = false;
+                otherInput.value = '';
+            }
+        }
+
         document.addEventListener("DOMContentLoaded", () => {
             // --- Image Upload Logic ---
             const imageInput = document.getElementById('case_images');

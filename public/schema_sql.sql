@@ -92,12 +92,26 @@ CREATE TABLE `closure_report` (
   `detail_school` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci COMMENT 'รายละเอียดการติดตาม-โรงเรียน',
   `detail_hospital` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci COMMENT 'รายละเอียดการติดตาม-โรงพยาบาล',
   `suggestion` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci COMMENT 'ข้อเสนอแนะ',
+  `recorder` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT 'ผู้บันทึกข้อมูล (Username)',
+  `created_at` datetime DEFAULT CURRENT_TIMESTAMP COMMENT 'วันเวลาที่บันทึก',
+  `updated_at` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'วันเวลาที่แก้ไขล่าสุด'
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='ตารางรายงานการยุติให้การดูแลช่วยเหลือรายกรณี';
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `forward_case`
+--
+
+CREATE TABLE `forward_case` (
+  `id` int NOT NULL COMMENT 'รหัสการส่งต่อ (Primary Key)',
+  `pid` varchar(13) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT 'รหัสบัตรประชาชนนักเรียน (FK)',
   `referral_agency` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT 'หน่วยงานที่ส่งต่อ',
   `referral_other` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT 'ระบุหน่วยงานอื่น',
   `recorder` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT 'ผู้บันทึกข้อมูล (Username)',
   `created_at` datetime DEFAULT CURRENT_TIMESTAMP COMMENT 'วันเวลาที่บันทึก',
   `updated_at` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'วันเวลาที่แก้ไขล่าสุด'
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='ตารางรายงานการยุติให้การดูแลช่วยเหลือรายกรณี';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='ตารางบันทึกการส่งต่อกรณี';
 
 -- --------------------------------------------------------
 
@@ -233,6 +247,14 @@ ALTER TABLE `closure_report`
   ADD KEY `idx_closure_recorder` (`recorder`);
 
 --
+-- Indexes for table `forward_case`
+--
+ALTER TABLE `forward_case`
+  ADD PRIMARY KEY (`id`),
+  ADD KEY `idx_forward_pid` (`pid`),
+  ADD KEY `idx_forward_recorder` (`recorder`);
+
+--
 -- Indexes for table `images`
 --
 ALTER TABLE `images`
@@ -308,6 +330,12 @@ ALTER TABLE `closure_report`
   MODIFY `id` int NOT NULL AUTO_INCREMENT COMMENT 'รหัสรายงาน (Primary Key)';
 
 --
+-- AUTO_INCREMENT for table `forward_case`
+--
+ALTER TABLE `forward_case`
+  MODIFY `id` int NOT NULL AUTO_INCREMENT COMMENT 'รหัสการส่งต่อ (Primary Key)';
+
+--
 -- AUTO_INCREMENT for table `images`
 --
 ALTER TABLE `images`
@@ -335,6 +363,13 @@ ALTER TABLE `assessment`
 ALTER TABLE `closure_report`
   ADD CONSTRAINT `fk_closure_student` FOREIGN KEY (`pid`) REFERENCES `student_data` (`pid`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `fk_closure_users` FOREIGN KEY (`recorder`) REFERENCES `users` (`username`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+--
+-- Constraints for table `forward_case`
+--
+ALTER TABLE `forward_case`
+  ADD CONSTRAINT `fk_forward_student` FOREIGN KEY (`pid`) REFERENCES `student_data` (`pid`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `fk_forward_users` FOREIGN KEY (`recorder`) REFERENCES `users` (`username`) ON DELETE SET NULL ON UPDATE CASCADE;
 
 --
 -- Constraints for table `images`

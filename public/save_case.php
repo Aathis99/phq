@@ -27,6 +27,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         // ข้อมูล Case (add_caselog)
         $case_type = $_POST['case_type'] ?? '';
+        if ($case_type === 'อื่นๆ' && !empty($_POST['case_type_other'])) {
+            $case_type = trim($_POST['case_type_other']);
+        }
         // case_id (ครั้งที่) เป็นเพียงตัวเลขแสดงผล ไม่ได้บันทึกลง DB โดยตรง (DB ใช้ id เป็น PK)
 
         $report_date = !empty($_POST['report_date']) ? $_POST['report_date'] : date('Y-m-d');
