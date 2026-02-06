@@ -44,8 +44,6 @@ try {
     $detail_school = $_POST['detail_school'] ?? '';
     $detail_hospital = $_POST['detail_hospital'] ?? '';
     $suggestion = $_POST['suggestion'] ?? '';
-    $referral_agency = $_POST['referral_agency'] ?? '';
-    $referral_other = $_POST['referral_other'] ?? '';
 
     // ผู้บันทึก (ใช้ Username จาก Session)
     $recorder = $_SESSION['user']['username'] ?? null;
@@ -85,11 +83,11 @@ try {
     $sql_closure = "INSERT INTO closure_report (
                         pid, case_type, case_count, report_date,
                         detail_family, detail_school, detail_hospital,
-                        suggestion, referral_agency, referral_other, recorder, created_at, updated_at
+                        suggestion, recorder, created_at, updated_at
                     ) VALUES (
                         :pid, :case_type, :case_count, :report_date,
                         :detail_family, :detail_school, :detail_hospital,
-                        :suggestion, :referral_agency, :referral_other, :recorder, NOW(), NOW()
+                        :suggestion, :recorder, NOW(), NOW()
                     )";
 
     $stmt_closure = $db->prepare($sql_closure);
@@ -102,8 +100,6 @@ try {
         ':detail_school' => $detail_school,
         ':detail_hospital' => $detail_hospital,
         ':suggestion' => $suggestion,
-        ':referral_agency' => $referral_agency,
-        ':referral_other' => $referral_other,
         ':recorder' => $recorder
     ]);
 
