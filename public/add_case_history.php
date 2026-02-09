@@ -180,9 +180,9 @@ try {
                         </button>
                         <ul class="dropdown-menu">
                             <?php if ($isClosed): ?>
-                                <li><a class="dropdown-item text-success" href="#" onclick="showClosureAlert(); return false;"><i class="bi bi-file-earmark-plus-fill me-2"></i> เพิ่มรายงาน</a></li>
-                                <li><a class="dropdown-item text-info" href="#" onclick="showClosureAlert(); return false;"><i class="bi bi-send-fill me-2"></i> ส่งต่อกรณี</a></li>
-                                <li><a class="dropdown-item text-danger" href="#" onclick="showClosureAlert(); return false;"><i class="bi bi-file-earmark-x-fill me-2"></i> ยุติการช่วยเหลือ</a></li>
+                                <li><a class="dropdown-item text-secondary" href="#" onclick="showClosureAlert(); return false;"><i class="bi bi-file-earmark-plus-fill me-2"></i> เพิ่มรายงาน</a></li>
+                                <li><a class="dropdown-item text-secondary" href="#" onclick="showClosureAlert(); return false;"><i class="bi bi-send-fill me-2"></i> ส่งต่อกรณี</a></li>
+                                <li><a class="dropdown-item text-secondary" href="#" onclick="showClosureAlert(); return false;"><i class="bi bi-file-earmark-x-fill me-2"></i> ยุติการช่วยเหลือ</a></li>
                             <?php else: ?>
                                 <li><a class="dropdown-item text-success" href="add_case.php?pid=<?= htmlspecialchars($pid) ?>"><i class="bi bi-file-earmark-plus-fill me-2"></i> เพิ่มรายงาน</a></li>
                                 <li><a class="dropdown-item text-info" href="forward_case.php?pid=<?= htmlspecialchars($pid) ?>"><i class="bi bi-send-fill me-2"></i> ส่งต่อกรณี</a></li>
@@ -268,10 +268,12 @@ try {
                                                                 </ul>
                                                                 <hr>
                                                                 <p><strong>ข้อเสนอแนะ:</strong><br> <?= nl2br(htmlspecialchars($log['suggestion'] ?? '-')) ?></p>
-                                                                <p><strong>การส่งต่อ:</strong>
+                                                                
+                                                                <!-- เชคหน้ารายงาน ยุติ -->
+                                                                <!-- <p><strong>การส่งต่อ:</strong>
                                                                     <?= htmlspecialchars($log['referral_agency'] ?? '-') ?>
                                                                     <?php if (!empty($log['referral_other'])) echo ' (' . htmlspecialchars($log['referral_other']) . ')'; ?>
-                                                                </p>
+                                                                </p> -->
                                                             <?php else: ?>
                                                                 <!-- ส่วนแสดงผลสำหรับ Case Log ปกติ -->
                                                                 <p><strong>ประเภทกรณี:</strong> <?= htmlspecialchars($log['case_type']) ?></p>
