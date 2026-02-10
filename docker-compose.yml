@@ -31,7 +31,7 @@ services:
     volumes:
       - db_data:/var/lib/mysql
       # ข้อแนะนำ: ควรใส่เครื่องหมาย " " ครอบพาธที่มีเว้นวรรคแบบนี้ครับ
-      - "./db/schema (1).sql:/docker-entrypoint-initdb.d/init.sql"
+      - "./db/schema.sql:/docker-entrypoint-initdb.d/init.sql"
 
   # ตัวจัดการฐานข้อมูล phpMyAdmin
   phpmyadmin:

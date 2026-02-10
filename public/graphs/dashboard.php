@@ -50,6 +50,81 @@ $result_dep = $stmt_dep->fetch(PDO::FETCH_ASSOC);
 $dep_normal = $result_dep['normal'] ?? 0;
 $dep_moderate = $result_dep['moderate'] ?? 0;
 $dep_severe = $result_dep['severe'] ?? 0;
+
+// --- ส่วนที่เพิ่มใหม่: เตรียมข้อมูลสำหรับกราฟเพิ่มเติม ---
+
+// 1. ข้อมูลกราฟแท่งแสดงจำนวนอาการ (Case Type) แยกตามเพศ
+$sql_case_type = "SELECT ac.case_type, s.sex_name, COUNT(ac.id) as count 
+                  FROM add_caselog ac 
+                  JOIN student_data sd ON ac.pid = sd.pid 
+                  JOIN sex s ON sd.sex = s.sex_id 
+                  GROUP BY ac.case_type, s.sex_name";
+$stmt_ct = $conn->query($sql_case_type);
+$raw_ct = $stmt_ct->fetchAll(PDO::FETCH_ASSOC);
+
+$ct_labels = []; // ชื่ออาการ
+$ct_genders = []; // เพศที่มี
+$ct_map = []; // เก็บข้อมูลเพื่อ map
+
+foreach ($raw_ct as $r) {
+    if (!in_array($r['case_type'], $ct_labels)) $ct_labels[] = $r['case_type'];
+    if (!in_array($r['sex_name'], $ct_genders)) $ct_genders[] = $r['sex_name'];
+    $ct_map[$r['case_type']][$r['sex_name']] = $r['count'];
+}
+
+$ct_datasets = [];
+$gender_colors = [
+    'ชาย' => 'rgba(54, 162, 235, 0.7)',
+    'หญิง' => 'rgba(255, 99, 132, 0.7)',
+    'เพศทางเลือก' => 'rgba(153, 102, 255, 0.7)',
+    'default' => 'rgba(75, 192, 192, 0.7)'
+];
+
+foreach ($ct_genders as $g) {
+    $data = [];
+    foreach ($ct_labels as $l) {
+        $data[] = $ct_map[$l][$g] ?? 0;
+    }
+    $ct_datasets[] = [
+        'label' => $g,
+        'data' => $data,
+        'backgroundColor' => $gender_colors[$g] ?? $gender_colors['default'],
+        'borderColor' => 'rgba(255,255,255,1)',
+        'borderWidth' => 1
+    ];
+}
+
+// 2. ข้อมูลสถานะ (ส่งต่อ/ยุติ/ติดตาม) แยกเพศ
+function getGenderCounts($conn, $sql) {
+    $stmt = $conn->query($sql);
+    return $stmt->fetchAll(PDO::FETCH_KEY_PAIR);
+}
+
+// กำหนดเพศหลัก 3 เพศ เพื่อให้แสดงครบถ้วนเสมอ
+$fixed_genders = ['ชาย', 'หญิง', 'เพศทางเลือก'];
+
+$stat_forward = getGenderCounts($conn, "SELECT s.sex_name, COUNT(DISTINCT fc.pid) FROM forward_case fc JOIN student_data sd ON fc.pid = sd.pid JOIN sex s ON sd.sex = s.sex_id GROUP BY s.sex_name");
+$stat_closure = getGenderCounts($conn, "SELECT s.sex_name, COUNT(DISTINCT cr.pid) FROM closure_report cr JOIN student_data sd ON cr.pid = sd.pid JOIN sex s ON sd.sex = s.sex_id GROUP BY s.sex_name");
+$stat_ongoing = getGenderCounts($conn, "SELECT s.sex_name, COUNT(DISTINCT ac.pid) FROM add_caselog ac JOIN student_data sd ON ac.pid = sd.pid JOIN sex s ON sd.sex = s.sex_id WHERE ac.pid NOT IN (SELECT pid FROM forward_case) AND ac.pid NOT IN (SELECT pid FROM closure_report) GROUP BY s.sex_name");
+
+$data_forward = [];
+$data_closure = [];
+$data_ongoing = [];
+
+// Map ข้อมูลให้ตรงกับลำดับเพศที่กำหนด (เพื่อให้กราฟแสดงครบ 3 เพศเสมอ)
+foreach ($fixed_genders as $g) {
+    $data_forward[] = $stat_forward[$g] ?? 0;
+    $data_closure[] = $stat_closure[$g] ?? 0;
+    $data_ongoing[] = $stat_ongoing[$g] ?? 0;
+}
+
+// 3. ข้อมูลหน่วยงานที่ส่งต่อ
+// ใช้ referral_other หาก referral_agency เป็น 'อื่นๆ' หรือว่าง
+$sql_ag = "SELECT CASE WHEN referral_agency = 'อื่นๆ' OR referral_agency IS NULL OR referral_agency = '' THEN referral_other ELSE referral_agency END as agency_name, COUNT(*) as count FROM forward_case GROUP BY agency_name HAVING agency_name IS NOT NULL AND agency_name != ''";
+$stmt_ag = $conn->query($sql_ag);
+$raw_ag = $stmt_ag->fetchAll(PDO::FETCH_ASSOC);
+$ag_labels = array_column($raw_ag, 'agency_name');
+$ag_data = array_column($raw_ag, 'count');
 ?>
 
 <!DOCTYPE html>
@@ -110,6 +185,43 @@ $dep_severe = $result_dep['severe'] ?? 0;
                     <div class="card-body">
                         <canvas id="depressionChart"></canvas>
                     </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ส่วนที่เพิ่มใหม่ -->
+        <div class="row">
+            <!-- 1. กราฟแท่งแสดงจำนวนอาการแยกตามเพศ -->
+            <div class="col-12 mb-4">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-white border-0 pt-3"><h5 class="card-title">จำนวนอาการแยกตามประเภทและเพศ</h5></div>
+                    <div class="card-body">
+                        <canvas id="caseTypeChart" style="max-height: 400px;"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- 2. กราฟสถานะ (Dropdown) -->
+            <div class="col-lg-6 mb-4">
+                <div class="card shadow-sm h-100">
+                    <div class="card-header bg-white border-0 pt-3 d-flex justify-content-between align-items-center">
+                        <h5 class="card-title mb-0">สถานะการติดตาม (แยกเพศ)</h5>
+                        <select id="statusSelector" class="form-select form-select-sm" style="width: auto;">
+                            <option value="ongoing">อยู่ระหว่างการติดตาม</option>
+                            <option value="forward">ส่งต่อกรณี</option>
+                            <option value="closure">ยุติการช่วยเหลือ</option>
+                        </select>
+                    </div>
+                    <div class="card-body"><canvas id="statusChart"></canvas></div>
+                </div>
+            </div>
+            <!-- 3. กราฟหน่วยงานที่ส่งต่อ -->
+            <div class="col-lg-6 mb-4">
+                <div class="card shadow-sm h-100">
+                    <div class="card-header bg-white border-0 pt-3"><h5 class="card-title">สถิติการส่งต่อหน่วยงานภายนอก</h5></div>
+                    <div class="card-body"><canvas id="agencyChart"></canvas></div>
                 </div>
             </div>
         </div>
@@ -221,6 +333,90 @@ $dep_severe = $result_dep['severe'] ?? 0;
             data: <?php echo json_encode($data); ?>,
             colors: <?php echo json_encode($colors); ?>
         };
+
+        // --- Script สำหรับกราฟใหม่ ---
+
+        // 1. Case Type Chart (Stacked Bar)
+        new Chart(document.getElementById('caseTypeChart'), {
+            type: 'bar',
+            data: {
+                labels: <?php echo json_encode($ct_labels); ?>,
+                datasets: <?php echo json_encode($ct_datasets); ?>
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    x: { stacked: true },
+                    y: { stacked: true, beginAtZero: true }
+                },
+                plugins: {
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return context.dataset.label + ': ' + context.raw + ' คน';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // 2. Status Chart (Dynamic)
+        const statusDataRaw = {
+            labels: <?php echo json_encode($fixed_genders); ?>,
+            forward: <?php echo json_encode($data_forward); ?>,
+            closure: <?php echo json_encode($data_closure); ?>,
+            ongoing: <?php echo json_encode($data_ongoing); ?>
+        };
+
+        const ctxStatus = document.getElementById('statusChart').getContext('2d');
+        let statusChart = new Chart(ctxStatus, {
+            type: 'bar',
+            data: {
+                labels: statusDataRaw.labels,
+                datasets: [{
+                    label: 'จำนวน (คน)',
+                    data: statusDataRaw.ongoing, // Default
+                    backgroundColor: [
+                        'rgba(54, 162, 235, 0.7)', // ชาย
+                        'rgba(255, 99, 132, 0.7)', // หญิง
+                        'rgba(153, 102, 255, 0.7)' // เพศทางเลือก
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: { y: { beginAtZero: true, ticks: { precision: 0 } } }
+            }
+        });
+
+        document.getElementById('statusSelector').addEventListener('change', function() {
+            const val = this.value;
+            statusChart.data.datasets[0].data = statusDataRaw[val];
+            statusChart.update();
+        });
+
+        // 3. Agency Chart
+        new Chart(document.getElementById('agencyChart'), {
+            type: 'bar',
+            data: {
+                labels: <?php echo json_encode($ag_labels); ?>,
+                datasets: [{
+                    label: 'จำนวนเคส',
+                    data: <?php echo json_encode($ag_data); ?>,
+                    backgroundColor: 'rgba(153, 102, 255, 0.6)',
+                    borderColor: 'rgba(153, 102, 255, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                indexAxis: 'y', // แนวนอนเพื่อให้อ่านชื่อหน่วยงานง่าย
+                responsive: true,
+                scales: { x: { beginAtZero: true, ticks: { precision: 0 } } },
+                plugins: { legend: { display: false } }
+            }
+        });
     </script>
 </body>
 </html>

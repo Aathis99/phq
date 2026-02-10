@@ -58,4 +58,47 @@ document.addEventListener("DOMContentLoaded", () => {
   // // Generating a random ID or timestamp for demo purposes.
   // const randomId = "CASE-" + Date.now().toString().slice(-6);
   // caseIdInput.value = randomId;
+
+  function updateAcademicInfo() {
+    const dateInput = document.getElementById('report_date');
+    if (!dateInput || !dateInput.value) return;
+
+    const date = new Date(dateInput.value);
+    const month = date.getMonth() + 1; // 1-12
+    const yearAD = date.getFullYear();
+    const yearBE = yearAD + 543;
+
+    let term = 0;
+    let academicYear = 0;
+
+    // Logic: May-Oct = Term 1, Nov-Apr = Term 2
+    if (month >= 5 && month <= 10) {
+        term = 1;
+        academicYear = yearBE;
+    } else {
+        term = 2;
+        if (month >= 11) {
+            academicYear = yearBE;
+        } else {
+            academicYear = yearBE - 1;
+        }
+    }
+
+    // Update Display Fields (แสดงผล)
+    const showYear = document.getElementById('show_academic_year');
+    const showTerm = document.getElementById('show_semester');
+    if (showYear) showYear.value = 'ปี ' + academicYear;
+    if (showTerm) showTerm.value = 'เทอม ' + term;
+
+    // Update Hidden Fields for Database (ส่งค่าเข้าฐานข้อมูล)
+    const hiddenYear = document.getElementById('academic_year');
+    const hiddenTerm = document.getElementById('semester');
+    if (hiddenYear) hiddenYear.value = academicYear;
+    if (hiddenTerm) hiddenTerm.value = term;
+  }
+
+  if (reportDateInput) {
+    reportDateInput.addEventListener('change', updateAcademicInfo);
+    updateAcademicInfo();
+  }
 });

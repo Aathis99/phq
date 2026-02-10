@@ -7,6 +7,7 @@
             const loading = document.getElementById('loading');
             const noMoreData = document.getElementById('noMoreData');
             const searchInput = document.getElementById('searchInput');
+            const filterStatus = document.getElementById('filterStatus');
 
             window.loadData = function(reset = false) {
                 if (reset) {
@@ -22,7 +23,8 @@
                 loading.style.display = 'block';
 
                 const search = searchInput.value;
-                const url = `main.php?action=fetch_data&page=${page}&search=${encodeURIComponent(search)}`;
+                const filter = filterStatus ? filterStatus.value : 'all';
+                const url = `main.php?action=fetch_data&page=${page}&search=${encodeURIComponent(search)}&filter=${encodeURIComponent(filter)}`;
 
                 fetch(url)
                     .then(response => response.json())
@@ -37,6 +39,9 @@
                                     if (row.has_closure > 0) {
                                         tr.style.backgroundColor = '#5DD3B6';
                                         tr.style.setProperty('--bs-table-bg', '#5DD3B6');
+                                    } else if (row.has_forward > 0) {
+                                        tr.style.backgroundColor = '#B7BDF7';
+                                        tr.style.setProperty('--bs-table-bg', '#B7BDF7');
                                     }
 
                                     // ${row.pid} อยากแสดง เลขบัตรประชาชนด้วย ให้เพิ่ม ไปตรงกลาง <br><small class="text-muted">+++++++++++++</small></td>

@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 5.1.1
+-- version 5.2.1
 -- https://www.phpmyadmin.net/
 --
--- Host: localhost
--- Generation Time: Feb 09, 2026 at 02:57 PM
--- Server version: 8.0.45-0ubuntu0.22.04.1
--- PHP Version: 7.4.33
+-- Host: db
+-- Generation Time: Feb 10, 2026 at 04:21 AM
+-- Server version: 10.11.16-MariaDB-ubu2204
+-- PHP Version: 8.2.27
 
 SET FOREIGN_KEY_CHECKS=0;
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
@@ -19,7 +19,7 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Database: `std660104db`
+-- Database: `sesa_db`
 --
 
 -- --------------------------------------------------------
@@ -29,34 +29,38 @@ SET time_zone = "+00:00";
 --
 
 CREATE TABLE `add_caselog` (
-  `id` int NOT NULL COMMENT 'รหัสลำดับเคส (Primary Key)',
-  `pid` varchar(13) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT 'รหัสบัตรประชาชนนักเรียน (FK)',
-  `case_type` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT 'ประเภทกรณี (ซึมเศร้า, เครียด, ฯลฯ)',
+  `id` int(11) NOT NULL COMMENT 'รหัสลำดับเคส (Primary Key)',
+  `pid` varchar(13) NOT NULL COMMENT 'รหัสบัตรประชาชนนักเรียน (FK)',
+  `case_type` varchar(100) DEFAULT NULL COMMENT 'ประเภทกรณี (ซึมเศร้า, เครียด, ฯลฯ)',
   `report_date` date DEFAULT NULL COMMENT 'วันที่รายงาน',
-  `presenting_symptoms` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci COMMENT 'อาการนำ (Presenting Symptoms)',
-  `history_personal` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci COMMENT 'ประวัติส่วนตัว',
-  `history_family` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci COMMENT 'ข้อมูลจากครอบครัว',
-  `history_school` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci COMMENT 'ข้อมูลจากโรงเรียน',
-  `personal_habits` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci COMMENT 'นิสัยส่วนตัว',
-  `history_hospital` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci COMMENT 'ข้อมูลจากโรงพยาบาล',
-  `consultation_details` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci COMMENT 'รายละเอียดการให้การปรึกษา',
-  `event_details` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci COMMENT 'รายละเอียดเหตุการณ์',
-  `assist_school` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci COMMENT 'แนวทางช่วยเหลือ-โรงเรียน',
-  `assist_hospital` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci COMMENT 'แนวทางช่วยเหลือ-โรงพยาบาล',
-  `assist_parent` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci COMMENT 'แนวทางช่วยเหลือ-ผู้ปกครอง',
-  `assist_other` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci COMMENT 'แนวทางช่วยเหลือ-หน่วยงานอื่น',
-  `suggestions` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci COMMENT 'ข้อเสนอแนะ',
-  `recorder` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT 'ผู้บันทึกข้อมูล (FK)',
-  `created_at` datetime DEFAULT CURRENT_TIMESTAMP COMMENT 'วันเวลาที่บันทึก',
-  `updated_at` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'วันเวลาที่แก้ไขล่าสุด'
+  `presenting_symptoms` text DEFAULT NULL COMMENT 'อาการนำ (Presenting Symptoms)',
+  `history_personal` text DEFAULT NULL COMMENT 'ประวัติส่วนตัว',
+  `history_family` text DEFAULT NULL COMMENT 'ข้อมูลจากครอบครัว',
+  `history_school` text DEFAULT NULL COMMENT 'ข้อมูลจากโรงเรียน',
+  `personal_habits` text DEFAULT NULL COMMENT 'นิสัยส่วนตัว',
+  `history_hospital` text DEFAULT NULL COMMENT 'ข้อมูลจากโรงพยาบาล',
+  `consultation_details` text DEFAULT NULL COMMENT 'รายละเอียดการให้การปรึกษา',
+  `event_details` text DEFAULT NULL COMMENT 'รายละเอียดเหตุการณ์',
+  `assist_school` text DEFAULT NULL COMMENT 'แนวทางช่วยเหลือ-โรงเรียน',
+  `assist_hospital` text DEFAULT NULL COMMENT 'แนวทางช่วยเหลือ-โรงพยาบาล',
+  `assist_parent` text DEFAULT NULL COMMENT 'แนวทางช่วยเหลือ-ผู้ปกครอง',
+  `assist_other` text DEFAULT NULL COMMENT 'แนวทางช่วยเหลือ-หน่วยงานอื่น',
+  `suggestions` text DEFAULT NULL COMMENT 'ข้อเสนอแนะ',
+  `academic_year` int(11) DEFAULT NULL COMMENT 'ปีการศึกษา',
+  `semester` int(11) DEFAULT NULL COMMENT 'เทอม',
+  `recorder` varchar(50) DEFAULT NULL COMMENT 'ผู้บันทึกข้อมูล (FK)',
+  `created_at` datetime DEFAULT current_timestamp() COMMENT 'วันเวลาที่บันทึก',
+  `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp() COMMENT 'วันเวลาที่แก้ไขล่าสุด'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='ตารางเก็บข้อมูลรายงานการช่วยเหลือรายกรณี';
 
 --
 -- Dumping data for table `add_caselog`
 --
 
-INSERT INTO `add_caselog` (`id`, `pid`, `case_type`, `report_date`, `presenting_symptoms`, `history_personal`, `history_family`, `history_school`, `personal_habits`, `history_hospital`, `consultation_details`, `event_details`, `assist_school`, `assist_hospital`, `assist_parent`, `assist_other`, `suggestions`, `recorder`, `created_at`, `updated_at`) VALUES
-(13, '1529902099888', 'ทดสอบเลือก กรณีอื่นๆ', '2026-02-03', 'อาการนำ 1', 'ประวัติส่วนตัว 1', 'ข้อมูลจากครอบครัว 1', 'ข้อมูลจากโรงเรียน 1', 'นิสัยส่วนตัว 1', 'ข้อมูลจากโรงพยาบาล 1', 'รายละเอียดการให้การปรึกษา 1', 'รายละเอียดเหตุการณ์ 1', ' โรงเรียน 1', 'โรงพยาบาล 1', 'ผู้ปกครอง 1', 'หน่วยงานอื่น ๆ ที่เกี่ยวข้อง 1', 'ข้อเสนอแนะ 1', 'admin1', '2026-02-03 14:34:04', '2026-02-03 14:34:04');
+INSERT INTO `add_caselog` (`id`, `pid`, `case_type`, `report_date`, `presenting_symptoms`, `history_personal`, `history_family`, `history_school`, `personal_habits`, `history_hospital`, `consultation_details`, `event_details`, `assist_school`, `assist_hospital`, `assist_parent`, `assist_other`, `suggestions`, `academic_year`, `semester`, `recorder`, `created_at`, `updated_at`) VALUES
+(13, '1529902099888', 'ทดสอบเลือก กรณีอื่นๆ', '2026-02-03', 'อาการนำ 1', 'ประวัติส่วนตัว 1', 'ข้อมูลจากครอบครัว 1', 'ข้อมูลจากโรงเรียน 1', 'นิสัยส่วนตัว 1', 'ข้อมูลจากโรงพยาบาล 1', 'รายละเอียดการให้การปรึกษา 1', 'รายละเอียดเหตุการณ์ 1', ' โรงเรียน 1', 'โรงพยาบาล 1', 'ผู้ปกครอง 1', 'หน่วยงานอื่น ๆ ที่เกี่ยวข้อง 1', 'ข้อเสนอแนะ 1', NULL, NULL, 'admin1', '2026-02-03 14:34:04', '2026-02-03 14:34:04'),
+(14, '1529902089177', 'เครียด', '2026-02-10', '1 ท.แก้ไข', '1 ท.แก้ไข', '1 ท.แก้ไข', '1 ท.แก้ไข', '1', '1 ท.แก้ไข', '1', '1', '1 ท.แก้ไข', '1 ท.แก้ไข', '1 ท.แก้ไข', '1 ท.แก้ไข', '1 ท.แก้ไข', NULL, NULL, 'admin1', '2026-02-10 03:37:50', '2026-02-10 03:38:57'),
+(15, '1529902089177', 'เครียด', '2026-02-10', '2 ท.แก้ไข', '2 ท.แก้ไข', '2 ท.แก้ไข', '2 ท.แก้ไข', '2', '2 ท.แก้ไข', '2', '2', '2 ท.แก้ไข', '2 ท.แก้ไข', '2 ท.แก้ไข', '2 ท.แก้ไข', '2 ท.แก้ไข', NULL, NULL, 'admin1', '2026-02-10 04:18:40', '2026-02-10 04:18:40');
 
 -- --------------------------------------------------------
 
@@ -65,8 +69,8 @@ INSERT INTO `add_caselog` (`id`, `pid`, `case_type`, `report_date`, `presenting_
 --
 
 CREATE TABLE `assessment` (
-  `id` int NOT NULL COMMENT 'idรันaa',
-  `pid` varchar(13) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT 'เลขบัตรประชาขน',
+  `id` int(11) NOT NULL COMMENT 'idรันaa',
+  `pid` varchar(13) DEFAULT NULL COMMENT 'เลขบัตรประชาขน',
   `date_time` datetime DEFAULT NULL COMMENT 'วันเวลา ณ ที กรอกแบบประเมิน',
   `c1` tinyint(1) DEFAULT NULL COMMENT 'คำถามที่ 1',
   `c2` tinyint(1) DEFAULT NULL COMMENT 'คำถามที่ 2',
@@ -77,11 +81,11 @@ CREATE TABLE `assessment` (
   `c7` tinyint(1) DEFAULT NULL COMMENT 'คำถามที่ 7',
   `c8` tinyint(1) DEFAULT NULL COMMENT 'คำถามที่ 8',
   `c9` tinyint(1) DEFAULT NULL COMMENT 'คำถามที่ 9',
-  `c10` int DEFAULT NULL COMMENT 'คำถามที่ 10',
-  `c11` int DEFAULT NULL COMMENT 'คำถามที่ 11',
-  `stress` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT 'คำถามที่ 12',
-  `manage_stress` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT 'คำถามที่ 13',
-  `score` int DEFAULT NULL COMMENT 'คะแนนรวม'
+  `c10` int(11) DEFAULT NULL COMMENT 'คำถามที่ 10',
+  `c11` int(11) DEFAULT NULL COMMENT 'คำถามที่ 11',
+  `stress` varchar(255) DEFAULT NULL COMMENT 'คำถามที่ 12',
+  `manage_stress` varchar(255) DEFAULT NULL COMMENT 'คำถามที่ 13',
+  `score` int(11) DEFAULT NULL COMMENT 'คะแนนรวม'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=COMPACT;
 
 --
@@ -6798,7 +6802,8 @@ INSERT INTO `assessment` (`id`, `pid`, `date_time`, `c1`, `c2`, `c3`, `c4`, `c5`
 (9077, '1529902544502', '2025-09-29 12:02:44', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 1, 'ครอบครัว', 'ค่องข้างน้อย', 10),
 (9078, '1528900029863', '2025-09-29 13:43:48', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 'กังวลว่าผลสอบออกมาจะได้น้อย  แล้วกลัวพ่อแม่ดุกลัวได้เกรด0', 'ดี', 2),
 (9081, '1529902430221', '2025-10-03 10:05:03', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 'ครอบครัว สิ่งรอบข้าง', 'ดี', 9),
-(9082, '1528900029626', '2025-10-09 08:46:39', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 1, 0, 'การเรียน', 'ดี', 19);
+(9082, '1528900029626', '2025-10-09 08:46:39', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 1, 0, 'การเรียน', 'ดี', 19),
+(9115, '1529902089177', '2026-02-10 03:25:28', 0, 0, 0, 1, 2, 2, 3, 0, 1, 0, 0, 'การเรียน เพื่อน ครอบครัว', 'ค่อนข้างน้อย', 9);
 
 -- --------------------------------------------------------
 
@@ -6807,26 +6812,21 @@ INSERT INTO `assessment` (`id`, `pid`, `date_time`, `c1`, `c2`, `c3`, `c4`, `c5`
 --
 
 CREATE TABLE `closure_report` (
-  `id` int NOT NULL COMMENT 'รหัสรายงาน (Primary Key)',
-  `pid` varchar(13) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT 'รหัสบัตรประชาชนนักเรียน (FK)',
-  `case_type` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT 'ประเภทกรณี (ซึมเศร้า, เครียด, ฯลฯ)',
-  `case_count` int DEFAULT NULL COMMENT 'ครั้งที่ (1-10)',
+  `id` int(11) NOT NULL COMMENT 'รหัสรายงาน (Primary Key)',
+  `pid` varchar(13) NOT NULL COMMENT 'รหัสบัตรประชาชนนักเรียน (FK)',
+  `case_type` varchar(100) DEFAULT NULL COMMENT 'ประเภทกรณี (ซึมเศร้า, เครียด, ฯลฯ)',
+  `case_count` int(11) DEFAULT NULL COMMENT 'ครั้งที่ (1-10)',
   `report_date` date DEFAULT NULL COMMENT 'วันที่รายงาน',
-  `detail_family` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci COMMENT 'รายละเอียดการติดตาม-ครอบครัว',
-  `detail_school` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci COMMENT 'รายละเอียดการติดตาม-โรงเรียน',
-  `detail_hospital` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci COMMENT 'รายละเอียดการติดตาม-โรงพยาบาล',
-  `suggestion` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci COMMENT 'ข้อเสนอแนะ',
-  `recorder` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT 'ผู้บันทึกข้อมูล (Username)',
-  `created_at` datetime DEFAULT CURRENT_TIMESTAMP COMMENT 'วันเวลาที่บันทึก',
-  `updated_at` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'วันเวลาที่แก้ไขล่าสุด'
+  `detail_family` text DEFAULT NULL COMMENT 'รายละเอียดการติดตาม-ครอบครัว',
+  `detail_school` text DEFAULT NULL COMMENT 'รายละเอียดการติดตาม-โรงเรียน',
+  `detail_hospital` text DEFAULT NULL COMMENT 'รายละเอียดการติดตาม-โรงพยาบาล',
+  `suggestion` text DEFAULT NULL COMMENT 'ข้อเสนอแนะ',
+  `recorder` varchar(50) DEFAULT NULL COMMENT 'ผู้บันทึกข้อมูล (Username)',
+  `academic_year` int(11) DEFAULT NULL COMMENT 'ปีการศึกษา',
+  `semester` int(11) DEFAULT NULL COMMENT 'เทอม',
+  `created_at` datetime DEFAULT current_timestamp() COMMENT 'วันเวลาที่บันทึก',
+  `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp() COMMENT 'วันเวลาที่แก้ไขล่าสุด'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='ตารางรายงานการยุติให้การดูแลช่วยเหลือรายกรณี';
-
---
--- Dumping data for table `closure_report`
---
-
-INSERT INTO `closure_report` (`id`, `pid`, `case_type`, `case_count`, `report_date`, `detail_family`, `detail_school`, `detail_hospital`, `suggestion`, `recorder`, `created_at`, `updated_at`) VALUES
-(7, '1529902099888', 'เครียด', 1, '2026-02-06', 'ทดสอบ การยุติให้การดูแลช่วยเหลือรายกรณี ครอบครัว', 'ทดสอบ การยุติให้การดูแลช่วยเหลือรายกรณี โรงเรียน', 'ทดสอบ การยุติให้การดูแลช่วยเหลือรายกรณี โรงพยาบาล', 'ทดสอบ การยุติให้การดูแลช่วยเหลือรายกรณี ข้อเสนอแนะ', 'admin1', '2026-02-06 10:32:25', '2026-02-06 10:32:25');
 
 -- --------------------------------------------------------
 
@@ -6835,13 +6835,15 @@ INSERT INTO `closure_report` (`id`, `pid`, `case_type`, `case_count`, `report_da
 --
 
 CREATE TABLE `forward_case` (
-  `id` int NOT NULL COMMENT 'รหัสการส่งต่อ (Primary Key)',
-  `pid` varchar(13) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT 'รหัสบัตรประชาชนนักเรียน (FK)',
-  `referral_agency` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT 'หน่วยงานที่ส่งต่อ',
-  `referral_other` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT 'ระบุหน่วยงานอื่น',
-  `recorder` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT 'ผู้บันทึกข้อมูล (Username)',
-  `created_at` datetime DEFAULT CURRENT_TIMESTAMP COMMENT 'วันเวลาที่บันทึก',
-  `updated_at` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT 'วันเวลาที่แก้ไขล่าสุด'
+  `id` int(11) NOT NULL COMMENT 'รหัสการส่งต่อ (Primary Key)',
+  `pid` varchar(13) NOT NULL COMMENT 'รหัสบัตรประชาชนนักเรียน (FK)',
+  `referral_agency` varchar(100) DEFAULT NULL COMMENT 'หน่วยงานที่ส่งต่อ',
+  `referral_other` varchar(255) DEFAULT NULL COMMENT 'ระบุหน่วยงานอื่น',
+  `recorder` varchar(50) DEFAULT NULL COMMENT 'ผู้บันทึกข้อมูล (Username)',
+  `academic_year` int(11) DEFAULT NULL COMMENT 'ปีการศึกษา',
+  `semester` int(11) DEFAULT NULL COMMENT 'เทอม',
+  `created_at` datetime DEFAULT current_timestamp() COMMENT 'วันเวลาที่บันทึก',
+  `updated_at` datetime DEFAULT current_timestamp() ON UPDATE current_timestamp() COMMENT 'วันเวลาที่แก้ไขล่าสุด'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='ตารางบันทึกการส่งต่อกรณี';
 
 -- --------------------------------------------------------
@@ -6851,10 +6853,10 @@ CREATE TABLE `forward_case` (
 --
 
 CREATE TABLE `images` (
-  `id` int NOT NULL COMMENT 'รหัสรูปภาพ (Primary Key)',
-  `case_id` int NOT NULL COMMENT 'เชื่อมโยงกับตาราง add_caselog (FK)',
-  `file_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT 'ชื่อไฟล์รูปภาพที่บันทึกใน Server',
-  `uploaded_at` datetime DEFAULT CURRENT_TIMESTAMP COMMENT 'เวลาที่อัปโหลด'
+  `id` int(11) NOT NULL COMMENT 'รหัสรูปภาพ (Primary Key)',
+  `case_id` int(11) NOT NULL COMMENT 'เชื่อมโยงกับตาราง add_caselog (FK)',
+  `file_name` varchar(255) NOT NULL COMMENT 'ชื่อไฟล์รูปภาพที่บันทึกใน Server',
+  `uploaded_at` datetime DEFAULT current_timestamp() COMMENT 'เวลาที่อัปโหลด'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='ตารางเก็บรูปภาพประกอบเคส';
 
 --
@@ -6865,7 +6867,12 @@ INSERT INTO `images` (`id`, `case_id`, `file_name`, `uploaded_at`) VALUES
 (59, 13, 'case_13_6981a4ec2f110.jpg', '2026-02-03 14:34:04'),
 (60, 13, 'case_13_6981a4ec2f2da.jpg', '2026-02-03 14:34:04'),
 (61, 13, 'case_13_6981a4ec2f4ab.jpg', '2026-02-03 14:34:04'),
-(62, 13, 'case_13_6981a4ec2f6bd.jpg', '2026-02-03 14:34:04');
+(62, 13, 'case_13_6981a4ec2f6bd.jpg', '2026-02-03 14:34:04'),
+(65, 14, 'case_14_698aa80e66318.jpg', '2026-02-10 03:37:50'),
+(66, 14, 'case_14_698aa80e780d6.jpg', '2026-02-10 03:37:50'),
+(67, 14, 'case_14_698aa85152733.png', '2026-02-10 03:38:57'),
+(68, 14, 'case_14_698aa8515eedd.png', '2026-02-10 03:38:57'),
+(69, 15, 'case_15_698ab1a014276.jpg', '2026-02-10 04:18:40');
 
 -- --------------------------------------------------------
 
@@ -6874,8 +6881,8 @@ INSERT INTO `images` (`id`, `case_id`, `file_name`, `uploaded_at`) VALUES
 --
 
 CREATE TABLE `phq_question` (
-  `id` int NOT NULL,
-  `question` text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL
+  `id` int(11) NOT NULL,
+  `question` text NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -6904,8 +6911,8 @@ INSERT INTO `phq_question` (`id`, `question`) VALUES
 --
 
 CREATE TABLE `prefix` (
-  `prefix_id` int NOT NULL,
-  `prefix_name` varchar(50) COLLATE utf8mb4_general_ci NOT NULL
+  `prefix_id` int(11) NOT NULL,
+  `prefix_name` varchar(50) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -6925,8 +6932,8 @@ INSERT INTO `prefix` (`prefix_id`, `prefix_name`) VALUES
 --
 
 CREATE TABLE `school` (
-  `school_id` int NOT NULL,
-  `school_name` varchar(191) COLLATE utf8mb4_general_ci DEFAULT NULL
+  `school_id` int(11) NOT NULL,
+  `school_name` varchar(191) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=DYNAMIC;
 
 --
@@ -6987,8 +6994,8 @@ INSERT INTO `school` (`school_id`, `school_name`) VALUES
 --
 
 CREATE TABLE `sex` (
-  `sex_id` int NOT NULL,
-  `sex_name` varchar(15) COLLATE utf8mb4_general_ci DEFAULT NULL
+  `sex_id` int(11) NOT NULL,
+  `sex_name` varchar(15) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=DYNAMIC;
 
 --
@@ -7007,16 +7014,16 @@ INSERT INTO `sex` (`sex_id`, `sex_name`) VALUES
 --
 
 CREATE TABLE `student_data` (
-  `school_id` int DEFAULT NULL COMMENT 'รหัสโรงเรียน',
-  `pid` varchar(13) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT 'รหัสบัตรประชาชน',
-  `sex` int DEFAULT NULL,
-  `prefix_id` int DEFAULT NULL COMMENT 'ไอดีคำนำหน้าชื่อ',
-  `fname` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT 'ชื่อ',
-  `lname` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT 'นามสกุล',
-  `age` int DEFAULT NULL COMMENT 'อายุ',
-  `class` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT 'ชั้นเรียน',
-  `room` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT 'ห้อง',
-  `tel` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT 'เบอร์โทรศัพท์',
+  `school_id` int(11) DEFAULT NULL COMMENT 'รหัสโรงเรียน',
+  `pid` varchar(13) NOT NULL COMMENT 'รหัสบัตรประชาชน',
+  `sex` int(11) DEFAULT NULL,
+  `prefix_id` int(11) DEFAULT NULL COMMENT 'ไอดีคำนำหน้าชื่อ',
+  `fname` varchar(100) DEFAULT NULL COMMENT 'ชื่อ',
+  `lname` varchar(100) DEFAULT NULL COMMENT 'นามสกุล',
+  `age` int(11) DEFAULT NULL COMMENT 'อายุ',
+  `class` varchar(20) DEFAULT NULL COMMENT 'ชั้นเรียน',
+  `room` varchar(20) DEFAULT NULL COMMENT 'ห้อง',
+  `tel` varchar(10) DEFAULT NULL COMMENT 'เบอร์โทรศัพท์',
   `date_time` datetime DEFAULT NULL COMMENT 'เวลาที่กรอกแบบฟอร์ม'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -9117,6 +9124,7 @@ INSERT INTO `student_data` (`school_id`, `pid`, `sex`, `prefix_id`, `fname`, `ln
 (52012010, '1529901339445', 2, 4, 'ฉัตรกมล', 'ใจศิล', 18, '6', '3', '0612795134', '2025-09-02 09:07:39'),
 (52012007, '1529901491590', 2, 2, 'รัตนาพร', 'มหามิตร', 14, '2', '4', '0909370133', '2025-09-02 15:36:51'),
 (52012008, '1529901526709', 2, 2, 'ณัฐฐนันท์', 'วงศ์ราช', 13, '1', '3', '0613248924', '2025-08-22 15:09:33'),
+(52012010, '1529902089177', 1, 3, 'test', 'testkub', 15, '5', '2', '0622274431', '2026-02-10 03:25:26'),
 (52012010, '1529902099888', 1, 3, 'อลิส', 'วงค์เจริญ', 20, '6', '2', '0627722222', '2026-01-30 11:30:50'),
 (52022010, '1529902140662', 1, 3, 'ณัฐพันธุ์', 'จันต๊ะอุคม์', 16, '4', '6', '0928702088', '2025-09-24 10:32:57'),
 (52012008, '1529902142479', 2, 4, 'อริสรา', 'รินทร์แก้ว', 16, '4', '1', '0631755832', '2025-08-26 08:47:44'),
@@ -9345,9 +9353,9 @@ INSERT INTO `student_data` (`school_id`, `pid`, `sex`, `prefix_id`, `fname`, `ln
 (52012007, '1529902345186', 1, 3, 'ธนพล', 'เครือสบจาง', 17, '6', '4', '0655857288', '2025-08-23 19:03:42'),
 (52022005, '1529902345241', 2, 4, 'จิรัชยา', 'วงศ์ใหม่ความ', 17, '6', '1', '0806486833', '2025-08-20 08:24:14'),
 (52012010, '1529902345348', 2, 4, 'ขวัญจิรา', 'หมั่นคิด', 17, '6', '3', '0650316432', '2025-09-02 08:44:08'),
-(52012013, '1529902345399', 2, 4, 'ชญาภัทร', 'คำผัด', 17, '6', '1', '0937351190', '2025-08-23 09:51:52'),
-(52022004, '1529902345437', 2, 4, 'ณัฐณิชา', 'ทาใจ', 17, '6', '3', '0650949680', '2025-09-05 13:03:18');
+(52012013, '1529902345399', 2, 4, 'ชญาภัทร', 'คำผัด', 17, '6', '1', '0937351190', '2025-08-23 09:51:52');
 INSERT INTO `student_data` (`school_id`, `pid`, `sex`, `prefix_id`, `fname`, `lname`, `age`, `class`, `room`, `tel`, `date_time`) VALUES
+(52022004, '1529902345437', 2, 4, 'ณัฐณิชา', 'ทาใจ', 17, '6', '3', '0650949680', '2025-09-05 13:03:18'),
 (52012006, '1529902345445', 2, 4, 'วริณญาฎา', 'วันแก้ว', 17, '6', '3', '0936646612', '2025-08-21 08:40:56'),
 (52012006, '1529902345551', 2, 4, 'สวรินทร์', 'อุ่นผูก', 17, '6', '15', '0613756736', '2025-08-21 08:16:52'),
 (52012007, '1529902345577', 2, 4, 'ชลณิชา', 'ใจคำลือ', 17, '6', '2', '0811066027', '2025-08-20 14:39:07'),
@@ -9809,9 +9817,9 @@ INSERT INTO `student_data` (`school_id`, `pid`, `sex`, `prefix_id`, `fname`, `ln
 (52012013, '1529902380291', 2, 4, 'บัณฑิตา', 'พุฒละ', 17, '5', '1', '0653610962', '2025-08-22 17:02:21'),
 (52012007, '1529902380372', 2, 4, 'ชาลิสา', 'พุธสวย', 17, '5', '2', '0813232060', '2025-09-05 15:32:38'),
 (52012006, '1529902380402', 2, 4, 'ณัฐวิสา', 'ศรีสุมิตร', 17, '5', '3', '0933156862', '2025-08-22 07:48:05'),
-(52012006, '1529902380437', 2, 4, 'พิรดาภร', 'สุริยะพันธ์', 17, '5', '3', '0829470614', '2025-08-22 10:38:10'),
-(52012008, '1529902380496', 2, 4, 'กาญจนาภา', 'ยะหัวฝาย', 17, '5', '7', '0649721297', '2025-08-22 09:58:12');
+(52012006, '1529902380437', 2, 4, 'พิรดาภร', 'สุริยะพันธ์', 17, '5', '3', '0829470614', '2025-08-22 10:38:10');
 INSERT INTO `student_data` (`school_id`, `pid`, `sex`, `prefix_id`, `fname`, `lname`, `age`, `class`, `room`, `tel`, `date_time`) VALUES
+(52012008, '1529902380496', 2, 4, 'กาญจนาภา', 'ยะหัวฝาย', 17, '5', '7', '0649721297', '2025-08-22 09:58:12'),
 (52012006, '1529902380518', 2, 4, 'ศิริรัตน์', 'หอมบุญมี', 17, '5', '10', '0930293217', '2025-08-21 14:17:16'),
 (52012006, '1529902380569', 2, 4, 'ชญานันท์', 'สอนแปง', 17, '5', '8', '0837719633', '2025-08-22 12:08:47'),
 (52012006, '1529902380585', 1, 3, 'เดชาฤทธิ์', 'ช่างซอ', 17, '5', '12', '0652393450', '2025-08-21 14:13:37'),
@@ -10272,10 +10280,10 @@ INSERT INTO `student_data` (`school_id`, `pid`, `sex`, `prefix_id`, `fname`, `ln
 (52012008, '1529902416202', 1, 3, 'พีรวิชญ์', 'นันต๊ะเสน', 15, '4', '4', '0611011472', '2025-08-22 09:27:46'),
 (52012008, '1529902416245', 1, 3, 'ชยางกูร', 'ดวงสมบูรณ์', 16, '4', '14', '0943134547', '2025-08-26 09:21:30'),
 (52012006, '1529902416300', 1, 3, 'ภูมิรพี', 'ใจชุ่ม', 16, '4', '13', '0958850704', '2025-08-21 13:29:53'),
-(52012006, '1529902416431', 1, 3, 'ธนกฤต', 'ชมพรรณพร', 16, '4', '10', '0615143457', '2025-08-21 09:22:17'),
-(52012006, '1529902416539', 2, 4, 'แพรวา', 'ชาดี', 16, '4', '13', '0616252633', '2025-08-21 13:30:13'),
-(52012006, '1529902416644', 1, 3, 'ไตรรัตน์', 'คำแปง', 16, '4', '6', '0932135035', '2025-08-21 11:22:59');
+(52012006, '1529902416431', 1, 3, 'ธนกฤต', 'ชมพรรณพร', 16, '4', '10', '0615143457', '2025-08-21 09:22:17');
 INSERT INTO `student_data` (`school_id`, `pid`, `sex`, `prefix_id`, `fname`, `lname`, `age`, `class`, `room`, `tel`, `date_time`) VALUES
+(52012006, '1529902416539', 2, 4, 'แพรวา', 'ชาดี', 16, '4', '13', '0616252633', '2025-08-21 13:30:13'),
+(52012006, '1529902416644', 1, 3, 'ไตรรัตน์', 'คำแปง', 16, '4', '6', '0932135035', '2025-08-21 11:22:59'),
 (52012007, '1529902416687', 1, 3, 'เศรษฐี', 'มั่นคง', 16, '4', '1', '0924245215', '2025-08-20 14:23:53'),
 (52012006, '1529902416776', 2, 4, 'เอมมิกา', 'แก้วธิ', 16, '4', '6', '0882621790', '2025-08-21 11:20:27'),
 (52012006, '1529902416881', 2, 4, 'อริสรา', 'เป็งบุญมา', 16, '4', '5', '0930506190', '2025-08-21 10:36:28'),
@@ -10735,10 +10743,10 @@ INSERT INTO `student_data` (`school_id`, `pid`, `sex`, `prefix_id`, `fname`, `ln
 (52012007, '1529902445962', 2, 4, 'พิยดา', 'วันชัย', 15, '4', '2', '0963367543', '2025-08-20 12:52:28'),
 (52022004, '1529902446110', 1, 3, 'ญาณวัฒน์', 'อุดแตน', 15, '4', '2', '0824712590', '2025-09-09 08:45:19'),
 (52012010, '1529902446144', 1, 3, 'เกรียงดิศักดิ์', 'สมฟอง', 15, '4', '3', '0842919707', '2025-09-02 11:42:09'),
-(52012009, '1529902446152', 2, 4, 'นภัสศิริ', 'ปิยปาณานนท์', 15, '4', '2', '0937247415', '2025-08-26 13:25:21'),
-(52012013, '1529902446209', 2, 4, 'ปนัสสินี', 'ใจหมั้น', 15, '4', '3', '0649467491', '2025-08-22 18:18:48'),
-(52022010, '1529902446250', 2, 4, 'สุชาดา', 'ฟองเทพ', 15, '4', '7', '0822263219', '2025-09-12 10:15:08');
+(52012009, '1529902446152', 2, 4, 'นภัสศิริ', 'ปิยปาณานนท์', 15, '4', '2', '0937247415', '2025-08-26 13:25:21');
 INSERT INTO `student_data` (`school_id`, `pid`, `sex`, `prefix_id`, `fname`, `lname`, `age`, `class`, `room`, `tel`, `date_time`) VALUES
+(52012013, '1529902446209', 2, 4, 'ปนัสสินี', 'ใจหมั้น', 15, '4', '3', '0649467491', '2025-08-22 18:18:48'),
+(52022010, '1529902446250', 2, 4, 'สุชาดา', 'ฟองเทพ', 15, '4', '7', '0822263219', '2025-09-12 10:15:08'),
 (52012002, '1529902446276', 2, 4, 'เมษา', 'มมใจนึก', 15, '3', '2', '0985621380', '2025-09-04 15:08:12'),
 (52012010, '1529902446314', 2, 4, 'รัชนี', 'เสมอวงศ์ติ๊บ', 15, '4', '310', '0952163233', '2025-08-27 11:30:37'),
 (52012008, '1529902446454', 2, 4, 'สิริกัญญา', 'วาวเเวว', 15, '4', '14', '0645301848', '2025-08-26 09:23:53'),
@@ -11199,10 +11207,10 @@ INSERT INTO `student_data` (`school_id`, `pid`, `sex`, `prefix_id`, `fname`, `ln
 (52022010, '1529902469420', 2, 2, 'วิมลลักษณ์', 'ไชยเครื่อง', 14, '3', '5', '0644790466', '2025-09-24 12:32:57'),
 (52012007, '1529902469438', 1, 1, 'ธีรภัทร', 'กันอูป', 14, '3', '1', '0959958452', '2025-08-29 15:28:43'),
 (52012006, '1529902469454', 2, 2, 'โชติกา', 'แก้วอ่อน', 14, '3', '2', '0807923538', '2025-08-22 08:04:34'),
-(52012007, '1529902469489', 2, 2, 'ณัฐมน', 'ณะคำสาร', 14, '3', '6', '0967930987', '2025-08-20 14:06:39'),
-(52022004, '1529902469527', 2, 2, 'ณัฐณิชา', 'สุตะพรม', 14, '3', '4', '0650102619', '2025-09-05 10:19:46'),
-(52012006, '1529902469560', 1, 1, 'สิทธาวิชญ์', 'ฉัตรเเก้ว', 14, '3', '1', '0962080304', '2025-08-25 08:37:11');
+(52012007, '1529902469489', 2, 2, 'ณัฐมน', 'ณะคำสาร', 14, '3', '6', '0967930987', '2025-08-20 14:06:39');
 INSERT INTO `student_data` (`school_id`, `pid`, `sex`, `prefix_id`, `fname`, `lname`, `age`, `class`, `room`, `tel`, `date_time`) VALUES
+(52022004, '1529902469527', 2, 2, 'ณัฐณิชา', 'สุตะพรม', 14, '3', '4', '0650102619', '2025-09-05 10:19:46'),
+(52012006, '1529902469560', 1, 1, 'สิทธาวิชญ์', 'ฉัตรเเก้ว', 14, '3', '1', '0962080304', '2025-08-25 08:37:11'),
 (52012006, '1529902469586', 1, 1, 'พีระวิทย์', 'จี๋เอ้ย', 14, '3', '641', '0988784244', '2025-08-25 08:18:07'),
 (52012006, '1529902469624', 3, 1, 'ทองทิว', 'เทพปัญญา', 14, '3', '12', '0849957971', '2025-08-25 08:17:14'),
 (52022005, '1529902469691', 1, 1, 'พงศกร', 'ยะปัญญา', 14, '3', '2', '0650043679', '2025-08-20 08:36:15'),
@@ -11663,10 +11671,10 @@ INSERT INTO `student_data` (`school_id`, `pid`, `sex`, `prefix_id`, `fname`, `ln
 (52012015, '1529902493339', 2, 2, 'ไอยรา', 'ปรีดา', 14, '2', '1', '0984815705', '2025-08-22 14:20:20'),
 (52022005, '1529902493436', 2, 2, 'รุ่งฟ้า', 'แก้วแดง', 14, '2', '1', '0611204903', '2025-08-20 20:28:20'),
 (52012008, '1529902493495', 1, 1, 'พิรัชชัย', 'ใจเฉียบ', 14, '2', '1', '0882523056', '2025-08-27 08:46:56'),
-(52012010, '1529902493509', 2, 2, 'รัญชิดา', 'หมื่นชุ่ม', 14, '2', '1', '0650972012', '2025-09-02 17:25:26'),
-(52012006, '1529902493606', 1, 1, 'ปิยากร', 'ศรีละอิน', 14, '2', '7', '0858295824', '2025-08-29 14:02:07'),
-(52012008, '1529902493622', 2, 2, 'กมลวรรณ', 'ไชยบาง', 14, '2', '1', '0987367809', '2025-08-27 08:46:35');
+(52012010, '1529902493509', 2, 2, 'รัญชิดา', 'หมื่นชุ่ม', 14, '2', '1', '0650972012', '2025-09-02 17:25:26');
 INSERT INTO `student_data` (`school_id`, `pid`, `sex`, `prefix_id`, `fname`, `lname`, `age`, `class`, `room`, `tel`, `date_time`) VALUES
+(52012006, '1529902493606', 1, 1, 'ปิยากร', 'ศรีละอิน', 14, '2', '7', '0858295824', '2025-08-29 14:02:07'),
+(52012008, '1529902493622', 2, 2, 'กมลวรรณ', 'ไชยบาง', 14, '2', '1', '0987367809', '2025-08-27 08:46:35'),
 (52012008, '1529902493657', 3, 1, 'ธนัชชา', 'วาวแวว', 14, '2', '6', '0612981302', '2025-08-26 07:33:07'),
 (52012008, '1529902493738', 2, 2, 'จิรัชญา', 'จันทาคุณ', 14, '2', '4', '0808584677', '2025-08-22 08:05:20'),
 (52012008, '1529902493801', 1, 1, 'คัมภีร์', 'ฟังเย็น', 14, '2', '2', '0985929971', '2025-08-27 08:29:28'),
@@ -12128,10 +12136,10 @@ INSERT INTO `student_data` (`school_id`, `pid`, `sex`, `prefix_id`, `fname`, `ln
 (52022004, '1529902518153', 2, 2, 'อภิญญา', 'ถาแก้ว', 13, '2', '2', '0818243251', '2025-09-15 12:28:42'),
 (52022007, '1529902518269', 1, 1, 'ณัฏฐ์ชวิญช์', 'คำจันทร์', 13, '2', '7', '0807248734', '2025-09-22 12:18:22'),
 (52012004, '1529902518277', 1, 1, 'กรวิชญ์', 'อรุณแสง', 13, '2', '1', '0640799019', '2025-09-15 10:26:27'),
-(52012008, '1529902518293', 2, 2, 'เปรมสุดา', 'คำจำปา', 13, '2', '3', '0611423397', '2025-08-27 08:36:36'),
-(52012002, '1529902518307', 2, 2, 'ธัญลักษณ์', 'ไว้ท่า', 13, '2', '1', '0980509886', '2025-09-02 10:34:16'),
-(52022005, '1529902518391', 1, 1, 'กันต์กวี', 'คิดมั่ง', 13, '2', '2', '0979501650', '2025-08-20 08:33:33');
+(52012008, '1529902518293', 2, 2, 'เปรมสุดา', 'คำจำปา', 13, '2', '3', '0611423397', '2025-08-27 08:36:36');
 INSERT INTO `student_data` (`school_id`, `pid`, `sex`, `prefix_id`, `fname`, `lname`, `age`, `class`, `room`, `tel`, `date_time`) VALUES
+(52012002, '1529902518307', 2, 2, 'ธัญลักษณ์', 'ไว้ท่า', 13, '2', '1', '0980509886', '2025-09-02 10:34:16'),
+(52022005, '1529902518391', 1, 1, 'กันต์กวี', 'คิดมั่ง', 13, '2', '2', '0979501650', '2025-08-20 08:33:33'),
 (52012008, '1529902518463', 3, 1, 'อชิระ', 'ใสแสง', 13, '2', '10', '0819841786', '2025-08-22 07:34:39'),
 (52012006, '1529902518587', 2, 2, 'อาริยา', 'จันทโสภีพันธ์', 13, '2', '10', '0923531815', '2025-08-22 13:53:20'),
 (52012008, '1529902518633', 2, 2, 'สรัสสา', 'โพธิ์บาย', 13, '2', '11', '0946310614', '2025-08-27 08:36:13'),
@@ -12592,11 +12600,11 @@ INSERT INTO `student_data` (`school_id`, `pid`, `sex`, `prefix_id`, `fname`, `ln
 (52012008, '1529902540051', 1, 1, 'ณภัทร', 'สิทธิมงคล', 12, '1', '15', '0650431827', '2025-08-26 08:12:50'),
 (52012006, '1529902540078', 1, 1, 'รุจิภาส', 'ฉิมประเสริฐ', 13, '1', '14', '0965026365', '2025-09-10 10:33:46'),
 (52012007, '1529902540108', 1, 1, 'ณัฐนนท์', 'ไชยอ้าย', 13, '1', '1', '0933107131', '2025-08-20 09:59:25'),
-(52022004, '1529902540256', 2, 2, 'ธิดาทิพย์', 'แว่นนนท์', 12, '1', '4', '0812809870', '2025-09-02 18:21:23'),
+(52022004, '1529902540256', 2, 2, 'ธิดาทิพย์', 'แว่นนนท์', 12, '1', '4', '0812809870', '2025-09-02 18:21:23');
+INSERT INTO `student_data` (`school_id`, `pid`, `sex`, `prefix_id`, `fname`, `lname`, `age`, `class`, `room`, `tel`, `date_time`) VALUES
 (52012006, '1529902540272', 1, 1, 'ภูริร์', 'พฤฒิไพบูลย์ย์วณิช', 12, '1', '16', '0619196262', '2025-09-01 13:19:18'),
 (52012007, '1529902540291', 1, 1, 'วชิราวุธ', 'พรมคง', 13, '1', '5', '0930467737', '2025-08-21 15:26:15'),
-(52022010, '1529902540451', 2, 2, 'พุฒิพร', 'วันแก้ว', 12, '1', '1', '0989529666', '2025-09-12 14:19:24');
-INSERT INTO `student_data` (`school_id`, `pid`, `sex`, `prefix_id`, `fname`, `lname`, `age`, `class`, `room`, `tel`, `date_time`) VALUES
+(52022010, '1529902540451', 2, 2, 'พุฒิพร', 'วันแก้ว', 12, '1', '1', '0989529666', '2025-09-12 14:19:24'),
 (52012006, '1529902540469', 2, 2, 'อาคิรา', 'พลมั่น', 12, '1', '13', '0820843628', '2025-08-27 08:57:11'),
 (52012008, '1529902540531', 2, 2, 'ปุณิกา', 'แก้วสาย', 12, '1', '13', '0967402005', '2025-08-22 14:39:41'),
 (52012008, '1529902540558', 2, 2, 'วิมพ์วิภา', 'ลำพูน', 12, 'ไม่มีชั้นเรียน', 'ไม่มีห้องเรียน', '0630162559', '2025-08-22 10:34:41'),
@@ -13054,11 +13062,11 @@ INSERT INTO `student_data` (`school_id`, `pid`, `sex`, `prefix_id`, `fname`, `ln
 (52022009, '1529902562306', 1, 1, 'เอกรินทร์', 'วงศ์โห้', 12, '1', '1', '0958846676', '2025-08-22 11:34:10'),
 (52012006, '1529902562381', 2, 2, 'กชพรรณ', 'ราชรองเมือง', 12, '1', '15', '0941169915', '2025-08-28 13:59:19'),
 (52012008, '1529902562462', 1, 1, 'ภัทรดนัย', 'กันทะ', 12, '1', '4', '0613260326', '2025-08-25 14:55:11'),
-(52012008, '1529902562519', 2, 2, 'ศิริณารินทร์', 'ตะนะวงค์', 12, '1', '7', '0955177609', '2025-08-24 21:27:50'),
+(52012008, '1529902562519', 2, 2, 'ศิริณารินทร์', 'ตะนะวงค์', 12, '1', '7', '0955177609', '2025-08-24 21:27:50');
+INSERT INTO `student_data` (`school_id`, `pid`, `sex`, `prefix_id`, `fname`, `lname`, `age`, `class`, `room`, `tel`, `date_time`) VALUES
 (52012007, '1529902562578', 1, 1, 'ณัฐพงษ์', 'สมดวง', 12, '1', '338', '0984109310', '2025-08-26 09:58:44'),
 (52022009, '1529902562616', 1, 1, 'ปวเรศ', 'แก้ววงศ์', 12, '1', '1', '0630050621', '2025-08-22 11:27:13'),
-(52012010, '1529902562624', 2, 2, 'ธีรธาดา', 'สมกูล', 12, '1', '4', '0650176707', '2025-09-02 14:08:08');
-INSERT INTO `student_data` (`school_id`, `pid`, `sex`, `prefix_id`, `fname`, `lname`, `age`, `class`, `room`, `tel`, `date_time`) VALUES
+(52012010, '1529902562624', 2, 2, 'ธีรธาดา', 'สมกูล', 12, '1', '4', '0650176707', '2025-09-02 14:08:08'),
 (52012006, '1529902562632', 1, 1, 'ณัฏฐากร', 'โนใจวงศ์', 12, '1', '336', '0980487709', '2025-08-26 13:22:15'),
 (52012008, '1529902562675', 1, 1, 'พุฒิภัทร', 'ริมคำ', 12, '1', '6', '0622281285', '2025-08-26 12:31:06'),
 (52012006, '1529902562705', 1, 1, 'ธีรภัทร', 'คำยันต์', 12, '1', '4', '0910272240', '2025-08-29 14:54:02'),
@@ -13518,11 +13526,11 @@ INSERT INTO `student_data` (`school_id`, `pid`, `sex`, `prefix_id`, `fname`, `ln
 (52012013, '1650101163404', 2, 2, 'ณัฏฐธิดา', 'อุบลศรี', 12, '1', '3', '0647475261', '2025-09-05 14:02:55'),
 (52012013, '1659700049810', 1, 3, 'นรวิชญ์', 'มหาวิค', 16, '4', '4', '0658201827', '2025-09-04 14:44:30'),
 (52012008, '1659902445759', 1, 3, 'ภาคิน', 'เพ็ชรรัตน์', 17, '6', '3', '0855074826', '2025-08-21 18:39:32'),
-(52012006, '1659902461037', 2, 4, 'ณัฐรัตน์กมล', 'ตาบุตรวงศ์', 17, '5', '10', '0650070928', '2025-08-21 13:17:32'),
+(52012006, '1659902461037', 2, 4, 'ณัฐรัตน์กมล', 'ตาบุตรวงศ์', 17, '5', '10', '0650070928', '2025-08-21 13:17:32');
+INSERT INTO `student_data` (`school_id`, `pid`, `sex`, `prefix_id`, `fname`, `lname`, `age`, `class`, `room`, `tel`, `date_time`) VALUES
 (52022004, '1659902466713', 2, 4, 'อริยา', 'รัตนอาจ', 17, '6', '3', '0655632770', '2025-09-05 13:07:46'),
 (52012006, '1659902472373', 2, 4, 'นีนนารา', 'ดำเนินสวัสดิ์', 17, '5', '19', '0822816007', '2025-08-26 00:28:10'),
-(52012008, '1659902490258', 1, 3, 'ธนากร', 'กันมา', 16, '5', '7', '0637981438', '2025-08-22 09:58:45');
-INSERT INTO `student_data` (`school_id`, `pid`, `sex`, `prefix_id`, `fname`, `lname`, `age`, `class`, `room`, `tel`, `date_time`) VALUES
+(52012008, '1659902490258', 1, 3, 'ธนากร', 'กันมา', 16, '5', '7', '0637981438', '2025-08-22 09:58:45'),
 (52022004, '1659902500814', 1, 3, 'กิตติคุณ', 'อัครเวทย์', 16, '5', '4', '0629922790', '2025-09-03 13:05:48'),
 (52012010, '1659902508262', 2, 4, 'กันณิศา', 'กูลใจ', 16, '5', '1', '0634350101', '2025-08-29 14:45:08'),
 (52012006, '1659902512804', 2, 4, 'ณัฐานต์', 'จักรพรรดิ์', 16, '5', '17', '0801010877', '2025-08-21 09:13:31'),
@@ -13741,8 +13749,8 @@ INSERT INTO `student_data` (`school_id`, `pid`, `sex`, `prefix_id`, `fname`, `ln
 --
 
 CREATE TABLE `type` (
-  `type_id` int NOT NULL,
-  `type_name` varchar(20) COLLATE utf8mb4_general_ci DEFAULT NULL
+  `type_id` int(11) NOT NULL,
+  `type_name` varchar(20) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=DYNAMIC;
 
 --
@@ -13761,15 +13769,15 @@ INSERT INTO `type` (`type_id`, `type_name`) VALUES
 --
 
 CREATE TABLE `users` (
-  `username` varchar(20) COLLATE utf8mb4_general_ci NOT NULL,
-  `password` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL,
-  `typeuser` varchar(20) COLLATE utf8mb4_general_ci DEFAULT NULL,
-  `comment` varchar(100) COLLATE utf8mb4_general_ci DEFAULT NULL,
-  `pid` varchar(13) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT 'รหัสบัตรประชาชน',
-  `prefix_id` int DEFAULT NULL COMMENT 'Foreign Key เชื่อมกับตาราง prefix',
-  `fname` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT 'ชื่อจริง',
-  `lname` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT 'นามสกุล',
-  `position` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT 'ตำแหน่ง'
+  `username` varchar(20) NOT NULL,
+  `password` varchar(255) DEFAULT NULL,
+  `typeuser` varchar(20) DEFAULT NULL,
+  `comment` varchar(100) DEFAULT NULL,
+  `pid` varchar(13) DEFAULT NULL COMMENT 'รหัสบัตรประชาชน',
+  `prefix_id` int(11) DEFAULT NULL COMMENT 'Foreign Key เชื่อมกับตาราง prefix',
+  `fname` varchar(100) DEFAULT NULL COMMENT 'ชื่อจริง',
+  `lname` varchar(100) DEFAULT NULL COMMENT 'นามสกุล',
+  `position` varchar(100) DEFAULT NULL COMMENT 'ตำแหน่ง'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=DYNAMIC;
 
 --
@@ -13876,31 +13884,31 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `add_caselog`
 --
 ALTER TABLE `add_caselog`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT COMMENT 'รหัสลำดับเคส (Primary Key)', AUTO_INCREMENT=14;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'รหัสลำดับเคส (Primary Key)', AUTO_INCREMENT=16;
 
 --
 -- AUTO_INCREMENT for table `assessment`
 --
 ALTER TABLE `assessment`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT COMMENT 'idรันaa', AUTO_INCREMENT=9115;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'idรันaa', AUTO_INCREMENT=9116;
 
 --
 -- AUTO_INCREMENT for table `closure_report`
 --
 ALTER TABLE `closure_report`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT COMMENT 'รหัสรายงาน (Primary Key)', AUTO_INCREMENT=8;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'รหัสรายงาน (Primary Key)', AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT for table `forward_case`
 --
 ALTER TABLE `forward_case`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT COMMENT 'รหัสการส่งต่อ (Primary Key)', AUTO_INCREMENT=2;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'รหัสการส่งต่อ (Primary Key)', AUTO_INCREMENT=3;
 
 --
 -- AUTO_INCREMENT for table `images`
 --
 ALTER TABLE `images`
-  MODIFY `id` int NOT NULL AUTO_INCREMENT COMMENT 'รหัสรูปภาพ (Primary Key)', AUTO_INCREMENT=63;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'รหัสรูปภาพ (Primary Key)', AUTO_INCREMENT=70;
 
 --
 -- Constraints for dumped tables

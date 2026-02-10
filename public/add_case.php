@@ -171,6 +171,15 @@ if (isset($_SESSION['user']['username'])) {
                         <label for="report_date">วัน/เดือน/ปี</label>
                         <input type="date" id="report_date" name="report_date" />
                     </div>
+                    <div class="form-col">
+                        <label>ปีการศึกษา / เทอม (อัตโนมัติ)</label>
+                        <div class="d-flex gap-2">
+                            <input type="text" id="show_academic_year" class="form-control text-center" placeholder="ปีการศึกษา" readonly style="background-color: #f8f9fa; cursor: default;">
+                            <input type="text" id="show_semester" class="form-control text-center" placeholder="เทอม" readonly style="background-color: #f8f9fa; cursor: default;">
+                            <input type="hidden" id="academic_year" name="academic_year">
+                            <input type="hidden" id="semester" name="semester">
+                        </div>
+                    </div>
                 </div>
             </section>
 

@@ -19,21 +19,35 @@ if (isset($_GET['action']) && $_GET['action'] === 'fetch_data') {
         $offset = ($page - 1) * $limit;
         // จัดการคำค้นหา: ตัดช่องว่างหัวท้าย และเปลี่ยนช่องว่างหลายอันเป็นอันเดียว
         $search = isset($_GET['search']) ? preg_replace('/\s+/', ' ', trim($_GET['search'])) : '';
+        $filter = isset($_GET['filter']) ? $_GET['filter'] : 'all';
 
         // Query ข้อมูลจาก student_data
         $sql = "SELECT s.*, p.prefix_name, sc.school_name, sx.sex_name,
-                (SELECT COUNT(*) FROM closure_report cr WHERE cr.pid = s.pid) as has_closure
+                (SELECT COUNT(*) FROM closure_report cr WHERE cr.pid = s.pid) as has_closure,
+                (SELECT COUNT(*) FROM forward_case fc WHERE fc.pid = s.pid) as has_forward
                 FROM student_data s
                 LEFT JOIN prefix p ON s.prefix_id = p.prefix_id
                 LEFT JOIN school sc ON s.school_id = sc.school_id
                 LEFT JOIN sex sx ON s.sex = sx.sex_id";
 
         $params = [];
+        $conditions = [];
+
         if (!empty($search)) {
             // ค้นหาครอบคลุมทั้ง ชื่อ-นามสกุล (พิมพ์ต่อเนื่องได้) และ เลขบัตรประชาชน
-            $sql .= " WHERE (CONCAT(IFNULL(s.fname,''), ' ', IFNULL(s.lname,'')) LIKE :search_name OR s.pid LIKE :search_pid)";
+            $conditions[] = "(CONCAT(IFNULL(s.fname,''), ' ', IFNULL(s.lname,'')) LIKE :search_name OR s.pid LIKE :search_pid)";
             $params[':search_name'] = "%$search%";
             $params[':search_pid'] = "%$search%";
+        }
+
+        if ($filter === 'forward') {
+            $conditions[] = "(SELECT COUNT(*) FROM forward_case fc WHERE fc.pid = s.pid) > 0";
+        } elseif ($filter === 'closure') {
+            $conditions[] = "(SELECT COUNT(*) FROM closure_report cr WHERE cr.pid = s.pid) > 0";
+        }
+
+        if (!empty($conditions)) {
+            $sql .= " WHERE " . implode(' AND ', $conditions);
         }
 
         $sql .= " ORDER BY s.date_time DESC LIMIT :limit OFFSET :offset";
@@ -93,9 +107,14 @@ if (isset($_GET['action']) && $_GET['action'] === 'fetch_data') {
             <div class="card-body">
                 <h4 class="card-title mb-3">🔍 ค้นหาข้อมูล on branch newf.v1</h4>
                 <div class="d-flex gap-2">
+                    <select id="filterStatus" class="form-select form-select-lg rounded-pill shadow-sm" style="max-width: 220px;" onchange="loadData(true)">
+                        <option value="all">ทั้งหมด</option>
+                        <option value="forward">ส่งต่อกรณี</option>
+                        <option value="closure">ยุติการช่วยเหลือ</option>
+                    </select>
                     <input type="text" id="searchInput" class="form-control form-control-lg rounded-pill shadow-sm" placeholder="ระบุ ชื่อ, นามสกุล หรือ เลขบัตรประชาชน...">
                     <button class="btn btn-primary btn-lg rounded-pill px-4 shadow-sm bg-gradient" type="button" onclick="loadData(true)">ค้นหา</button>
-                    <button class="btn btn-warning btn-lg rounded-pill px-4 shadow-sm bg-gradient" type="button" onclick="document.getElementById('searchInput').value = ''; loadData(true);"> รีเซ็ต</button>
+                    <button class="btn btn-warning btn-lg rounded-pill px-4 shadow-sm bg-gradient" type="button" onclick="document.getElementById('searchInput').value = ''; document.getElementById('filterStatus').value = 'all'; loadData(true);"> รีเซ็ต</button>
                 </div>
             </div>
         </div>

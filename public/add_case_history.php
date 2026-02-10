@@ -60,30 +60,36 @@ try {
     $stmtClosure->execute([':pid' => $pid]);
     $closures = $stmtClosure->fetchAll(PDO::FETCH_ASSOC);
 
-    // ตรวจสอบว่ามีรายงานการยุติแล้วหรือไม่
-    $hasClosure = count($closures) > 0;
+    // 4.3 forward_case (เพิ่มส่วนดึงข้อมูลการส่งต่อ)
+    $sql_forward = "SELECT fc.*, 'forward' as record_type, u.fname AS u_fname, u.lname AS u_lname, p.prefix_name AS u_prefix 
+                    FROM forward_case fc
+                    LEFT JOIN users u ON fc.recorder = u.username
+                    LEFT JOIN prefix p ON u.prefix_id = p.prefix_id
+                    WHERE fc.pid = :pid";
+    $stmtForwardList = $db->prepare($sql_forward);
+    $stmtForwardList->execute([':pid' => $pid]);
+    $forwards = $stmtForwardList->fetchAll(PDO::FETCH_ASSOC);
 
-    // ตรวจสอบว่ามีการส่งต่อกรณีแล้วหรือไม่
-    $hasForward = false;
-    try {
-        $stmtForward = $db->prepare("SELECT id FROM forward_case WHERE pid = :pid LIMIT 1");
-        $stmtForward->execute([':pid' => $pid]);
-        if ($stmtForward->fetch()) {
-            $hasForward = true;
-        }
-    } catch (Exception $e) {
-        // กรณีตารางยังไม่ถูกสร้าง หรือเกิดข้อผิดพลาดอื่น ให้ข้ามไป
-    }
+    // ตรวจสอบสถานะ (มีรายงานยุติ หรือ มีการส่งต่อ)
+    $hasClosure = count($closures) > 0;
+    $hasForward = count($forwards) > 0;
     $isClosed = $hasClosure || $hasForward;
 
     // รวมข้อมูลและเรียงลำดับตามวันที่ (ใหม่สุดขึ้นก่อน)
-    $caseLogs = array_merge($logs, $closures);
+    $caseLogs = array_merge($logs, $closures, $forwards);
     usort($caseLogs, function ($a, $b) {
         // ให้ Closure Report อยู่บนสุดเสมอ
         if ($a['record_type'] === 'closure' && $b['record_type'] !== 'closure') {
             return -1;
         }
         if ($a['record_type'] !== 'closure' && $b['record_type'] === 'closure') {
+            return 1;
+        }
+        // ให้ Forward Case อยู่บนสุดเช่นกัน (รองจาก Closure หรือเทียบเท่า)
+        if ($a['record_type'] === 'forward' && $b['record_type'] !== 'forward' && $b['record_type'] !== 'closure') {
+            return -1;
+        }
+        if ($a['record_type'] !== 'forward' && $a['record_type'] !== 'closure' && $b['record_type'] === 'forward') {
             return 1;
         }
 
@@ -209,21 +215,30 @@ try {
                                 <?php foreach ($caseLogs as $index => $log): ?>
                                     <?php
                                     $isClosure = ($log['record_type'] === 'closure');
+                                    $isForward = ($log['record_type'] === 'forward');
                                     // ใช้ --bs-table-bg เพื่อ override สีพื้นหลังของ Bootstrap table-striped
-                                    $rowStyle = $isClosure ? 'style="background-color: #5DD3B6; --bs-table-bg: #5DD3B6;"' : '';
+                                    $rowStyle = '';
+                                    if ($isClosure) {
+                                        $rowStyle = 'style="background-color: #5DD3B6; --bs-table-bg: #5DD3B6;"';
+                                    } elseif ($isForward) {
+                                        $rowStyle = 'style="background-color: #B7BDF7; --bs-table-bg: #B7BDF7;"';
+                                    }
                                     $modalId = 'viewModal_' . $log['record_type'] . '_' . $log['id'];
                                     ?>
                                     <tr <?= $rowStyle ?>>
                                         <td><?= count($caseLogs) - $index ?>.</td>
                                         <td>
-                                            <span class="badge rounded-pill <?= $isClosure ? 'bg-success' : 'bg-info' ?> text-dark">
-                                                <?= htmlspecialchars($log['case_type']) ?>
+                                            <span class="badge rounded-pill <?= $isClosure ? 'bg-success' : ($isForward ? 'bg-primary' : 'bg-info') ?> text-dark">
+                                                <?= $isForward ? 'ส่งต่อกรณี' : htmlspecialchars($log['case_type']) ?>
                                             </span>
                                         </td>
                                         <td>
                                             <small>
                                                 <?php if ($isClosure): ?>
                                                     <strong>[รายงานการยุติ]</strong> <?= htmlspecialchars(mb_strimwidth($log['suggestion'] ?? '', 0, 100, '...')) ?>
+                                                <?php elseif ($isForward): ?>
+                                                    <strong>[การส่งต่อ]</strong> <?= htmlspecialchars($log['referral_agency'] ?? '') ?>
+                                                    <?php if (!empty($log['referral_other'])) echo '(' . htmlspecialchars($log['referral_other']) . ')'; ?>
                                                 <?php else: ?>
                                                     <?= htmlspecialchars(mb_strimwidth($log['presenting_symptoms'] ?? '', 0, 100, '...')) ?>
                                                 <?php endif; ?>
@@ -234,7 +249,7 @@ try {
                                             <button type="button" class="btn btn-sm btn-primary text-nowrap" data-bs-toggle="modal" data-bs-target="#<?= $modalId ?>">
                                                 📄 ดูข้อมูล
                                             </button>
-                                            <?php if (!$isClosure): ?>
+                                            <?php if (!$isClosure && !$isForward): ?>
                                                 <button type="button" class="btn btn-sm btn-warning text-nowrap ms-1" data-bs-toggle="modal" data-bs-target="#editCaseModal<?= $log['id'] ?>">
                                                     ✏️ แก้ไข
                                                 </button>
@@ -249,8 +264,12 @@ try {
                                                     <div class="modal-content">
                                                         <div class="modal-header bg-primary text-white">
                                                             <h5 class="modal-title">
-                                                                <?= $isClosure ? 'รายละเอียดรายงานการยุติ' : 'รายละเอียดเคส' ?>
-                                                                วันที่ <?= date('d/m/Y', strtotime($log['report_date'])) ?>
+                                                                <?php 
+                                                                    if ($isClosure) echo 'รายละเอียดรายงานการยุติ';
+                                                                    elseif ($isForward) echo 'รายละเอียดการส่งต่อ';
+                                                                    else echo 'รายละเอียดเคส';
+                                                                ?>
+                                                                วันที่ <?= date('d/m/Y', strtotime($log['created_at'])) // ใช้ created_at เพราะ forward ไม่มี report_date ?>
                                                             </h5>
                                                             <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                                                         </div>
@@ -274,6 +293,12 @@ try {
                                                                     <?= htmlspecialchars($log['referral_agency'] ?? '-') ?>
                                                                     <?php if (!empty($log['referral_other'])) echo ' (' . htmlspecialchars($log['referral_other']) . ')'; ?>
                                                                 </p> -->
+                                                            <?php elseif ($isForward): ?>
+                                                                <!-- ส่วนแสดงผลสำหรับ Forward Case -->
+                                                                <p><strong>หน่วยงานที่ส่งต่อ:</strong> <?= htmlspecialchars($log['referral_agency']) ?></p>
+                                                                <?php if (!empty($log['referral_other'])): ?>
+                                                                    <p><strong>ระบุเพิ่มเติม:</strong> <?= htmlspecialchars($log['referral_other']) ?></p>
+                                                                <?php endif; ?>
                                                             <?php else: ?>
                                                                 <!-- ส่วนแสดงผลสำหรับ Case Log ปกติ -->
                                                                 <p><strong>ประเภทกรณี:</strong> <?= htmlspecialchars($log['case_type']) ?></p>
@@ -317,7 +342,7 @@ try {
                                                 </div>
                                             </div>
 
-                                            <?php if (!$isClosure): ?>
+                                            <?php if (!$isClosure && !$isForward): ?>
                                                 <!-- Modal แก้ไขข้อมูล -->
                                                 <div class="modal fade text-start" id="editCaseModal<?= $log['id'] ?>" tabindex="-1" aria-hidden="true">
                                                     <div class="modal-dialog modal-lg">

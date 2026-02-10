@@ -46,6 +46,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $assist_parent = $_POST['assist_parent'] ?? '';
         $assist_other = $_POST['assist_other'] ?? '';
         $suggestions = $_POST['suggestions'] ?? '';
+        $academic_year = !empty($_POST['academic_year']) ? $_POST['academic_year'] : null;
+        $semester = !empty($_POST['semester']) ? $_POST['semester'] : null;
 
         // ผู้บันทึก: ใช้ username จาก session ถ้ามี (เพื่อความถูกต้องของ FK) หรือถ้าไม่มีใช้ค่าที่ส่งมา
         $recorder = $_SESSION['user']['username'] ?? ($_POST['recorder'] ?? '');
@@ -102,13 +104,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         // แก้ไข: ตัดการคำนวณ ID เองออก และปล่อยให้ Database จัดการ Auto Increment
         $sql_case = "INSERT INTO add_caselog (
-                        pid, case_type, report_date, 
+                        pid, case_type, report_date, academic_year, semester,
                         presenting_symptoms, history_personal, history_family, history_school, 
                         personal_habits, history_hospital, consultation_details, event_details, 
                         assist_school, assist_hospital, assist_parent, assist_other, 
                         suggestions, recorder, created_at, updated_at
                     ) VALUES (
-                        :pid, :case_type, :report_date,
+                        :pid, :case_type, :report_date, :academic_year, :semester,
                         :presenting_symptoms, :history_personal, :history_family, :history_school,
                         :personal_habits, :history_hospital, :consultation_details, :event_details,
                         :assist_school, :assist_hospital, :assist_parent, :assist_other,
@@ -120,6 +122,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ':pid' => $pid,
             ':case_type' => $case_type,
             ':report_date' => $report_date,
+            ':academic_year' => $academic_year,
+            ':semester' => $semester,
             ':presenting_symptoms' => $presenting_symptoms,
             ':history_personal' => $history_personal,
             ':history_family' => $history_family,
