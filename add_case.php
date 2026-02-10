@@ -169,7 +169,14 @@ if (isset($_SESSION['user']['username'])) {
                     </div>
                     <div class="form-col">
                         <label for="report_date">วัน/เดือน/ปี</label>
-                        <input type="date" id="report_date" name="report_date" />
+                        <input type="date" id="report_date" name="report_date" onchange="updateAcademicInfo()" />
+                    </div>
+                    <div class="form-col">
+                        <label>ปีการศึกษา / เทอม (อัตโนมัติ)</label>
+                        <div class="d-flex gap-2">
+                            <input type="text" id="show_academic_year" class="form-control text-center" placeholder="ปีการศึกษา" readonly style="background-color: #f8f9fa; cursor: default;">
+                            <input type="text" id="show_semester" class="form-control text-center" placeholder="เทอม" readonly style="background-color: #f8f9fa; cursor: default;">
+                        </div>
                     </div>
                 </div>
             </section>
@@ -370,7 +377,7 @@ if (isset($_SESSION['user']['username'])) {
     <!-- SweetAlert2 JS -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="script/javascript/form2.js"></script>
+    <script src="../public/script/javascript/form2.js"></script>
     <script>
         function toggleOtherCase(select) {
             const otherInput = document.getElementById('case_type_other');
@@ -382,6 +389,35 @@ if (isset($_SESSION['user']['username'])) {
                 otherInput.required = false;
                 otherInput.value = '';
             }
+        }
+
+        function updateAcademicInfo() {
+            const dateInput = document.getElementById('report_date');
+            if (!dateInput || !dateInput.value) return;
+
+            const date = new Date(dateInput.value);
+            const month = date.getMonth() + 1; // 1-12
+            const yearAD = date.getFullYear();
+            const yearBE = yearAD + 543;
+
+            let term = 0;
+            let academicYear = 0;
+
+            // Logic เดียวกับ Academic.php
+            if (month >= 5 && month <= 10) {
+                term = 1;
+                academicYear = yearBE;
+            } else {
+                term = 2;
+                if (month >= 11) {
+                    academicYear = yearBE;
+                } else {
+                    academicYear = yearBE - 1;
+                }
+            }
+
+            document.getElementById('show_academic_year').value = 'ปี ' + academicYear;
+            document.getElementById('show_semester').value = 'เทอม ' + term;
         }
 
         document.addEventListener("DOMContentLoaded", () => {
@@ -498,6 +534,9 @@ if (isset($_SESSION['user']['username'])) {
                 // Class is now handled by PHP
                 if (student.room) document.getElementById('edu_room').value = student.room;
             }
+
+            // คำนวณปีการศึกษาเริ่มต้นเมื่อโหลดหน้า
+            updateAcademicInfo();
         });
     </script>
 </body>
