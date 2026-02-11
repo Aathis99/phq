@@ -38,6 +38,8 @@ foreach ($data_points as $point) {
     }
 }
 
+$total_gender_count = array_sum($data);
+
 // ดึงข้อมูลจำนวนนักเรียนตามช่วงคะแนน (จาก report_chart.php)
 $sql_dep = "SELECT 
             SUM(CASE WHEN score <= 7 THEN 1 ELSE 0 END) as normal,
@@ -170,7 +172,10 @@ $ag_data = array_column($raw_ag, 'count');
         <div class="row">
             <div class="col-lg-6 mb-4">
                 <div class="card shadow-sm h-100">
-                    <div class="card-header bg-white border-0 pt-3"><h5 class="card-title">สถิตินักเรียนที่ทำแบบประเมิน (แยกตามเพศ)</h5></div>
+                    <div class="card-header bg-white border-0 pt-3">
+                        <h5 class="card-title">สถิตินักเรียนที่ทำแบบประเมิน (แยกตามเพศ)</h5>
+                        <p class="small text-muted mb-0">จำนวนรวมทั้งหมด: <?php echo $total_gender_count; ?> คน</p>
+                    </div>
                     <div class="card-body d-flex justify-content-center align-items-center">
                         <canvas id="genderChart"></canvas>
                     </div>

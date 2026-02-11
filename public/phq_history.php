@@ -8,12 +8,19 @@ if (!isset($_SESSION['user'])) {
     exit;
 }
 
-if (!isset($_GET['pid'])) {
-    echo "ไม่พบรหัสบัตรประชาชน";
+if (isset($_GET['pid']) && !empty($_GET['pid'])) {
+    $_SESSION['phq_history_pid'] = $_GET['pid'];
+    header("Location: phq_history.php");
     exit;
 }
 
-$pid = $_GET['pid'];
+if (isset($_SESSION['phq_history_pid'])) {
+    $pid = $_SESSION['phq_history_pid'];
+} else {
+    echo '<div class="container mt-5"><div class="alert alert-danger">ไม่พบรหัสบัตรประชาชน</div></div>';
+    exit;
+}
+
 $db = Database::connect();
 
 // ดึงข้อมูลนักเรียน
