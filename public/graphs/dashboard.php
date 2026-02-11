@@ -11,12 +11,14 @@ require_once dirname(__DIR__, 2) . '/app/core/Database.php';
 // เนื่องจากคลาส Database ถูกออกแบบให้เรียกใช้ผ่าน static method ที่ชื่อว่า connect()
 $conn = Database::connect();
 
-// ดึงข้อมูลจำนวนนักเรียนแยกตามเพศที่ทำแบบประเมิน
+// แก้ไข: ใช้ LEFT JOIN เริ่มจากตาราง sex เพื่อให้ได้ข้อมูลครบทั้ง 3 เพศ (ชาย, หญิง, เพศทางเลือก)
+// ถ้าไม่มีข้อมูลการประเมินในเพศนั้นๆ ค่า count จะเป็น 0 แต่ชื่อเพศจะยังอยู่
 $sql = "SELECT s.sex_name, COUNT(a.id) as count 
-        FROM assessment a 
-        JOIN student_data sd ON a.pid = sd.pid 
-        JOIN sex s ON sd.sex = s.sex_id 
-        GROUP BY s.sex_name";
+        FROM sex s 
+        LEFT JOIN student_data sd ON s.sex_id = sd.sex 
+        LEFT JOIN assessment a ON sd.pid = a.pid 
+        GROUP BY s.sex_id, s.sex_name
+        ORDER BY s.sex_id ASC"; // เรียงลำดับตาม ID: ชาย, หญิง, เพศทางเลือก
 
 $stmt = $conn->prepare($sql);
 $stmt->execute();
@@ -29,16 +31,21 @@ $colors = [];
 foreach ($data_points as $point) {
     $labels[] = $point['sex_name'];
     $data[] = $point['count'];
+
+    // กำหนดสีตามเพศ
     if ($point['sex_name'] == 'ชาย') {
         $colors[] = 'rgba(54, 162, 235, 0.8)'; // สีฟ้า
     } elseif ($point['sex_name'] == 'หญิง') {
         $colors[] = 'rgba(255, 99, 132, 0.8)'; // สีชมพู
     } else {
-        $colors[] = 'RAINBOW'; // สีรุ้ง (จะถูกแทนที่ด้วย Gradient ใน JavaScript)
+        // สำหรับ 'เพศทางเลือก' หรืออื่นๆ
+        $colors[] = 'RAINBOW'; // จะถูกแปลงเป็นสีรุ้งใน JavaScript
     }
 }
 
-$total_gender_count = array_sum($data);
+// ดึงจำนวนรวมทั้งหมดจากตาราง assessment โดยตรง
+$sql_total = "SELECT COUNT(*) FROM assessment";
+$total_gender_count = $conn->query($sql_total)->fetchColumn();
 
 // ดึงข้อมูลจำนวนนักเรียนตามช่วงคะแนน (จาก report_chart.php)
 $sql_dep = "SELECT 
@@ -60,6 +67,7 @@ $sql_case_type = "SELECT ac.case_type, s.sex_name, COUNT(ac.id) as count
                   FROM add_caselog ac 
                   JOIN student_data sd ON ac.pid = sd.pid 
                   JOIN sex s ON sd.sex = s.sex_id 
+                  WHERE s.sex_name != 'เพศทางเลือก'
                   GROUP BY ac.case_type, s.sex_name";
 $stmt_ct = $conn->query($sql_case_type);
 $raw_ct = $stmt_ct->fetchAll(PDO::FETCH_ASSOC);
@@ -97,17 +105,18 @@ foreach ($ct_genders as $g) {
 }
 
 // 2. ข้อมูลสถานะ (ส่งต่อ/ยุติ/ติดตาม) แยกเพศ
-function getGenderCounts($conn, $sql) {
+function getGenderCounts($conn, $sql)
+{
     $stmt = $conn->query($sql);
     return $stmt->fetchAll(PDO::FETCH_KEY_PAIR);
 }
 
 // กำหนดเพศหลัก 3 เพศ เพื่อให้แสดงครบถ้วนเสมอ
-$fixed_genders = ['ชาย', 'หญิง', 'เพศทางเลือก'];
+$fixed_genders = ['ชาย', 'หญิง'];
 
-$stat_forward = getGenderCounts($conn, "SELECT s.sex_name, COUNT(DISTINCT fc.pid) FROM forward_case fc JOIN student_data sd ON fc.pid = sd.pid JOIN sex s ON sd.sex = s.sex_id GROUP BY s.sex_name");
-$stat_closure = getGenderCounts($conn, "SELECT s.sex_name, COUNT(DISTINCT cr.pid) FROM closure_report cr JOIN student_data sd ON cr.pid = sd.pid JOIN sex s ON sd.sex = s.sex_id GROUP BY s.sex_name");
-$stat_ongoing = getGenderCounts($conn, "SELECT s.sex_name, COUNT(DISTINCT ac.pid) FROM add_caselog ac JOIN student_data sd ON ac.pid = sd.pid JOIN sex s ON sd.sex = s.sex_id WHERE ac.pid NOT IN (SELECT pid FROM forward_case) AND ac.pid NOT IN (SELECT pid FROM closure_report) GROUP BY s.sex_name");
+$stat_forward = getGenderCounts($conn, "SELECT s.sex_name, COUNT(DISTINCT fc.pid) FROM forward_case fc JOIN student_data sd ON fc.pid = sd.pid JOIN sex s ON sd.sex = s.sex_id WHERE s.sex_name != 'เพศทางเลือก' GROUP BY s.sex_name");
+$stat_closure = getGenderCounts($conn, "SELECT s.sex_name, COUNT(DISTINCT cr.pid) FROM closure_report cr JOIN student_data sd ON cr.pid = sd.pid JOIN sex s ON sd.sex = s.sex_id WHERE s.sex_name != 'เพศทางเลือก' GROUP BY s.sex_name");
+$stat_ongoing = getGenderCounts($conn, "SELECT s.sex_name, COUNT(DISTINCT ac.pid) FROM add_caselog ac JOIN student_data sd ON ac.pid = sd.pid JOIN sex s ON sd.sex = s.sex_id WHERE s.sex_name != 'เพศทางเลือก' AND ac.pid NOT IN (SELECT pid FROM forward_case) AND ac.pid NOT IN (SELECT pid FROM closure_report) GROUP BY s.sex_name");
 
 $data_forward = [];
 $data_closure = [];
@@ -131,6 +140,7 @@ $ag_data = array_column($raw_ag, 'count');
 
 <!DOCTYPE html>
 <html lang="th">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -148,15 +158,19 @@ $ag_data = array_column($raw_ag, 'count');
             border-radius: 1rem;
             transition: all 0.2s ease-in-out;
         }
+
         .card:hover {
             transform: translateY(-5px);
-            box-shadow: 0 0.5rem 1rem rgba(0,0,0,.15)!important;
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, .15) !important;
         }
-        #genderChart, #depressionChart {
+
+        #genderChart,
+        #depressionChart {
             max-height: 350px;
         }
     </style>
 </head>
+
 <body>
     <?php require_once '../navbar.php'; ?>
     <div class="container mt-5">
@@ -199,7 +213,9 @@ $ag_data = array_column($raw_ag, 'count');
             <!-- 1. กราฟแท่งแสดงจำนวนอาการแยกตามเพศ -->
             <div class="col-12 mb-4">
                 <div class="card shadow-sm">
-                    <div class="card-header bg-white border-0 pt-3"><h5 class="card-title">จำนวนอาการแยกตามประเภทและเพศ</h5></div>
+                    <div class="card-header bg-white border-0 pt-3">
+                        <h5 class="card-title">จำนวนอาการแยกตามประเภทและเพศ</h5>
+                    </div>
                     <div class="card-body">
                         <canvas id="caseTypeChart" style="max-height: 400px;"></canvas>
                     </div>
@@ -225,7 +241,9 @@ $ag_data = array_column($raw_ag, 'count');
             <!-- 3. กราฟหน่วยงานที่ส่งต่อ -->
             <div class="col-lg-6 mb-4">
                 <div class="card shadow-sm h-100">
-                    <div class="card-header bg-white border-0 pt-3"><h5 class="card-title">สถิติการส่งต่อหน่วยงานภายนอก</h5></div>
+                    <div class="card-header bg-white border-0 pt-3">
+                        <h5 class="card-title">สถิติการส่งต่อหน่วยงานภายนอก</h5>
+                    </div>
                     <div class="card-body"><canvas id="agencyChart"></canvas></div>
                 </div>
             </div>
@@ -235,7 +253,7 @@ $ag_data = array_column($raw_ag, 'count');
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         const ctx = document.getElementById('genderChart').getContext('2d');
-        
+
         // สร้างสีรุ้ง (Gradient)
         const rainbow = ctx.createLinearGradient(0, 0, 300, 300);
         rainbow.addColorStop(0, 'red');
@@ -295,7 +313,7 @@ $ag_data = array_column($raw_ag, 'count');
                     backgroundColor: [
                         'rgba(75, 192, 192, 0.6)', // สีเขียว
                         'rgba(255, 206, 86, 0.6)', // สีเหลือง
-                        'rgba(255, 99, 132, 0.6)'  // สีแดง
+                        'rgba(255, 99, 132, 0.6)' // สีแดง
                     ],
                     borderColor: [
                         'rgba(75, 192, 192, 1)',
@@ -309,11 +327,15 @@ $ag_data = array_column($raw_ag, 'count');
                 scales: {
                     y: {
                         beginAtZero: true,
-                        ticks: { precision: 0 }
+                        ticks: {
+                            precision: 0
+                        }
                     }
                 },
                 plugins: {
-                    legend: { display: false },
+                    legend: {
+                        display: false
+                    },
                     title: {
                         display: true,
                         text: 'ผลการประเมินจาก แบบประเมินภาวะซึมเศร้าในวัยรุ่น'
@@ -351,8 +373,13 @@ $ag_data = array_column($raw_ag, 'count');
             options: {
                 responsive: true,
                 scales: {
-                    x: { stacked: true },
-                    y: { stacked: true, beginAtZero: true }
+                    x: {
+                        stacked: true
+                    },
+                    y: {
+                        stacked: true,
+                        beginAtZero: true
+                    }
                 },
                 plugins: {
                     tooltip: {
@@ -384,15 +411,21 @@ $ag_data = array_column($raw_ag, 'count');
                     data: statusDataRaw.ongoing, // Default
                     backgroundColor: [
                         'rgba(54, 162, 235, 0.7)', // ชาย
-                        'rgba(255, 99, 132, 0.7)', // หญิง
-                        'rgba(153, 102, 255, 0.7)' // เพศทางเลือก
+                        'rgba(255, 99, 132, 0.7)' // หญิง
                     ],
                     borderWidth: 1
                 }]
             },
             options: {
                 responsive: true,
-                scales: { y: { beginAtZero: true, ticks: { precision: 0 } } }
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            precision: 0
+                        }
+                    }
+                }
             }
         });
 
@@ -418,10 +451,22 @@ $ag_data = array_column($raw_ag, 'count');
             options: {
                 indexAxis: 'y', // แนวนอนเพื่อให้อ่านชื่อหน่วยงานง่าย
                 responsive: true,
-                scales: { x: { beginAtZero: true, ticks: { precision: 0 } } },
-                plugins: { legend: { display: false } }
+                scales: {
+                    x: {
+                        beginAtZero: true,
+                        ticks: {
+                            precision: 0
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                }
             }
         });
     </script>
 </body>
+
 </html>

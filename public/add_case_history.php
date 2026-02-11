@@ -13,13 +13,20 @@ if (!isset($_SESSION['user'])) {
     exit;
 }
 
-// 2. ตรวจสอบค่า PID
-if (!isset($_GET['pid']) || empty($_GET['pid'])) {
+// 2. ตรวจสอบค่า PID (ปรับปรุงให้ซ่อน URL parameter)
+if (isset($_GET['pid']) && !empty($_GET['pid'])) {
+    $_SESSION['current_case_pid'] = $_GET['pid'];
+    header("Location: add_case_history.php");
+    exit;
+}
+
+if (isset($_SESSION['current_case_pid']) && !empty($_SESSION['current_case_pid'])) {
+    $pid = $_SESSION['current_case_pid'];
+} else {
     echo "<div class='alert alert-danger m-4'>ไม่พบรหัสบัตรประชาชน (PID)</div>";
     exit;
 }
 
-$pid = $_GET['pid'];
 $db = Database::connect();
 
 try {

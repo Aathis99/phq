@@ -7,12 +7,30 @@ if (session_status() == PHP_SESSION_NONE) {
 require_once dirname(__DIR__) . '/app/core/Database.php';
 $db = Database::connect();
 
+// 2. ตรวจสอบค่า PID (ปรับปรุงให้ซ่อน URL parameter)
+if (isset($_GET['pid']) && !empty($_GET['pid'])) {
+    $_SESSION['current_case_pid'] = $_GET['pid'];
+    
+    // เก็บ Query String อื่นๆ ไว้ (เช่น follow_case_id) เพื่อไม่ให้หายไปตอน Redirect
+    $query = $_GET;
+    unset($query['pid']);
+    $queryString = http_build_query($query);
+    
+    $redirectUrl = 'add_case.php';
+    if (!empty($queryString)) {
+        $redirectUrl .= '?' . $queryString;
+    }
+    
+    header("Location: " . $redirectUrl);
+    exit;
+}
 
-// public/add_case.php
-
-// ... (ส่วน require_once Database และ connect db) ...
-$pid = $_GET['pid'] ?? '';
-$db = Database::connect(); //
+if (isset($_SESSION['current_case_pid']) && !empty($_SESSION['current_case_pid'])) {
+    $pid = $_SESSION['current_case_pid'];
+} else {
+    echo "<div class='container mt-5'><div class='alert alert-danger'>ไม่พบรหัสบัตรประชาชน (PID) กรุณาเลือกนักเรียนจากหน้ารายชื่อ</div></div>";
+    exit;
+}
 
 // --- เพิ่มส่วนนี้: คำนวณลำดับครั้งที่บันทึก (Running Number) ---
 $next_case_no = 1; // ค่าเริ่มต้นเป็นครั้งที่ 1
@@ -30,7 +48,6 @@ if (!empty($pid)) {
 
 
 // ... (ส่วนดึงโรงเรียน prefix sex ฯลฯ) ...
-$pid = $_GET['pid'] ?? '';
 
 // --- ส่วนดึงข้อมูลเคสเดิม (ถ้ามี) ---
 $follow_case_id = $_GET['follow_case_id'] ?? '';

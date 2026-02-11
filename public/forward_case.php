@@ -8,7 +8,30 @@ if (!isset($_SESSION['user'])) {
     exit;
 }
 
-$pid = $_GET['pid'] ?? '';
+// 2. ตรวจสอบค่า PID (ปรับปรุงให้ซ่อน URL parameter)
+if (isset($_GET['pid']) && !empty($_GET['pid'])) {
+    $_SESSION['current_case_pid'] = $_GET['pid'];
+    
+    // เก็บ Query String อื่นๆ ไว้
+    $query = $_GET;
+    unset($query['pid']);
+    $queryString = http_build_query($query);
+    
+    $redirectUrl = 'forward_case.php';
+    if (!empty($queryString)) {
+        $redirectUrl .= '?' . $queryString;
+    }
+    
+    header("Location: " . $redirectUrl);
+    exit;
+}
+
+if (isset($_SESSION['current_case_pid']) && !empty($_SESSION['current_case_pid'])) {
+    $pid = $_SESSION['current_case_pid'];
+} else {
+    echo "<div class='container mt-5'><div class='alert alert-danger'>ไม่พบรหัสบัตรประชาชน (PID) กรุณาเลือกนักเรียนจากหน้ารายชื่อ</div></div>";
+    exit;
+}
 
 // ดึงข้อมูลนักเรียนเพื่อนำมาแสดงหัวข้อ
 $student = [];

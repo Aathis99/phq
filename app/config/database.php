@@ -10,7 +10,7 @@ return [
     // ใช้กับการพัฒนาในเครื่อง localhost หรือเซิร์ฟเวอร์จริง และมหาลัยที่ไม่ได้ใช้ Docker
 
     'host' => 'localhost',
-    'dbname' => 'std660104db',
+    'dbname' => 'phq',
     'user' => 'root',
     'pass' => '',
     'charset' => 'utf8mb4'
