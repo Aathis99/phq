@@ -397,6 +397,7 @@ if (isset($_SESSION['user']['username'])) {
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="script/javascript/form2.js"></script>
+    <script src="script/javascript/academic_utils.js"></script>
     <script>
         function toggleOtherCase(select) {
             const otherInput = document.getElementById('case_type_other');

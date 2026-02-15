@@ -82,6 +82,17 @@ try {
             // --- รับข้อมูลจากฟอร์ม ---
             $pid = $_POST['pid'];
             $date_time = date('Y-m-d H:i:s');
+
+            // --- คำนวณปีการศึกษาและเทอมอัตโนมัติ ---
+            $timestamp = strtotime($date_time);
+            $m = (int)date('m', $timestamp);
+            $y = (int)date('Y', $timestamp) + 543; // ปี พ.ศ.
+
+            // เดือน 5-10 = เทอม 1, เดือนอื่น = เทอม 2
+            $semester = ($m >= 5 && $m <= 10) ? 1 : 2;
+            // ถ้าเดือน 1-4 (ม.ค.-เม.ย.) ถือเป็นปีการศึกษาของปีก่อนหน้า
+            $academic_year = ($m < 5) ? $y - 1 : $y;
+
             $c10 = isset($_POST['c10']) ? (int)$_POST['c10'] : null;
             $c11 = isset($_POST['c11']) ? (int)$_POST['c11'] : null;
             $stress = !empty($_POST['stress']) ? $_POST['stress'] : null;
@@ -89,8 +100,8 @@ try {
 
             // --- SQL INSERT Statement ---
             // ใช้ Prepared Statements เพื่อป้องกัน SQL Injection
-            $sql = "INSERT INTO assessment (pid, date_time, c1, c2, c3, c4, c5, c6, c7, c8, c9, c10, c11, stress, manage_stress, score) 
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            $sql = "INSERT INTO assessment (pid, date_time, c1, c2, c3, c4, c5, c6, c7, c8, c9, c10, c11, stress, manage_stress, score, academic_year, semester) 
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
             $stmt = $db->prepare($sql);
 
             // --- Bind Parameters ---
@@ -104,6 +115,8 @@ try {
             $stmt->bindParam(14, $stress);
             $stmt->bindParam(15, $manage_stress);
             $stmt->bindParam(16, $score);
+            $stmt->bindParam(17, $academic_year);
+            $stmt->bindParam(18, $semester);
 
             // --- Execute และแสดงผล ---
             if ($stmt->execute()) {

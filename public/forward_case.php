@@ -123,6 +123,20 @@ if (isset($_SESSION['user']['username'])) {
                 <div class="col-md-6">
                     <label class="form-label">วันที่บันทึก (อัตโนมัติ)</label>
                     <input type="text" id="record_date_display" class="form-control bg-light" readonly>
+                    <!-- Hidden date input for academic year calculation -->
+                    <input type="date" id="report_date" value="<?= date('Y-m-d') ?>" style="display: none;">
+                </div>
+            </div>
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <label class="form-label">ปีการศึกษา</label>
+                    <input type="text" id="show_academic_year" class="form-control bg-light" readonly>
+                    <input type="hidden" name="academic_year" id="academic_year">
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">ภาคเรียน</label>
+                    <input type="text" id="show_semester" class="form-control bg-light" readonly>
+                    <input type="hidden" name="semester" id="semester">
                 </div>
             </div>
 
@@ -135,6 +149,7 @@ if (isset($_SESSION['user']['username'])) {
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="script/javascript/academic_utils.js"></script>
     <script>
         document.addEventListener("DOMContentLoaded", function() {
             const dateEl = document.getElementById('record_date_display');
@@ -156,6 +171,16 @@ if (isset($_SESSION['user']['username'])) {
                         referralOtherInput.required = false;
                         referralOtherInput.value = '';
                     }
+                });
+            }
+
+            // คำนวณปีการศึกษาและเทอมอัตโนมัติ
+            if (typeof bindAcademicYearLogic === 'function') {
+                bindAcademicYearLogic('report_date', {
+                    academicYearId: 'academic_year',
+                    semesterId: 'semester',
+                    showYearId: 'show_academic_year',
+                    showTermId: 'show_semester'
                 });
             }
         });

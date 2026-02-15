@@ -214,7 +214,20 @@ if (!empty($pid)) {
                 </div>
                 <div class="col-md-6">
                     <label class="form-label">วัน/เดือน/ปี</label>
-                    <input type="date" name="report_date" class="form-control" value="<?= date('Y-m-d') ?>" required>
+                    <input type="date" name="report_date" id="report_date" class="form-control" value="<?= date('Y-m-d') ?>" required>
+                </div>
+            </div>
+
+            <div class="row mb-3">
+                <div class="col-md-6">
+                    <label class="form-label">ปีการศึกษา</label>
+                    <input type="text" id="show_academic_year" class="form-control bg-light" readonly>
+                    <input type="hidden" name="academic_year" id="academic_year">
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">ภาคเรียน</label>
+                    <input type="text" id="show_semester" class="form-control bg-light" readonly>
+                    <input type="hidden" name="semester" id="semester">
                 </div>
             </div>
 
@@ -361,6 +374,7 @@ if (!empty($pid)) {
     <!-- SweetAlert2 JS -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="script/javascript/academic_utils.js"></script>
     <script>
         // Script สำหรับแสดงวันที่ปัจจุบันแบบอัตโนมัติ
         document.addEventListener("DOMContentLoaded", function() {
@@ -374,6 +388,16 @@ if (!empty($pid)) {
                 day: 'numeric'
             };
             dateEl.value = now.toLocaleDateString('th-TH', options);
+
+            // คำนวณปีการศึกษาและเทอมอัตโนมัติ
+            if (typeof bindAcademicYearLogic === 'function') {
+                bindAcademicYearLogic('report_date', {
+                    academicYearId: 'academic_year',
+                    semesterId: 'semester',
+                    showYearId: 'show_academic_year',
+                    showTermId: 'show_semester'
+                });
+            }
 
             // Script สำหรับ Filter ประวัติการช่วยเหลือ
             const historyFilter = document.getElementById('historyFilter');
