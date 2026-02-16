@@ -29,7 +29,7 @@ SET time_zone = "+00:00";
 --
 
 CREATE TABLE `add_caselog` (
-  `id` int(11) NOT NULL COMMENT 'รหัสลำดับเคส (Primary Key)',
+  `id` int(11) NOT NULL AUTO_INCREMENT PRIMARY KEY COMMENT 'รหัสลำดับเคส (Primary Key)',
   `pid` varchar(13) NOT NULL COMMENT 'รหัสบัตรประชาชนนักเรียน (FK)',
   `case_type` varchar(100) DEFAULT NULL COMMENT 'ประเภทกรณี (ซึมเศร้า, เครียด, ฯลฯ)',
   `report_date` date DEFAULT NULL COMMENT 'วันที่รายงาน',
@@ -6806,7 +6806,7 @@ INSERT INTO `assessment` (`id`, `pid`, `date_time`, `c1`, `c2`, `c3`, `c4`, `c5`
 --
 
 CREATE TABLE `closure_report` (
-  `id` int(11) NOT NULL COMMENT 'รหัสรายงาน (Primary Key)',
+  `id` int(11) NOT NULL AUTO_INCREMENT PRIMARY KEY COMMENT 'รหัสรายงาน (Primary Key)',
   `pid` varchar(13) NOT NULL COMMENT 'รหัสบัตรประชาชนนักเรียน (FK)',
   `case_type` varchar(100) DEFAULT NULL COMMENT 'ประเภทกรณี (ซึมเศร้า, เครียด, ฯลฯ)',
   `case_count` int(11) DEFAULT NULL COMMENT 'ครั้งที่ (1-10)',
@@ -6829,7 +6829,7 @@ CREATE TABLE `closure_report` (
 --
 
 CREATE TABLE `forward_case` (
-  `id` int(11) NOT NULL COMMENT 'รหัสการส่งต่อ (Primary Key)',
+  `id` int(11) NOT NULL AUTO_INCREMENT PRIMARY KEY COMMENT 'รหัสการส่งต่อ (Primary Key)',
   `pid` varchar(13) NOT NULL COMMENT 'รหัสบัตรประชาชนนักเรียน (FK)',
   `referral_agency` varchar(100) DEFAULT NULL COMMENT 'หน่วยงานที่ส่งต่อ',
   `referral_other` varchar(255) DEFAULT NULL COMMENT 'ระบุหน่วยงานอื่น',
@@ -6847,7 +6847,7 @@ CREATE TABLE `forward_case` (
 --
 
 CREATE TABLE `images` (
-  `id` int(11) NOT NULL COMMENT 'รหัสรูปภาพ (Primary Key)',
+  `id` int(11) NOT NULL AUTO_INCREMENT PRIMARY KEY COMMENT 'รหัสรูปภาพ (Primary Key)',
   `case_id` int(11) NOT NULL COMMENT 'เชื่อมโยงกับตาราง add_caselog (FK)',
   `file_name` varchar(255) NOT NULL COMMENT 'ชื่อไฟล์รูปภาพที่บันทึกใน Server',
   `uploaded_at` datetime DEFAULT current_timestamp() COMMENT 'เวลาที่อัปโหลด'
