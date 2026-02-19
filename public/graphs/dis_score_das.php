@@ -82,6 +82,26 @@ document.addEventListener("DOMContentLoaded", function() {
                         precision: 0 // บังคับให้แสดงเป็นจำนวนเต็ม ไม่แสดงทศนิยม
                     } 
                 }
+            },
+            onClick: (e, activeElements) => {
+                if (activeElements.length > 0) {
+                    const index = activeElements[0].index;
+                    const filters = ['score_normal', 'score_moderate', 'score_severe'];
+                    
+                    if (filters[index]) {
+                        // บันทึกค่าตัวกรองลง sessionStorage เพื่อให้หน้า main.php นำไปใช้
+                        sessionStorage.setItem('phq_filter', filters[index]);
+                        sessionStorage.setItem('phq_search', ''); // ล้างคำค้นหาเก่า
+                        sessionStorage.setItem('phq_page', '1'); // รีเซ็ตไปหน้าแรก
+                        
+                        // ตรวจสอบ path เพื่อ redirect ให้ถูกต้อง (เผื่อกรณีไฟล์นี้ถูก include หรือเปิดแยก)
+                        const target = window.location.pathname.includes('/graphs/') ? '../main.php' : 'main.php';
+                        window.location.href = target;
+                    }
+                }
+            },
+            onHover: (event, chartElement) => {
+                event.native.target.style.cursor = chartElement[0] ? 'pointer' : 'default';
             }
         },
         plugins: [{

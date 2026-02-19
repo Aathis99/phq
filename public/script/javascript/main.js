@@ -1,26 +1,38 @@
  document.addEventListener('DOMContentLoaded', function() {
-            let page = 1;
-            let isLoading = false;
-            let hasMore = true;
-            const container = document.getElementById('dataContainer');
+            let currentPage = 1;
             const tableBody = document.getElementById('tableBody');
             const loading = document.getElementById('loading');
-            const noMoreData = document.getElementById('noMoreData');
             const searchInput = document.getElementById('searchInput');
             const filterStatus = document.getElementById('filterStatus');
+            const paginationContainer = document.getElementById('pagination');
 
-            window.loadData = function(reset = false) {
-                if (reset) {
-                    page = 1;
-                    hasMore = true;
-                    tableBody.innerHTML = '';
-                    noMoreData.style.display = 'none';
+            // Restore state from sessionStorage (กู้คืนค่าที่บันทึกไว้)
+            if (sessionStorage.getItem('phq_search')) {
+                searchInput.value = sessionStorage.getItem('phq_search');
+            }
+            if (sessionStorage.getItem('phq_filter') && filterStatus) {
+                filterStatus.value = sessionStorage.getItem('phq_filter');
+            }
+            if (sessionStorage.getItem('phq_page')) {
+                currentPage = parseInt(sessionStorage.getItem('phq_page'));
+            }
+
+            window.loadData = function(page = 1) {
+                // ถ้า page เป็น true (จากปุ่ม reset) ให้เป็น 1
+                if (page === true) page = 1;
+                
+                currentPage = page;
+                
+                // Save state to sessionStorage (บันทึกค่าลงใน sessionStorage)
+                sessionStorage.setItem('phq_search', searchInput.value);
+                if (filterStatus) {
+                    sessionStorage.setItem('phq_filter', filterStatus.value);
                 }
+                sessionStorage.setItem('phq_page', currentPage);
 
-                if (isLoading || !hasMore) return;
-
-                isLoading = true;
                 loading.style.display = 'block';
+                tableBody.innerHTML = ''; // ล้างข้อมูลเก่า
+                if(paginationContainer) paginationContainer.innerHTML = '';
 
                 const search = searchInput.value;
                 const filter = filterStatus ? filterStatus.value : 'all';
@@ -31,8 +43,10 @@
                     .then(json => {
                         if (json.status === 'success') {
                             const data = json.data;
+                            const pagination = json.pagination;
+
                             if (data.length > 0) {
-                                data.forEach(row => {
+                                data.forEach((row) => {
                                     const tr = document.createElement('tr');
                                     
                                     // ตรวจสอบว่ามีรายงานการยุติหรือไม่ ถ้ามีให้เปลี่ยนสีพื้นหลัง
@@ -60,34 +74,49 @@
                                     `;
                                     tableBody.appendChild(tr);
                                 });
-                                page++;
+                                renderPagination(pagination);
                             } else {
-                                hasMore = false;
-                                noMoreData.style.display = 'block';
+                                tableBody.innerHTML = '<tr><td colspan="7" class="text-center p-4 text-muted">ไม่พบข้อมูล</td></tr>';
                             }
                         }
                     })
                     .catch(err => console.error(err))
                     .finally(() => {
-                        isLoading = false;
                         loading.style.display = 'none';
                     });
             };
 
-            // Initial load
-            loadData();
+            function renderPagination(pagination) {
+                const totalPages = pagination.total_pages;
+                const current = pagination.current_page;
+                let html = '';
 
-            // Infinite scroll
-            container.addEventListener('scroll', function() {
-                if (container.scrollTop + container.clientHeight >= container.scrollHeight - 50) {
-                    loadData();
-                }
-            });
+                // ปุ่มหน้าแรก และ ย้อนกลับ
+                html += `<li class="page-item ${current === 1 ? 'disabled' : ''}">
+                            <a class="page-link" href="#" onclick="loadData(1); return false;">หน้าแรก</a>
+                         </li>`;
+                html += `<li class="page-item ${current === 1 ? 'disabled' : ''}">
+                            <a class="page-link" href="#" onclick="loadData(${current - 1}); return false;">ย้อนกลับ</a>
+                         </li>`;
+
+                // แสดงเลขหน้าปัจจุบัน / ทั้งหมด
+                html += `<li class="page-item disabled"><span class="page-link">หน้า ${current} จาก ${totalPages}</span></li>`;
+
+                // ปุ่มถัดไป
+                html += `<li class="page-item ${current === totalPages ? 'disabled' : ''}">
+                            <a class="page-link" href="#" onclick="loadData(${current + 1}); return false;">ถัดไป</a>
+                         </li>`;
+
+                paginationContainer.innerHTML = html;
+            }
+
+            // Initial load
+            loadData(currentPage);
 
             // Enter key on search
             searchInput.addEventListener('keyup', function(event) {
                 if (event.key === 'Enter') {
-                    loadData(true);
+                    loadData(1);
                 }
             });
         });

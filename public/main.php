@@ -52,6 +52,19 @@ if (isset($_GET['action']) && $_GET['action'] === 'fetch_data') {
             $conditions[] = "(SELECT score FROM assessment WHERE pid = s.pid ORDER BY id DESC LIMIT 1) > 13";
         }
 
+        // นับจำนวนข้อมูลทั้งหมดเพื่อทำ Pagination
+        $countSql = "SELECT COUNT(*) as total FROM student_data s";
+        if (!empty($conditions)) {
+            $countSql .= " WHERE " . implode(' AND ', $conditions);
+        }
+        $countStmt = $db->prepare($countSql);
+        foreach ($params as $key => $val) {
+            $countStmt->bindValue($key, $val);
+        }
+        $countStmt->execute();
+        $totalRecords = $countStmt->fetch(PDO::FETCH_ASSOC)['total'];
+        $totalPages = ceil($totalRecords / $limit);
+
         if (!empty($conditions)) {
             $sql .= " WHERE " . implode(' AND ', $conditions);
         }
@@ -68,7 +81,15 @@ if (isset($_GET['action']) && $_GET['action'] === 'fetch_data') {
         $stmt->execute();
         $data = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-        echo json_encode(['status' => 'success', 'data' => $data]);
+        echo json_encode([
+            'status' => 'success', 
+            'data' => $data,
+            'pagination' => [
+                'current_page' => $page,
+                'total_pages' => $totalPages,
+                'total_records' => $totalRecords
+            ]
+        ]);
     } catch (Exception $e) {
         echo json_encode(['status' => 'error', 'message' => $e->getMessage()]);
     }
@@ -136,7 +157,7 @@ if (isset($_GET['action']) && $_GET['action'] === 'fetch_data') {
                 <a href="edit_students.php" class="btn btn-warning btn-sm">✏️ แก้ไขข้อมูลนักเรียน</a>
             </div>
             <div class="card-body p-0">
-                <div class="table-responsive" id="dataContainer" style="max-height: 65vh; overflow-y: auto;">
+                <div class="table-responsive" id="dataContainer">
                     <table class="table table-hover table-striped mb-0 align-middle">
                         <thead class="table-light">
                             <tr>
@@ -161,11 +182,13 @@ if (isset($_GET['action']) && $_GET['action'] === 'fetch_data') {
                         <p class="mt-2 text-muted">กำลังโหลดข้อมูล...</p>
                     </div>
 
-                    <div id="noMoreData" class="text-center p-4 text-muted" style="display: none;">
-                        -- แสดงข้อมูลครบถ้วนแล้ว --
-                    </div>
                 </div>
             </div>
+            <div class="card-footer bg-white py-3">
+                <nav aria-label="Page navigation">
+                    <ul class="pagination justify-content-center mb-0" id="pagination">
+                    </ul>
+                </nav>
         </div>
     </div>
 

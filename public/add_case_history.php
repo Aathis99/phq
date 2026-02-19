@@ -192,14 +192,25 @@ try {
                             <i class="bi bi-file-earmark-plus-fill fs-5"></i> เพิ่มรายงานใหม่
                         </button>
                         <ul class="dropdown-menu">
-                            <?php if ($isClosed): ?>
-                                <li><a class="dropdown-item text-secondary" href="#" onclick="showClosureAlert(); return false;"><i class="bi bi-file-earmark-plus-fill me-2"></i> เพิ่มรายงาน</a></li>
-                                <li><a class="dropdown-item text-secondary" href="#" onclick="showClosureAlert(); return false;"><i class="bi bi-send-fill me-2"></i> ส่งต่อกรณี</a></li>
-                                <li><a class="dropdown-item text-secondary" href="#" onclick="showClosureAlert(); return false;"><i class="bi bi-file-earmark-x-fill me-2"></i> ยุติการช่วยเหลือ</a></li>
-                            <?php else: ?>
+                            <!-- เพิ่มรายงาน: ทำได้เมื่อไม่มีการยุติ และ ไม่มีการส่งต่อ -->
+                            <?php if (!$hasClosure && !$hasForward): ?>
                                 <li><a class="dropdown-item text-success" href="add_case.php?pid=<?= htmlspecialchars($pid) ?>"><i class="bi bi-file-earmark-plus-fill me-2"></i> เพิ่มรายงาน</a></li>
+                            <?php else: ?>
+                                <li><a class="dropdown-item text-secondary" href="#" onclick="showClosureAlert(); return false;"><i class="bi bi-file-earmark-plus-fill me-2"></i> เพิ่มรายงาน</a></li>
+                            <?php endif; ?>
+
+                            <!-- ส่งต่อกรณี: ทำได้เมื่อไม่มีการยุติ และ ไม่มีการส่งต่อ -->
+                            <?php if (!$hasClosure && !$hasForward): ?>
                                 <li><a class="dropdown-item text-info" href="forward_case.php?pid=<?= htmlspecialchars($pid) ?>"><i class="bi bi-send-fill me-2"></i> ส่งต่อกรณี</a></li>
+                            <?php else: ?>
+                                <li><a class="dropdown-item text-secondary" href="#" onclick="showClosureAlert(); return false;"><i class="bi bi-send-fill me-2"></i> ส่งต่อกรณี</a></li>
+                            <?php endif; ?>
+
+                            <!-- ยุติการช่วยเหลือ: ทำได้เมื่อไม่มีการยุติ (แม้จะส่งต่อแล้วก็ยังมายุติได้) -->
+                            <?php if (!$hasClosure): ?>
                                 <li><a class="dropdown-item text-danger" href="closure_report.php?pid=<?= htmlspecialchars($pid) ?>"><i class="bi bi-file-earmark-x-fill me-2"></i> ยุติการช่วยเหลือ</a></li>
+                            <?php else: ?>
+                                <li><a class="dropdown-item text-secondary" href="#" onclick="showClosureAlert(); return false;"><i class="bi bi-file-earmark-x-fill me-2"></i> ยุติการช่วยเหลือ</a></li>
                             <?php endif; ?>
                         </ul>
                     </div>
