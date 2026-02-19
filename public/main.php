@@ -44,6 +44,12 @@ if (isset($_GET['action']) && $_GET['action'] === 'fetch_data') {
             $conditions[] = "(SELECT COUNT(*) FROM forward_case fc WHERE fc.pid = s.pid) > 0";
         } elseif ($filter === 'closure') {
             $conditions[] = "(SELECT COUNT(*) FROM closure_report cr WHERE cr.pid = s.pid) > 0";
+        } elseif ($filter === 'score_normal') {
+            $conditions[] = "(SELECT score FROM assessment WHERE pid = s.pid ORDER BY id DESC LIMIT 1) < 7";
+        } elseif ($filter === 'score_moderate') {
+            $conditions[] = "(SELECT score FROM assessment WHERE pid = s.pid ORDER BY id DESC LIMIT 1) BETWEEN 8 AND 13";
+        } elseif ($filter === 'score_severe') {
+            $conditions[] = "(SELECT score FROM assessment WHERE pid = s.pid ORDER BY id DESC LIMIT 1) > 13";
         }
 
         if (!empty($conditions)) {
@@ -111,6 +117,9 @@ if (isset($_GET['action']) && $_GET['action'] === 'fetch_data') {
                         <option value="all">ทั้งหมด</option>
                         <option value="forward">ส่งต่อกรณี</option>
                         <option value="closure">ยุติการช่วยเหลือ</option>
+                        <option value="score_normal">ภาวะซึมเศร้า: ปกติ (น้อยกว่า 7)</option>
+                        <option value="score_moderate">ภาวะซึมเศร้า: ปานกลาง (8-13)</option>
+                        <option value="score_severe">ภาวะซึมเศร้า: รุนแรง (มากกว่า 13)</option>
                     </select>
                     <input type="text" id="searchInput" class="form-control form-control-lg rounded-pill shadow-sm" placeholder="ระบุ ชื่อ, นามสกุล หรือ เลขบัตรประชาชน...">
                     <button class="btn btn-primary btn-lg rounded-pill px-4 shadow-sm bg-gradient" type="button" onclick="loadData(true)">ค้นหา</button>
