@@ -1,0 +1,4 @@
+backup/
+vendor/
+node_modules/
+*.sql.gz
