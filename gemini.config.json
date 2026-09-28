@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "mysql": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-mysql",
+        "mysql://std660104:pro660104@127.0.0.1:3306/std660104db"
+      ]
+    }
+  }
+}
