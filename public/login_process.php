@@ -25,6 +25,7 @@ $user = $stmt->fetch();
 if (!$user) {
     // ไม่พบ Username
     $_SESSION['message'] = '<p class="message error">ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง</p>';
+    header("Location: login.php");
     exit;
 }
 
@@ -52,4 +53,5 @@ if ($user['password'] === $passwordInput) {
 
 // รหัสผ่านไม่ถูกต้อง
 $_SESSION['message'] = '<p class="message error">ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง</p>';
+header("Location: login.php");
 exit;
