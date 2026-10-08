@@ -158,7 +158,7 @@ $db = null;
 
     <div class="main-card">
         <div class="d-flex justify-content-between align-items-center mb-4">
-            <h1>แบบประเมินภาวะซึมเศร้าในวัยรุ่น 555</h1>
+            <h1>แบบประเมินภาวะซึมเศร้าในวัยรุ่น</h1>
             <a href="graphs/dashboard.php" class="btn btn-primary">📊 คลิกเพื่อดูสถิติ</a>
         </div>
 
