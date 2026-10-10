@@ -287,15 +287,17 @@ try {
                                                                     elseif ($isForward) echo 'รายละเอียดการส่งต่อ';
                                                                     else echo 'รายละเอียดเคส';
                                                                 ?>
-                                                                วันที่ <?= date('d/m/Y', strtotime($log['created_at'])) // ใช้ created_at เพราะ forward ไม่มี report_date ?>
+                                                                <!-- แก้ไข: แสดงวันที่รายงาน (ถ้ามี) หรือวันที่บันทึก -->
+                                                                วันที่ <?= date('d/m/Y', strtotime($log['report_date'] ?? $log['created_at'])) ?>
                                                             </h5>
                                                             <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                                                         </div>
                                                         <div class="modal-body text-break" style="word-break: break-word; overflow-wrap: break-word; white-space: normal;">
                                                             <?php if ($isClosure): ?>
-                                                                <!-- ส่วนแสดงผลสำหรับ Closure Report -->
+                                                                <!-- ส่วนแสดงผลสำหรับ Closure Report - แก้ไข: แสดงข้อมูลให้ครบถ้วน -->
                                                                 <p><strong>ประเภทกรณี:</strong> <?= htmlspecialchars($log['case_type']) ?></p>
                                                                 <p><strong>ครั้งที่:</strong> <?= htmlspecialchars($log['case_count'] ?? '-') ?></p>
+                                                                <p><strong>ปีการศึกษา/เทอม:</strong> <?= htmlspecialchars($log['academic_year'] ?? '-') ?>/<?= htmlspecialchars($log['semester'] ?? '-') ?></p>
                                                                 <hr>
                                                                 <p><strong>รายละเอียดการติดตาม:</strong></p>
                                                                 <ul>
@@ -306,32 +308,41 @@ try {
                                                                 <hr>
                                                                 <p><strong>ข้อเสนอแนะ:</strong><br> <?= nl2br(htmlspecialchars($log['suggestion'] ?? '-')) ?></p>
                                                                 
-                                                                <!-- เชคหน้ารายงาน ยุติ -->
-                                                                <!-- <p><strong>การส่งต่อ:</strong>
-                                                                    <?= htmlspecialchars($log['referral_agency'] ?? '-') ?>
-                                                                    <?php if (!empty($log['referral_other'])) echo ' (' . htmlspecialchars($log['referral_other']) . ')'; ?>
-                                                                </p> -->
                                                             <?php elseif ($isForward): ?>
-                                                                <!-- ส่วนแสดงผลสำหรับ Forward Case -->
+                                                                <!-- ส่วนแสดงผลสำหรับ Forward Case - แก้ไข: แสดงข้อมูลให้ครบถ้วน -->
                                                                 <p><strong>หน่วยงานที่ส่งต่อ:</strong> <?= htmlspecialchars($log['referral_agency']) ?></p>
                                                                 <?php if (!empty($log['referral_other'])): ?>
                                                                     <p><strong>ระบุเพิ่มเติม:</strong> <?= htmlspecialchars($log['referral_other']) ?></p>
                                                                 <?php endif; ?>
+                                                                <p><strong>ปีการศึกษา/เทอม:</strong> <?= htmlspecialchars($log['academic_year'] ?? '-') ?>/<?= htmlspecialchars($log['semester'] ?? '-') ?></p>
                                                             <?php else: ?>
-                                                                <!-- ส่วนแสดงผลสำหรับ Case Log ปกติ -->
+                                                                <!-- ส่วนแสดงผลสำหรับ Case Log ปกติ - แก้ไข: เพิ่มฟิลด์ที่ขาดหายไปให้ครบตามฐานข้อมูล -->
                                                                 <p><strong>ประเภทกรณี:</strong> <?= htmlspecialchars($log['case_type']) ?></p>
+                                                                <p><strong>ปีการศึกษา/เทอม:</strong> <?= htmlspecialchars($log['academic_year'] ?? '-') ?>/<?= htmlspecialchars($log['semester'] ?? '-') ?></p>
                                                                 <p><strong>อาการนำ:</strong><br> <?= nl2br(htmlspecialchars($log['presenting_symptoms'])) ?></p>
                                                                 <hr>
-                                                                <p><strong>ประวัติส่วนตัว:</strong> <?= htmlspecialchars($log['history_personal'] ?? '-') ?></p>
-                                                                <p><strong>ข้อมูลจากครอบครัว:</strong> <?= htmlspecialchars($log['history_family'] ?? '-') ?></p>
-                                                                <p><strong>ข้อมูลจากโรงเรียน:</strong> <?= htmlspecialchars($log['history_school'] ?? '-') ?></p>
+                                                                <p><strong>ลักษณะทั่วไป/ประวัติ:</strong></p>
+                                                                <ul>
+                                                                    <li>ประวัติส่วนตัว: <?= htmlspecialchars($log['history_personal'] ?? '-') ?></li>
+                                                                    <li>นิสัยส่วนตัว: <?= htmlspecialchars($log['personal_habits'] ?? '-') ?></li>
+                                                                    <li>ข้อมูลจากครอบครัว: <?= htmlspecialchars($log['history_family'] ?? '-') ?></li>
+                                                                    <li>ข้อมูลจากโรงเรียน: <?= htmlspecialchars($log['history_school'] ?? '-') ?></li>
+                                                                    <li>ข้อมูลจากโรงพยาบาล: <?= htmlspecialchars($log['history_hospital'] ?? '-') ?></li>
+                                                                </ul>
+                                                                <hr>
+                                                                <p><strong>รายละเอียดเพิ่มเติม:</strong></p>
+                                                                <p><strong>การให้การปรึกษา:</strong> <?= nl2br(htmlspecialchars($log['consultation_details'] ?? '-')) ?></p>
+                                                                <p><strong>รายละเอียดเหตุการณ์:</strong> <?= nl2br(htmlspecialchars($log['event_details'] ?? '-')) ?></p>
                                                                 <hr>
                                                                 <p><strong>แนวทางช่วยเหลือ:</strong></p>
                                                                 <ul>
                                                                     <li>โรงเรียน: <?= htmlspecialchars($log['assist_school'] ?? '-') ?></li>
                                                                     <li>ผู้ปกครอง: <?= htmlspecialchars($log['assist_parent'] ?? '-') ?></li>
                                                                     <li>โรงพยาบาล: <?= htmlspecialchars($log['assist_hospital'] ?? '-') ?></li>
+                                                                    <li>หน่วยงานอื่น: <?= htmlspecialchars($log['assist_other'] ?? '-') ?></li>
                                                                 </ul>
+                                                                <p><strong>ข้อเสนอแนะ:</strong> <?= nl2br(htmlspecialchars($log['suggestions'] ?? '-')) ?></p>
+                                                                
                                                                 <?php if (!empty($caseImages[$log['id']])): ?>
                                                                     <div class="mt-3">
                                                                         <strong>รูปภาพประกอบ:</strong>
