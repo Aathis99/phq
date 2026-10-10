@@ -24,7 +24,7 @@ if (isset($_SESSION['phq_history_pid'])) {
 $db = Database::connect();
 
 // ดึงข้อมูลนักเรียน
-$sql_student = "SELECT s.*, p.prefix_name, sc.school_name, sx.sex_name 
+$sql_student = "SELECT s.*, p.prefix_name, sc.school_name, sx.sex_name id
                 FROM student_data s
                 LEFT JOIN prefix p ON s.prefix_id = p.prefix_id
                 LEFT JOIN school sc ON s.school_id = sc.school_id
